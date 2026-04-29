@@ -167,8 +167,9 @@ bindSlider('scene-y', '--scene-y-unit');
 const SHAPE_CLASSES = ['cube', 'tetrahedron', 'pyramid', 'dodecahedron', 'sphere', 'cylinder', 'cone'];
 
 const OBJECT_DEFAULTS = {
-    'object1': { '--x-pos': '1', '--y-pos': '0', '--z-pos': '1' },
-    'object2': { '--x-pos': '3', '--y-pos': '0', '--z-pos': '3' },
+    'object1': { '--x-pos': '2', '--y-pos': '0', '--z-pos': '2' },
+    'object2': { '--x-pos': '1', '--y-pos': '0', '--z-pos': '2' },
+    'object3': { '--x-pos': '3', '--y-pos': '0', '--z-pos': '2', '--object-z-unit': '90' },
 };
 
 let selectedObjectId = null;

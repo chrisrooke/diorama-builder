@@ -217,6 +217,7 @@ body {
         object-z round(var(--object-z-unit))
     ;
 
+    --shade-calc: calc(.5 / (sqrt(pow(.05,2) + pow(.5,2))));
 }
 
 @keyframes --_sx {0%{--_sx: 1}}
@@ -1044,7 +1045,10 @@ body:has(input#toggle-perspective:checked) .scene-container {
         display: none;
     }
 
-
+    #shade-layer .cube .face {
+        --shade-value: calc(1% * (37.5 + (25 * clamp(0, round(down, var(--dot-product) + 1, 1), 1)) + (12.5 * clamp(0, round(down, var(--dot-product) - var(--shade-calc) + 1, 1), 1))));
+        --shade-light: hsl(0 0 var(--shade-value));
+    }
 
 /* Tetrahedron */
 
@@ -1336,6 +1340,7 @@ body:has(input#toggle-perspective:checked) .scene-container {
 
     .sphere .curved-lighting {
         display: block;
+        overflow: hidden; /* to review */
     }
 
     .sphere .curved-lighting::before, .sphere .curved-lighting::after {
@@ -1589,3 +1594,10 @@ body:has(input#toggle-perspective:checked) .scene-container {
         --face-y-deg: var(--shadow-right-angle);
     }
 
+    .cut-through {
+    width: var(--grid-size);
+    height: var(--grid-size);
+    background-color: blue;
+    opacity: .25;
+    /* transform: rotateX(90deg) translateZ(calc(var(--object-size) * -2)); */
+}
