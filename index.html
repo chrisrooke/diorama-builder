@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>3D Objects</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body id="body">
+    <div class="scene-container" id="environment-layer">
+        <figure class="ground"></figure>
+        <figure class="wall-x"></figure>
+        <figure class="wall-y"></figure>
+    </div>
+    <div class="scene-container" id="shadow-layer">
+        <figure class="scene">
+            <figure class="object cube" data-object="object1">
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+            </figure>
+            <figure class="object cube" data-object="object2">
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+            </figure>
+        </figure>
+    </div>
+    <div class="scene-container" id="object-layer">
+        <figure class="scene">
+            <figure class="object cube" data-object="object1">
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+            </figure>
+            <figure class="object cube" data-object="object2">
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+            </figure>
+            <figure id="light"></figure>
+        </figure>
+    </div>
+    <div class="scene-container" id="shade-layer">
+        <figure class="scene">
+            <figure class="object cube" data-object="object1">
+                <div class="face">
+                    <div class="curved-lighting">
+                        <div class="top-bottom"></div>
+                        <div class="highlight"></div>
+                    </div>
+                </div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+            </figure>
+            <figure class="object cube" data-object="object2">
+                <div class="face">
+                    <div class="curved-lighting">
+                        <div class="top-bottom"></div>
+                        <div class="highlight"></div>
+                    </div>
+                </div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+                <div class="face"></div>
+            </figure>
+        </figure>
+    </div>
+
+    <div id="control-panel">
+        <h2>World Controls</h3>
+        <div role="tablist" aria-labelledby="tablist-1" class="automatic">
+            <button id="tab_object" type="button" role="tab" aria-selected="false" aria-controls="panel_object" tabindex="-1">
+            Object Controls
+            </button>
+            <button id="tab_scene" type="button" role="tab" aria-selected="false" aria-controls="panel_scene" tabindex="-1">
+            Scene Controls
+            </button>
+        </div>
+
+        <div id="panel_object" role="tabpanel" tabindex="0" aria-labelledby="tab_object" class="is-hidden">
+            <div id="current-state">
+                <p id="status" role="status">No object selected. Select or add an object to access object controls.</p>
+            </div>
+            <div id="panel_object-unselected">
+                <button id="button_new-object">New Object</button>
+                <fieldset>
+                    <legend>Select an object:</legend>
+                        <label for="x-select">X</label>
+                        <!-- <input type="range" id="x-select" class="slider" min="0" max="4" step="1" value="2"> -->
+                        <div class="spinner-field">
+                            <div class="spinner">
+                                <button type="button" title="Reduce X coordinate" aria-controls="x-select" data-spinbutton-operation="decrement" tabindex="-1" aria-disabled="true">
+                                    <span aria-hidden="true">−</span>
+                                </button>
+                                <input id="x-select" aria-errormessage="error-x-select" aria-describedby="help-x-select" role="spinbutton" type="text" size="4" inputmode="numeric" autocomplete="off" spellcheck="false" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" value="1">
+                                <button type="button" title="Increase X coordinate" aria-controls="x-select" data-spinbutton-operation="increment" tabindex="-1">
+                                    <span aria-hidden="true">+</span>
+                                </button>
+                            </div>
+                            <small id="error-x-select" class="is-hidden">Must be between 1 and 5</small>
+                            <small id="help-x-select" class="visually-hidden">1 to 5</small>
+                            <output for="x-select" data-self-destruct="2000" class="visually-hidden"></output>
+                        </div>
+                        <label for="y-select">Y</label>
+                        <div class="spinner-field">
+                            <div class="spinner">
+                                <button type="button" title="Reduce Y coordinate" aria-controls="y-select" data-spinbutton-operation="decrement" tabindex="-1" aria-disabled="true">
+                                    <span aria-hidden="true">−</span>
+                                </button>
+                                <input id="y-select" aria-errormessage="error-y-select" aria-describedby="help-y-select" role="spinbutton" type="text" size="4" inputmode="numeric" autocomplete="off" spellcheck="false" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" value="1">
+                                <button type="button" title="Increase Y coordinate" aria-controls="y-select" data-spinbutton-operation="increment" tabindex="-1">
+                                    <span aria-hidden="true">+</span>
+                                </button>
+                            </div>
+                            <small id="error-y-select" class="is-hidden">Must be between 1 and 5</small>
+                            <small id="help-y-select" class="visually-hidden">1 to 5</small>
+                            <output for="y-select" data-self-destruct="2000" class="visually-hidden"></output>
+                        </div>
+                        <label for="z-select">Z</label>
+                        <div class="spinner-field">
+                            <div class="spinner">
+                                <button type="button" title="Reduce Z coordinate" aria-controls="z-select" data-spinbutton-operation="decrement" tabindex="-1" aria-disabled="true">
+                                    <span aria-hidden="true">−</span>
+                                </button>
+                                <input id="z-select" aria-errormessage="error-z-select" aria-describedby="help-z-select" role="spinbutton" type="text" size="4" inputmode="numeric" autocomplete="off" spellcheck="false" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" value="1">
+                                <button type="button" title="Increase Z coordinate" aria-controls="z-select" data-spinbutton-operation="increment" tabindex="-1">
+                                    <span aria-hidden="true">+</span>
+                                </button>
+                            </div>
+                            <small id="error-z-select" class="is-hidden">Must be between 1 and 5</small>
+                            <small id="help-z-select" class="visually-hidden">1 to 5</small>
+                            <output for="z-select" data-self-destruct="2000" class="visually-hidden"></output>
+                        </div>
+
+                    <input type="submit" value="Submit">
+                </fieldset>
+
+            </div>
+            <div id="panel_object-selected" class="is-hidden">
+                <div role="tablist" aria-labelledby="tab_object" class="automatic">
+                    <button id="tab_object-position" type="button" role="tab" aria-selected="false" aria-controls="panel_object-position" tabindex="-1">
+                        Object Position
+                    </button>
+                    <button id="tab_object-rotation" type="button" role="tab" aria-selected="false" aria-controls="panel_object-rotation" tabindex="-1">
+                        Object Rotation
+                    </button>
+                    <button id="tab_object-type" type="button" role="tab" aria-selected="false" aria-controls="panel_object-type" tabindex="-1">
+                        Object Type
+                    </button>
+                    <button id="tab_object-options" type="button" role="tab" aria-selected="false" aria-controls="panel_object-options" tabindex="-1">
+                        Object Options
+                    </button>
+                </div>
+
+                <div id="panel_object-position" role="tabpanel" tabindex="0" aria-labelledby="tab_object-position" class="is-hidden">
+                    <menu>
+                        <li>
+                            <label for="x-move">X</label>
+                            <!-- <input type="range" id="x-move" class="slider" min="0" max="4" step="1" value="2"> -->
+                            <div class="spinner-field">
+                                <div class="spinner">
+                                    <button type="button" title="Reduce X coordinate" aria-controls="x-move" data-spinbutton-operation="decrement" tabindex="-1" aria-disabled="true">
+                                        <span aria-hidden="true">−</span>
+                                    </button>
+                                    <input id="x-move" aria-errormessage="error-x-move" aria-describedby="help-x-move" role="spinbutton" type="text" size="4" inputmode="numeric" autocomplete="off" spellcheck="false" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" value="1">
+                                    <button type="button" title="Increase X coordinate" aria-controls="x-move" data-spinbutton-operation="increment" tabindex="-1">
+                                        <span aria-hidden="true">+</span>
+                                    </button>
+                                </div>
+                                <small id="error-x-move" class="is-hidden">Must be between 1 and 5</small>
+                                <small id="help-x-move" class="visually-hidden">1 to 5</small>
+                                <output for="x-move" data-self-destruct="2000" class="visually-hidden"></output>
+                            </div>
+                        </li>
+                        <li>
+                            <label for="y-move">Y</label>
+                            <div class="spinner-field">
+                                <div class="spinner">
+                                    <button type="button" title="Reduce Y coordinate" aria-controls="y-move" data-spinbutton-operation="decrement" tabindex="-1" aria-disabled="true">
+                                        <span aria-hidden="true">−</span>
+                                    </button>
+                                    <input id="y-move" aria-errormessage="error-y-move" aria-describedby="help-y-move" role="spinbutton" type="text" size="4" inputmode="numeric" autocomplete="off" spellcheck="false" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" value="1">
+                                    <button type="button" title="Increase Y coordinate" aria-controls="y-move" data-spinbutton-operation="increment" tabindex="-1">
+                                        <span aria-hidden="true">+</span>
+                                    </button>
+                                </div>
+                                <small id="error-y-move" class="is-hidden">Must be between 1 and 5</small>
+                                <small id="help-y-move" class="visually-hidden">1 to 5</small>
+                                <output for="y-move" data-self-destruct="2000" class="visually-hidden"></output>
+                            </div>
+                        </li>
+                        <li>
+                            <label for="z-move">Z</label>
+                            <div class="spinner-field">
+                                <div class="spinner">
+                                    <button type="button" title="Reduce Z coordinate" aria-controls="z-move" data-spinbutton-operation="decrement" tabindex="-1" aria-disabled="true">
+                                        <span aria-hidden="true">−</span>
+                                    </button>
+                                    <input id="z-move" aria-errormessage="error-z-move" aria-describedby="help-z-move" role="spinbutton" type="text" size="4" inputmode="numeric" autocomplete="off" spellcheck="false" aria-valuemin="1" aria-valuemax="5" aria-valuenow="1" value="1">
+                                    <button type="button" title="Increase Z coordinate" aria-controls="z-move" data-spinbutton-operation="increment" tabindex="-1">
+                                        <span aria-hidden="true">+</span>
+                                    </button>
+                                </div>
+                                <small id="error-z-move" class="is-hidden">Must be between 1 and 5</small>
+                                <small id="help-z-move" class="visually-hidden">1 to 5</small>
+                                <output for="z-move" data-self-destruct="2000" class="visually-hidden"></output>
+                            </div>
+                        </li>
+                    </menu>
+                </div>
+
+                <div id="panel_object-rotation" role="tabpanel" tabindex="0" aria-labelledby="tab_object-rotation" class="is-hidden">
+                    <menu>
+                        <li>
+                            <label for="object-x">X</label>
+                            <input type="range" id="object-x" class="slider" min="0" max="360" value="0">      
+                            <span class="slider-value" id="object-x-value"></span>
+                        </li>
+                        <li>
+                            <label for="object-y">Y</label>
+                            <input type="range" id="object-y" class="slider" min="0" max="360" value="0">      
+                            <span class="slider-value" id="object-y-value"></span>
+                        </li>
+                        <li>
+                            <label for="object-z">Z</label>
+                            <input type="range" id="object-z" class="slider" min="0" max="360" value="0">      
+                            <span class="slider-value" id="object-z-value"></span>
+                        </li>
+                    </menu>
+                </div>
+
+                <div id="panel_object-type" role="tabpanel" tabindex="0" aria-labelledby="tab_object-type" class="is-hidden">
+                    <div class="shape-options">
+                        <input id="shape_cube" name="shape_select" type="radio" checked />
+                        <label for="shape_cube">Cube</label>
+                        <input id="shape_tetrahedron" name="shape_select" type="radio" />
+                        <label for="shape_tetrahedron">Tetrahedron</label>
+                        <input id="shape_pyramid" name="shape_select" type="radio" />
+                        <label for="shape_pyramid">Pyramid</label>
+                        <input id="shape_dodecahedron" name="shape_select" type="radio" />
+                        <label for="shape_dodecahedron">Dodecahedron</label>
+                        <input id="shape_sphere" name="shape_select" type="radio" />
+                        <label for="shape_sphere">Sphere</label>
+                        <input id="shape_cylinder" name="shape_select" type="radio" />
+                        <label for="shape_cylinder">Cylinder</label>
+                        <input id="shape_cone" name="shape_select" type="radio" />
+                        <label for="shape_cone">Cone</label>
+                    </div>
+                </div>
+
+                <div id="panel_object-options" role="tabpanel" tabindex="0" aria-labelledby="tab_object-options" class="is-hidden">
+                    <menu>
+                        <li>
+                            <div class="label-desc">
+                                <label for="hide-front">See inside object</label>
+                                <small>No effect on curved objects</small>
+                            </div>
+                            <input id="hide-front" type="checkbox" switch />
+                        </li>
+                        <li>
+                            <label for="hue">Color</label>
+                            <input type="range" id="hue" class="slider" min="0" max="360" value="0">
+                        </li>
+                    </menu>
+                </div>
+            </div>
+        </div>
+
+        <div id="panel_scene" role="tabpanel" tabindex="0" aria-labelledby="tab_scene" class="is-hidden">
+
+            <div role="tablist" aria-labelledby="tab_scene" class="automatic">
+                <button id="tab_scene-rotation" type="button" role="tab" aria-selected="false" aria-controls="panel_scene-rotation" tabindex="-1">
+                    Scene Rotation
+                </button>
+                <button id="tab_light" type="button" role="tab" aria-selected="false" aria-controls="panel_light" tabindex="-1">
+                    Light Position
+                </button>
+            </div>
+
+            <div id="panel_scene-rotation" role="tabpanel" tabindex="0" aria-labelledby="tab_scene-rotation" class="is-hidden">
+                <menu>
+                    <li>
+                        <label for="scene-x">Vertical</label>
+                        <input type="range" id="scene-x" class="slider" min="-90" max="0" value="-30">
+                        <span class="slider-value" id="scene-x-value"></span>      
+                    </li>
+                    <li>
+                        <label for="scene-y">Horizontal</label>
+                        <input type="range" id="scene-y" class="slider" min="-180" max="180" value="45">      
+                        <span class="slider-value" id="scene-y-value"></span>
+                    </li>
+                    <li>
+                        <label for="toggle-perspective">Perspective on/off</label>
+                        <input id="toggle-perspective" type="checkbox" switch checked/>
+                    </li>
+                </menu>
+            </div>
+
+            <div id="panel_light" role="tabpanel" tabindex="0" aria-labelledby="tab_light" class="is-hidden">
+                <menu>
+                    <li>
+                        <label for="light-x">Vertical</label>
+                        <input type="range" id="light-x" class="slider" min="0" max="180" value="60">      
+                        <span class="slider-value" id="light-x-value"></span>
+                    </li>
+                    <li>
+                        <label for="light-y">Horizontal</label>
+                        <input type="range" id="light-y" class="slider" min="-180" max="180" value="0">      
+                        <span class="slider-value" id="light-y-value"></span>
+                    </li>
+                </menu>
+            </div>
+
+        </div>
+    </div>
+    <script src="tabs.js"></script>
+</body>
+</html>
