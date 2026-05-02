@@ -899,8 +899,10 @@ body:has(input#toggle-perspective:checked) .scene-container {
     counter-reset: 
         dp-rounded calc(var(--dot-product-light-scene-face-object-scene-x-rounded) * 10000); */
 
+    --shade-value: calc(37.5 + (25 * clamp(0, round(down, var(--dot-product) + 1, 1), 1)) + (12.5 * clamp(0, round(down, var(--dot-product) - var(--shade-calc) + 1, 1), 1)));
+    --shade-light: hsl(0 0 calc(1% * var(--shade-value)));
 
-    --shade-light: hsl(0 0 calc(50% + 25% * var(--dot-product)));
+    /* --shade-light: hsl(0 0 calc(50% + 25% * var(--dot-product))); */
     --shade-dark: hsl(0 0 calc(50% - 25% * var(--dot-product)));
     --shade-light-transform: rotateY(0deg);
     --shade-dark-transform: rotateY(180deg);
@@ -1045,10 +1047,7 @@ body:has(input#toggle-perspective:checked) .scene-container {
         display: none;
     }
 
-    #shade-layer .cube .face {
-        --shade-value: calc(1% * (37.5 + (25 * clamp(0, round(down, var(--dot-product) + 1, 1), 1)) + (12.5 * clamp(0, round(down, var(--dot-product) - var(--shade-calc) + 1, 1), 1))));
-        --shade-light: hsl(0 0 var(--shade-value));
-    }
+
 
 /* Tetrahedron */
 
@@ -1457,7 +1456,11 @@ body:has(input#toggle-perspective:checked) .scene-container {
         );
 
         --lightness-bright: calc(50% + (25% - 12.5% * var(--lighting-multiplier-bright)) * var(--bright-dot-product));
+        --lightness-bright: calc(37.5% + (25% * clamp(0, round(down, var(--bright-dot-product) + 1, 1), 1)));
+        /* --lightness-bright: 62.5%; */
         --lightness-dark: calc(50% + (25% - 12.5% * var(--lighting-multiplier-dark)) * var(--dark-dot-product));
+        --lightness-dark: calc(37.5% + (25% * clamp(0, round(down, var(--dark-dot-product) + 1, 1), 1)));
+        /* --lightness-dark: 37.5%; */
         background: linear-gradient(calc(90deg + var(--background-rotation)), hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
     } 
 
@@ -1492,11 +1495,13 @@ body:has(input#toggle-perspective:checked) .scene-container {
 
     .cylinder .highlight, .cone .highlight {
         --highlight-angle: calc(90deg - var(--cone-angle));
+        --highlight-scale: clamp(0, calc((var(--bright-dot-product) - var(--shade-calc))/(1 - var(--shade-calc))), 1);
         --lightness-highlight: calc(50% + 25% * var(--bright-dot-product));
+        --lightness-highlight: 75%;
         background-color: hsl(0 0 var(--lightness-highlight));
         left: calc(50% - var(--object-size) * .05);
         width: calc(var(--object-size) * .1);
-        transform: translateZ(var(--object-size-half)) rotateX(var(--highlight-angle));
+        transform: translateZ(var(--object-size-half)) rotateX(var(--highlight-angle)) scaleX(var(--highlight-scale));
     }
 
     #shadow-layer .cylinder .face:first-child, #shadow-layer .cone .face:first-child {
@@ -1599,5 +1604,5 @@ body:has(input#toggle-perspective:checked) .scene-container {
     height: var(--grid-size);
     background-color: blue;
     opacity: .25;
-    /* transform: rotateX(90deg) translateZ(calc(var(--object-size) * -2)); */
+    transform: rotateX(90deg) translateZ(calc(var(--object-size) * -2));
 }
