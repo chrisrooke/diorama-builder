@@ -1608,6 +1608,13 @@ body:has(input#toggle-perspective:checked) .scene-container {
     }
 
     .hemisphere .face:first-child {
+        height: 50%;
+        transform-origin: 50% 100%;
+        border-radius: var(--object-size-half) var(--object-size-half) 0 0;
+        overflow: hidden;
+    }
+
+    #object-layer .hemisphere .face:first-child {
         --face-y-deg: calc(atan2(var(--px), var(--pz)));
         --face-x-deg: asin(var(--object-scene-normal-32));
         --face-translate: 0;
@@ -1623,8 +1630,8 @@ body:has(input#toggle-perspective:checked) .scene-container {
     }
 
     #object-layer .hemisphere .face:first-child::before, #object-layer .hemisphere .face:first-child::after {
-        background-color: unset;
-        background-image: linear-gradient(to top, transparent 0% 50%, oklch(0.75 0.1639 var(--hue)) 50% 100%);
+        /* background-image: linear-gradient(to top, transparent 0% 50%, oklch(0.75 0.1639 var(--hue)) 50% 100%); */
+        border-radius: var(--object-size-half) var(--object-size-half) 0 0;
     }
 
 
@@ -1633,18 +1640,37 @@ body:has(input#toggle-perspective:checked) .scene-container {
     #shadow-layer .hemisphere .face:first-child {
         --face-y-deg: calc(atan2(var(--light-px), var(--light-pz)));
         --face-x-deg: asin(var(--light-cylinder-normal-b));
-        background-color: unset;
-        background-image: linear-gradient(to top, transparent 0% 50%, hsl(0 0 62.5%) 50% 100%);
+        --face-translate: 0; 
     }
 
     
     /* Shade */
 
+    #shade-layer .hemisphere {
+        transform: translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+      translateY(calc(var(--grid-size) / 2 + var(--elevation)))
+      translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+      rotateY(calc(var(--scene-y) * -1)) 
+      rotateX(calc(var(--scene-x) * -1));
+    }
+    
     #shade-layer .hemisphere .face:nth-child(2)::before {
         display: none;
     }
+    
+    #shade-layer .face:first-child::before, #shade-layer .face:first-child::after {
+        display: none;
+    }
 
-    #shade-layer .hemisphere .face:first-child {
+    .hemisphere .curved-lighting {
+        display: block;
+    }
+
+    #shade-layer .curved-lighting::before, #shade-layer .curved-lighting::after {
+        display: none;
+    }
+
+    #shade-layer .hemisphere .top-bottom {
         display: none;
     }
 
@@ -1674,16 +1700,12 @@ body:has(input#toggle-perspective:checked) .scene-container {
         --before-transform: unset;
     } */
 
-    /* .hemisphere .curved-lighting {
-        display: block;
-    } */
-
     /* .hemisphere .curved-lighting::before, .hemisphere .curved-lighting::after {
         border-radius: var(--border-radius);
     }  */
 
-    /* .hemisphere .highlight {
-        top: calc(50% - var(--object-size) * .05);
+    .hemisphere .highlight {
+        top: calc(100% - var(--object-size) * .05);
         left: calc(50% - var(--object-size) * .05);
         width: calc(var(--object-size) * .1);
         height: calc(var(--object-size) * .1);
@@ -1696,7 +1718,7 @@ body:has(input#toggle-perspective:checked) .scene-container {
             rotateY(0deg)
             translateZ(var(--lighting-translate))             
         ;
-    } */
+    }
 
 
     /* #shadow-layer .object.hemisphere {
