@@ -1592,46 +1592,49 @@ body:has(input#toggle-perspective:checked) .scene-container {
 
 
 
-
 /* Hemisphere */
 
     .object.hemisphere {
         --elevation-surface: var(--object-size-half-neg);
     }
-  
+
     .hemisphere .face {
         --border-radius: 50%;
     } 
-
-    #object-layer .hemisphere .face::before {
-        border: 0;
-    }
 
     .hemisphere .face:first-child {
         height: 50%;
         transform-origin: 50% 100%;
         border-radius: var(--object-size-half) var(--object-size-half) 0 0;
-        overflow: hidden;
-    }
-
-    #object-layer .hemisphere .face:first-child {
         --face-y-deg: calc(atan2(var(--px), var(--pz)));
         --face-x-deg: asin(var(--object-scene-normal-32));
         --face-translate: 0;
     }
 
+    .hemisphere .face:first-child::before {
+        border-radius: var(--object-size-half) var(--object-size-half) 0 0;
+    }
+
+    #object-layer .hemisphere .face:first-child::before {
+        border-bottom: 0;
+    }
+
+    .hemisphere .face:first-child::after {
+        content: unset;
+    }
+
     .hemisphere .face:nth-child(2) {
-        --face-x-deg: 90deg;
+        --face-x-deg: -90deg;
         --face-translate: 0;
+    }
+
+    #object-layer .hemisphere .face:nth-child(2)::after {
+        background-color: oklch(0.75 0.1639 var(--hue));
+        border: 1px solid oklch(0.6875 0.1639 var(--hue));
     }
 
     .hemisphere .face:nth-child(n + 3) {
         display: none;
-    }
-
-    #object-layer .hemisphere .face:first-child::before, #object-layer .hemisphere .face:first-child::after {
-        /* background-image: linear-gradient(to top, transparent 0% 50%, oklch(0.75 0.1639 var(--hue)) 50% 100%); */
-        border-radius: var(--object-size-half) var(--object-size-half) 0 0;
     }
 
 
@@ -1639,100 +1642,107 @@ body:has(input#toggle-perspective:checked) .scene-container {
 
     #shadow-layer .hemisphere .face:first-child {
         --face-y-deg: calc(atan2(var(--light-px), var(--light-pz)));
-        --face-x-deg: asin(var(--light-cylinder-normal-b));
-        --face-translate: 0; 
+        --face-x-deg: asin(var(--light-cylinder-normal-b)); 
     }
 
-    
+
     /* Shade */
 
-    #shade-layer .hemisphere {
-        transform: translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
-      translateY(calc(var(--grid-size) / 2 + var(--elevation)))
-      translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
-      rotateY(calc(var(--scene-y) * -1)) 
-      rotateX(calc(var(--scene-x) * -1));
-    }
-    
-    #shade-layer .hemisphere .face:nth-child(2)::before {
-        display: none;
-    }
-    
-    #shade-layer .face:first-child::before, #shade-layer .face:first-child::after {
-        display: none;
-    }
-
-    .hemisphere .curved-lighting {
-        display: block;
-    }
-
-    #shade-layer .curved-lighting::before, #shade-layer .curved-lighting::after {
-        display: none;
-    }
-
-    #shade-layer .hemisphere .top-bottom {
-        display: none;
-    }
-
-    /* #shade-layer .hemisphere .face {
+    #shade-layer .hemisphere .face {
         --lighting-translate: 0;
         --lighting-bg-angle: calc(90deg + (atan2(var(--light-adjusted-normal-b), var(--light-adjusted-normal-a))));
         --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
         --shade-light: hsl(0 0 62.5%);
         --shade-dark: hsl(0 0 37.5%);
-        --shade-light-transform: 
-            rotateX(var(--scene-x))
-            rotateY(var(--scene-y)) 
-            rotateY(var(--light-y)) 
-            rotateX(var(--light-x))   
-            rotateY(0deg)
-            translateZ(var(--lighting-translate))             
-        ;
-        --shade-dark-transform: 
-            rotateX(var(--scene-x))
-            rotateY(var(--scene-y)) 
-            rotateY(var(--light-y)) 
-            rotateX(var(--light-x))   
-            rotateY(180deg)
-            translateZ(var(--lighting-translate))             
-        ;        
+        --shade-light-transform: rotateX(var(--scene-x)) rotateY(var(--scene-y)) rotateY(var(--light-y)) rotateX(var(--light-x)) rotateY(0deg) translateZ(var(--lighting-translate));
+        --shade-dark-transform: rotateX(var(--scene-x)) rotateY(var(--scene-y)) rotateY(var(--light-y)) rotateX(var(--light-x)) rotateY(180deg) translateZ(var(--lighting-translate));
         --after-display: none;
         --before-transform: unset;
-    } */
+    }
 
-    /* .hemisphere .curved-lighting::before, .hemisphere .curved-lighting::after {
-        border-radius: var(--border-radius);
-    }  */
+    #shade-layer .hemisphere .face::after {
+        display: none;
+    }
+
+    #shade-layer .hemisphere .face:first-child {
+        --bottom-y: calc(50% + 50% * max(.00000001, var(--object-scene-normal-32)));
+        --bottom-ry: calc(50% * max(.00000001, var(--object-scene-normal-32)));
+        --clip-path: shape(
+            from 50% 0%,
+            arc to 100% 50% of 50% 50% cw small,
+            arc to 50% var(--bottom-y) of 50% var(--bottom-ry) cw small,
+            arc to 0% 50% of 50% var(--bottom-ry) cw small,
+            arc to 50% 0% of 50% 50% cw small,
+            close
+        );
+        clip-path: var(--clip-path);
+        height: 100%;
+        transform-origin: unset;
+    }
+
+    #shade-layer .hemisphere .face:first-child::before {
+        transform: rotateX(calc(var(--face-x-deg) * -1))
+          rotateY(calc(var(--face-y-deg) * -1))
+          rotateZ(calc(var(--object-z) * -1))
+          rotateY(calc(var(--object-y) * -1))
+          rotateX(calc(var(--object-x) * -1))
+          rotateY(calc(var(--scene-y) * -1))
+          rotateX(calc(var(--scene-x) * -1));
+        clip-path: unset;
+    }
+
+    #shade-layer .hemisphere .face:nth-child(2)::before {
+        --before-background: hsl(0 0 calc(50% + 25% * var(--dot-product)));
+    }
+    .hemisphere .curved-lighting {
+        display: block;
+    }
+
+    .hemisphere .curved-lighting::before {
+        clip-path: unset;     
+        transform:  
+          rotateX(calc(var(--face-x-deg) * -1))
+          rotateY(calc(var(--face-y-deg) * -1))
+          rotateZ(calc(var(--object-z) * -1))
+          rotateY(calc(var(--object-y) * -1))
+          rotateX(calc(var(--object-x) * -1))                                                   
+          rotateY(var(--light-y))         
+          rotateX(var(--light-x))                                                               
+          translateZ(var(--lighting-translate));                                                        ;
+        ;
+    }
+    .hemisphere .curved-lighting::after {
+        clip-path: unset;     
+        transform:  
+          rotateX(calc(var(--face-x-deg) * -1))
+          rotateY(calc(var(--face-y-deg) * -1))
+          rotateZ(calc(var(--object-z) * -1))
+          rotateY(calc(var(--object-y) * -1))
+          rotateX(calc(var(--object-x) * -1))                                                   
+          rotateY(var(--light-y))         
+          rotateX(var(--light-x))    
+            rotateY(180deg)                                                           
+          translateZ(var(--lighting-translate));                                                        ;
+        ;
+    }
+
 
     .hemisphere .highlight {
-        top: calc(100% - var(--object-size) * .05);
+        top: calc(50% - var(--object-size) * .05);
         left: calc(50% - var(--object-size) * .05);
         width: calc(var(--object-size) * .1);
         height: calc(var(--object-size) * .1);
         background-color: hsl(0 0 75%);
         --lighting-translate: var(--object-size-half);
-        transform:  rotateX(var(--scene-x))
-            rotateY(var(--scene-y)) 
-            rotateY(var(--light-y)) 
-            rotateX(var(--light-x))   
-            rotateY(0deg)
-            translateZ(var(--lighting-translate))             
+        transform:  
+          rotateX(calc(var(--face-x-deg) * -1))
+          rotateY(calc(var(--face-y-deg) * -1))
+          rotateZ(calc(var(--object-z) * -1))
+          rotateY(calc(var(--object-y) * -1))
+          rotateX(calc(var(--object-x) * -1))                                                   
+          rotateY(var(--light-y))         
+          rotateX(var(--light-x))                                                               
+          translateZ(var(--lighting-translate));                                                        ;
         ;
+        clip-path: unset;
     }
-
-
-    /* #shadow-layer .object.hemisphere {
-        transform: 
-            translateY(calc(((var(--elevation) / sin(var(--light-x))) * cos(var(--light-x)) * 1)))
-            scaleY(calc(1 / sin(var(--light-x))))   
-            rotateX(calc(var(--light-x) * -1)) 
-            rotateY(calc(var(--light-y) * -1))
-            translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
-            translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
-        ;
-    } */
-
-    /* #shadow-layer .hemisphere .face {
-        transform: rotateY(var(--light-y)) rotateX(var(--light-x));
-    }  */
-
