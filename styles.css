@@ -1617,7 +1617,11 @@ body:has(input#natural-light:checked) #shade-layer .face {
 /* Hemisphere */
 
     .object.hemisphere {
-        --elevation-surface: var(--object-size-half-neg);
+        --elevation-surface: calc(
+            -1 * var(--object-size-half) * sqrt(
+                1 - pow(max(0, var(--object-normal-22)), 2)
+            )
+        );
         /* transform:
         translate3d(
             calc(var(--scene-normal-31) * var(--depth) * var(--magnitude)),
@@ -1727,7 +1731,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
     }
 
     #shade-layer .hemisphere .face:nth-child(2)::before {
-        --before-background: hsl(0 0 calc(50% + 25% * var(--dot-product)));
+        --before-background: hsl(0 0 calc(1% * var(--shade-value)));
     }
 
     .hemisphere .curved-lighting {

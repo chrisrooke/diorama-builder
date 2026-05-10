@@ -172,10 +172,7 @@ const OBJECT_DEFAULTS = {
     // 'object3': { '--x-pos': '2', '--y-pos': '0', '--z-pos': '2' },
     // 'object4': { '--x-pos': '4', '--y-pos': '0', '--z-pos': '2' },
     // 'object5': { '--x-pos': '0', '--y-pos': '0', '--z-pos': '2' },
-    'object1': { '--x-pos': '2', '--y-pos': '1', '--z-pos': '1.5', '--object-x-unit': '90' },
-    'object2': { '--x-pos': '2', '--y-pos': '1', '--z-pos': '2', '--object-x-unit': '90' },
-    'object3': { '--x-pos': '2', '--y-pos': '1', '--z-pos': '2.5', '--object-x-unit': '270' },
-
+    'object1': { '--x-pos': '2', '--y-pos': '0', '--z-pos': '2' },
 };
 
 let selectedObjectId = null;
