@@ -590,7 +590,10 @@ input[type="range"]::-moz-range-thumb {
 body:has(input#toggle-perspective:checked) .scene-container {
     perspective: 1000px;
 }
-
+body:has(input#natural-light:checked) #shade-layer .face {
+    --shade-light: hsl(0 0 calc(50% + 25% * var(--dot-product)));
+    --shade-dark: hsl(0 0 calc(50% - 25% * var(--dot-product)));
+}
 
 
 
@@ -773,13 +776,25 @@ body:has(input#toggle-perspective:checked) .scene-container {
     --elevation-manual: 0px;
     --elevation: calc(var(--elevation-surface) - var(--y-pos) * var(--object-size));
 
+  --depth: calc(
+     var(--x-pos) * var(--scene-normal-31)                                                                                                                                                 
+   + var(--y-pos) * var(--scene-normal-32)    
+   + var(--z-pos) * var(--scene-normal-33)                                                                                                                                                 
+  );                          
+  
+  --magnitude: calc(var(--object-size) * 100);
     width: var(--object-size);
     aspect-ratio: 1;
     transform-style: preserve-3d;
     position: absolute;
     top: calc(50% - (var(--object-size) / 2));
     left: calc(50% - (var(--object-size) / 2));
-    transform: 
+    transform:
+        translate3d(
+            calc(var(--scene-normal-31) * var(--depth) * var(--magnitude)),
+            calc(var(--scene-normal-32) * var(--depth) * var(--magnitude) * -1),
+            calc(var(--scene-normal-33) * var(--depth) * var(--magnitude))
+        )
         translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
         translateY(calc(var(--grid-size) / 2 + var(--elevation)))
         translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
@@ -1505,7 +1520,6 @@ body:has(input#toggle-perspective:checked) .scene-container {
 
     #shadow-layer .cylinder .face:first-child, #shadow-layer .cone .face:first-child {
         --face-y-deg: calc(atan2(var(--light-px), var(--light-pz)));
-
     }
 
 
@@ -1604,6 +1618,18 @@ body:has(input#toggle-perspective:checked) .scene-container {
 
     .object.hemisphere {
         --elevation-surface: var(--object-size-half-neg);
+        /* transform:
+        translate3d(
+            calc(var(--scene-normal-31) * var(--depth) * var(--magnitude)),
+            calc(var(--scene-normal-32) * var(--depth) * var(--magnitude) * -1),
+            calc(var(--scene-normal-33) * var(--depth) * var(--magnitude))
+        )
+        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateY(calc(var(--grid-size) / 2 + var(--elevation)))
+        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        rotateX(var(--object-x))
+        rotateY(var(--object-y))
+        rotateZ(var(--object-z)); */
     }
 
     .hemisphere .face {
@@ -1689,7 +1715,8 @@ body:has(input#toggle-perspective:checked) .scene-container {
     }
 
     #shade-layer .hemisphere .face:first-child::before {
-        transform: rotateX(calc(var(--face-x-deg) * -1))
+        transform: 
+          rotateX(calc(var(--face-x-deg) * -1))
           rotateY(calc(var(--face-y-deg) * -1))
           rotateZ(calc(var(--object-z) * -1))
           rotateY(calc(var(--object-y) * -1))
@@ -1702,6 +1729,7 @@ body:has(input#toggle-perspective:checked) .scene-container {
     #shade-layer .hemisphere .face:nth-child(2)::before {
         --before-background: hsl(0 0 calc(50% + 25% * var(--dot-product)));
     }
+
     .hemisphere .curved-lighting {
         display: block;
     }

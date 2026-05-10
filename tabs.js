@@ -167,10 +167,15 @@ bindSlider('scene-y', '--scene-y-unit');
 const SHAPE_CLASSES = ['cube', 'tetrahedron', 'pyramid', 'dodecahedron', 'sphere', 'cylinder', 'cone', 'hemisphere'];
 
 const OBJECT_DEFAULTS = {
-    'object1': { '--x-pos': '3', '--y-pos': '0', '--z-pos': '2' },
-    'object2': { '--x-pos': '1', '--y-pos': '0', '--z-pos': '2' },
-    'object3': { '--x-pos': '2', '--y-pos': '0', '--z-pos': '2' },
-    'object4': { '--x-pos': '4', '--y-pos': '0', '--z-pos': '2' },
+    // 'object1': { '--x-pos': '3', '--y-pos': '0', '--z-pos': '2' },
+    // 'object2': { '--x-pos': '1', '--y-pos': '0', '--z-pos': '2' },
+    // 'object3': { '--x-pos': '2', '--y-pos': '0', '--z-pos': '2' },
+    // 'object4': { '--x-pos': '4', '--y-pos': '0', '--z-pos': '2' },
+    // 'object5': { '--x-pos': '0', '--y-pos': '0', '--z-pos': '2' },
+    'object1': { '--x-pos': '2', '--y-pos': '1', '--z-pos': '1.5', '--object-x-unit': '90' },
+    'object2': { '--x-pos': '2', '--y-pos': '1', '--z-pos': '2', '--object-x-unit': '90' },
+    'object3': { '--x-pos': '2', '--y-pos': '1', '--z-pos': '2.5', '--object-x-unit': '270' },
+
 };
 
 let selectedObjectId = null;
