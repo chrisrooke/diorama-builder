@@ -1786,3 +1786,73 @@ body:has(input#natural-light:checked) #shade-layer .face {
         ;
         clip-path: unset;
     }
+
+
+
+/* Octant-sphere */
+
+    .object.octantsphere {
+        --elevation-surface: var(--object-size-half-neg);
+    }
+
+    .octantsphere .face {
+        /* --border-radius: 50%; */
+        --face-x-translate: 0;
+        --face-y-translate: 0;
+        width: 50%;
+        height: 50%;
+        transform: rotateY(var(--face-y-deg)) rotateX(var(--face-x-deg)) translateX(var(--face-x-translate)) translateY(var(--face-y-translate)) translateZ(var(--face-translate));
+    } 
+
+    .octantsphere .face:first-child {
+        display: none;
+    }
+
+    .octantsphere .face:nth-child(2) {
+        --face-translate: calc(var(--object-size-half) / 2);
+        --face-x-translate: calc(var(--object-size-half));
+        --face-y-translate: calc(var(--object-size-half) / -2);
+    }
+    .octantsphere .face:nth-child(2)::before {
+        border-radius: 0 100% 0 0;
+    }
+    .octantsphere .face:nth-child(2)::after {
+        border-radius: 100% 0 0 0;
+    }
+
+    .octantsphere .face:nth-child(3) {
+        --face-x-deg: 180deg;
+        --face-translate: 0;
+        --face-x-translate: calc(var(--object-size-half));
+        /* --face-y-translate: calc(var(--object-size-half) / 2); */
+    }
+    .octantsphere .face:nth-child(3)::before {
+        border-radius: 0 0 100% 0;
+    }
+    .octantsphere .face:nth-child(3)::after {
+        border-radius: 0 0 0 100%;
+    }
+
+    .octantsphere .face:nth-child(4) {
+        --face-x-deg: 0;
+        --face-y-deg: -90deg;
+        --face-translate: calc(var(--object-size-half) / -2);
+        --face-x-translate: calc(var(--object-size-half) / 2);
+        /* --face-y-translate: calc(var(--object-size-half) / -2); */
+    }
+    .octantsphere .face:nth-child(4)::before {
+        border-radius: 0 100% 0 0;
+    }
+    .octantsphere .face:nth-child(4)::after {
+        border-radius: 100% 0 0 0;
+    }
+
+
+
+    .octantsphere .face:nth-child(n + 5) {
+        display: none;
+    }
+
+    #shade-layer {
+        display: none;
+    }
