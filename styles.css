@@ -1853,9 +1853,9 @@ body:has(input#natural-light:checked) #shade-layer .face {
             transform: rotateY(calc(var(--scene-y) * -1)) 
             rotateX(calc(var(--scene-x) * -1));
         }
-        .octantsphere .face:nth-child(5)::before {
+        #object-layer .octantsphere .face:nth-child(5)::before {
                         border-radius: 50%;
-
+            background-color: blue;
         }
 
 
