@@ -37,7 +37,7 @@ body {
     grid-template-columns: 1fr;
     align-items: stretch;
     transform-style: preserve-3d;
-    background: linear-gradient(to bottom, oklch(0.9375 0.02 var(--hue-bg)), oklch(0.875 0.08 var(--hue-bg)));
+    /* background: linear-gradient(to bottom, oklch(0.9375 0.02 var(--hue-bg)), oklch(0.875 0.08 var(--hue-bg))); */
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
@@ -747,13 +747,13 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --object-normal-32: calc((var(--s-ox) * var(--c-oz)) + (var(--s-oy) * var(--s-oz) * var(--c-ox)));
     --object-normal-33: calc(var(--c-ox) * var(--c-oy));
 
-    /* Sphere use */
-    /* --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11) + var(--scene-normal-12) * var(--object-normal-21) + var(--scene-normal-13) * var(--object-normal-31)); */
-    /* --object-scene-normal-12: calc( var(--scene-normal-11) * var(--object-normal-12) + var(--scene-normal-12) * var(--object-normal-22) + var(--scene-normal-13) * var(--object-normal-32)); */
-    /* --object-scene-normal-13: calc( var(--scene-normal-11) * var(--object-normal-13) + var(--scene-normal-12) * var(--object-normal-23) + var(--scene-normal-13) * var(--object-normal-33)); */
-    /* --object-scene-normal-21: calc( var(--scene-normal-21) * var(--object-normal-11) + var(--scene-normal-22) * var(--object-normal-21) + var(--scene-normal-23) * var(--object-normal-31)); */
-    /* --object-scene-normal-22: calc( var(--scene-normal-21) * var(--object-normal-12) + var(--scene-normal-22) * var(--object-normal-22) + var(--scene-normal-23) * var(--object-normal-32)); */
-    /* --object-scene-normal-23: calc( var(--scene-normal-21) * var(--object-normal-13) + var(--scene-normal-22) * var(--object-normal-23) + var(--scene-normal-23) * var(--object-normal-33)); */
+    /* Octant sphere use */
+    --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11) + var(--scene-normal-12) * var(--object-normal-21) + var(--scene-normal-13) * var(--object-normal-31));
+    --object-scene-normal-12: calc( var(--scene-normal-11) * var(--object-normal-12) + var(--scene-normal-12) * var(--object-normal-22) + var(--scene-normal-13) * var(--object-normal-32));
+    --object-scene-normal-13: calc( var(--scene-normal-11) * var(--object-normal-13) + var(--scene-normal-12) * var(--object-normal-23) + var(--scene-normal-13) * var(--object-normal-33));
+    --object-scene-normal-21: calc( var(--scene-normal-21) * var(--object-normal-11) + var(--scene-normal-22) * var(--object-normal-21) + var(--scene-normal-23) * var(--object-normal-31));
+    --object-scene-normal-22: calc( var(--scene-normal-21) * var(--object-normal-12) + var(--scene-normal-22) * var(--object-normal-22) + var(--scene-normal-23) * var(--object-normal-32));
+    --object-scene-normal-23: calc( var(--scene-normal-21) * var(--object-normal-13) + var(--scene-normal-22) * var(--object-normal-23) + var(--scene-normal-23) * var(--object-normal-33));
     --object-scene-normal-31: calc( var(--scene-normal-31) * var(--object-normal-11) + var(--scene-normal-32) * var(--object-normal-21) + var(--scene-normal-33) * var(--object-normal-31));
     --object-scene-normal-32: calc( var(--scene-normal-31) * var(--object-normal-12) + var(--scene-normal-32) * var(--object-normal-22) + var(--scene-normal-33) * var(--object-normal-32));
     --object-scene-normal-33: calc( var(--scene-normal-31) * var(--object-normal-13) + var(--scene-normal-32) * var(--object-normal-23) + var(--scene-normal-33) * var(--object-normal-33));
@@ -1793,6 +1793,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
 
     .object.octantsphere {
         --elevation-surface: var(--object-size-half-neg);
+        width: calc(var(--object-size) * 5);
     }
 
     .octantsphere .face {
@@ -1809,9 +1810,10 @@ body:has(input#natural-light:checked) #shade-layer .face {
     }
 
     .octantsphere .face:nth-child(2) {
-        --face-translate: calc(var(--object-size-half) / 2);
-        --face-x-translate: calc(var(--object-size-half));
-        --face-y-translate: calc(var(--object-size-half) / -2);
+        --face-translate: calc(var(--object-size) * 1.25);
+        --face-x-translate: calc(var(--object-size) * 2.5);
+        --face-y-translate: calc(var(--object-size) * -1.25);
+        --face-x-deg: -90deg;
     }
     .octantsphere .face:nth-child(2)::before {
         border-radius: 0 100% 0 0;
@@ -1823,7 +1825,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
     .octantsphere .face:nth-child(3) {
         --face-x-deg: 180deg;
         --face-translate: 0;
-        --face-x-translate: calc(var(--object-size-half));
+        --face-x-translate: calc(var(--object-size) * 2.5);
         /* --face-y-translate: calc(var(--object-size-half) / 2); */
     }
     .octantsphere .face:nth-child(3)::before {
@@ -1836,8 +1838,8 @@ body:has(input#natural-light:checked) #shade-layer .face {
     .octantsphere .face:nth-child(4) {
         --face-x-deg: 0;
         --face-y-deg: -90deg;
-        --face-translate: calc(var(--object-size-half) / -2);
-        --face-x-translate: calc(var(--object-size-half) / 2);
+        --face-translate: calc(var(--object-size) * -1.25);
+        --face-x-translate: calc(var(--object-size) * 1.25);
         /* --face-y-translate: calc(var(--object-size-half) / -2); */
     }
     .octantsphere .face:nth-child(4)::before {
@@ -1850,20 +1852,46 @@ body:has(input#natural-light:checked) #shade-layer .face {
         .octantsphere .face:nth-child(5) {
             width: 100%;
             height: 100%;
-            transform: rotateY(calc(var(--scene-y) * -1)) 
+            transform: 
+            rotateZ(calc(var(--object-z) * -1))
+            rotateY(calc(var(--object-y) * -1))
+            rotateX(calc(var(--object-x) * -1))
+            rotateY(calc(var(--scene-y) * -1)) 
             rotateX(calc(var(--scene-x) * -1));
+            opacity: 0.2;
         }
         #object-layer .octantsphere .face:nth-child(5)::before {
-                        border-radius: 50%;
+            border-radius: 50%;
             background-color: blue;
         }
 
+        .octantsphere .face:nth-child(6) {
+            width: 100%;
+            height: 100%;
+            background-color: coral;
+            transform: 
+            rotateZ(calc(var(--object-z) * -1))
+            rotateY(calc(var(--object-y) * -1))
+            rotateX(calc(var(--object-x) * -1))
+            rotateY(calc(var(--scene-y) * -1)) 
+            rotateX(calc(var(--scene-x) * -1))
+            translateZ(calc(var(--object-size) * 2.5));
+            opacity: .2;
+            clip-path: shape(
+                from calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)), 
+                line to calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21)), 
+                arc to calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23)) of 50% calc((var(--object-scene-normal-32) * 50%)) cw small,
+                line to calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)),
+                close);
+        }
+        .octantsphere .face:nth-child(6)::before, .octantsphere .face:nth-child(6)::after {
+            content: unset;
+        }
 
+        .octantsphere .face:nth-child(n + 7) {
+            display: none;
+        }
 
-    .octantsphere .face:nth-child(n + 6) {
-        display: none;
-    }
-
-    #shade-layer {
+    #shade-layer, #shadow-layer {
         display: none;
     }
