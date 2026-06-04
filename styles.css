@@ -1878,12 +1878,12 @@ body:has(input#natural-light:checked) #shade-layer .face {
             translateZ(calc(var(--object-size) * 2.5));
             opacity: .2;
             clip-path: shape(
-                from calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)), 
-                line to calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21)), 
-                arc to calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23)) of 50% calc((var(--object-scene-normal-32) * 50%)) cw small,
+                from calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)),
+                line to calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21)),
+                arc to calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23)) of calc((var(--object-scene-normal-32) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
                 line to calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)),
                 close);
-        }
+            }
         .octantsphere .face:nth-child(6)::before, .octantsphere .face:nth-child(6)::after {
             content: unset;
         }
