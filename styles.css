@@ -1877,11 +1877,24 @@ body:has(input#natural-light:checked) #shade-layer .face {
             rotateX(calc(var(--scene-x) * -1))
             translateZ(calc(var(--object-size) * 2.5));
             opacity: .2;
+            /* --arc-test: if( style(--object-scene-normal-32 < 0): ccw; style(--object-scene-normal-32 >= 0): cw); */
+
+            --point-a1: calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22));
+            --point-a2: calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22));
+            --point-b1: calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21));
+            --point-b2: calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21));
+            --point-c1: calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23));
+            --point-c2: calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23));
+
+            --arc-test: cw;
             clip-path: shape(
-                from calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)),
-                arc to calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21)) of calc((var(--object-scene-normal-33) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-23), var(--object-scene-normal-13))),
-                arc to calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23)) of calc((var(--object-scene-normal-32) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
-                arc to calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22)) of calc((var(--object-scene-normal-31) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-21), var(--object-scene-normal-11))),
+                from var(--point-a1),
+                arc to var(--point-a2) of 50% 50% cw small,
+                arc to var(--point-b1) of calc((var(--object-scene-normal-33) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-23), var(--object-scene-normal-13))),
+                arc to var(--point-b2) of 50% 50% cw small,
+                arc to var(--point-c1) of calc((var(--object-scene-normal-32) * 50%)) 50% var(--arc-test) small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
+                arc to var(--point-c2) of 50% 50% cw small,
+                arc to var(--point-a1) of calc((var(--object-scene-normal-31) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-21), var(--object-scene-normal-11))),
                 close);
             }
         .octantsphere .face:nth-child(6)::before, .octantsphere .face:nth-child(6)::after {
