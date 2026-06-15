@@ -1879,12 +1879,124 @@ body:has(input#natural-light:checked) #shade-layer .face {
             opacity: .2;
             /* --arc-test: if( style(--object-scene-normal-32 < 0): ccw; style(--object-scene-normal-32 >= 0): cw); */
 
-            --point-a1: calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22));
-            --point-a2: calc(50% + 50% * var(--object-scene-normal-12)) calc(50% - 50% * var(--object-scene-normal-22));
-            --point-b1: calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21));
-            --point-b2: calc(50% + 50% * var(--object-scene-normal-11)) calc(50% - 50% * var(--object-scene-normal-21));
-            --point-c1: calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23));
-            --point-c2: calc(50% + 50% * var(--object-scene-normal-13)) calc(50% - 50% * var(--object-scene-normal-23));
+            --dab: hypot(var(--object-scene-normal-32), var(--object-scene-normal-31));
+            --dbc: hypot(var(--object-scene-normal-31), var(--object-scene-normal-33));
+            --dca: hypot(var(--object-scene-normal-33), var(--object-scene-normal-32));
+
+            --ab-tan-x: calc((abs(var(--object-scene-normal-31)) * var(--object-scene-normal-12) + abs(var(--object-scene-normal-32)) * var(--object-scene-normal-11)) / var(--dab));
+            --ab-tan-y: calc((abs(var(--object-scene-normal-31)) * var(--object-scene-normal-22) + abs(var(--object-scene-normal-32)) * var(--object-scene-normal-21)) / var(--dab));
+            --bc-tan-x: calc((abs(var(--object-scene-normal-33)) * var(--object-scene-normal-11) + abs(var(--object-scene-normal-31)) * var(--object-scene-normal-13)) / var(--dbc));
+            --bc-tan-y: calc((abs(var(--object-scene-normal-33)) * var(--object-scene-normal-21) + abs(var(--object-scene-normal-31)) * var(--object-scene-normal-23)) / var(--dbc));
+            --ca-tan-x: calc((abs(var(--object-scene-normal-32)) * var(--object-scene-normal-13) + abs(var(--object-scene-normal-33)) * var(--object-scene-normal-12)) / var(--dca));
+            --ca-tan-y: calc((abs(var(--object-scene-normal-32)) * var(--object-scene-normal-23) + abs(var(--object-scene-normal-33)) * var(--object-scene-normal-22)) / var(--dca));
+
+            --rim-a: hypot(var(--object-scene-normal-12), var(--object-scene-normal-22));
+            --rim-b: hypot(var(--object-scene-normal-11), var(--object-scene-normal-21));
+            --rim-c: hypot(var(--object-scene-normal-13), var(--object-scene-normal-23));
+
+            --a-shadow-x: calc(var(--object-scene-normal-12)/ var(--rim-a));
+            --a-shadow-y: calc(var(--object-scene-normal-22)/ var(--rim-a));
+            --b-shadow-x: calc(var(--object-scene-normal-11)/ var(--rim-b));
+            --b-shadow-y: calc(var(--object-scene-normal-21)/ var(--rim-b));
+            --c-shadow-x: calc(var(--object-scene-normal-13)/ var(--rim-c));
+            --c-shadow-y: calc(var(--object-scene-normal-23)/ var(--rim-c));
+
+            --fa: clamp(0, sign(var(--object-scene-normal-32)), 1);
+            --fb: clamp(0, sign(var(--object-scene-normal-31)), 1);
+            --fc: clamp(0, sign(var(--object-scene-normal-33)), 1);
+
+            --point-a1x: 
+                calc(
+                    var(--fa) * var(--object-scene-normal-12)
+                    + (1 - var(--fa)) * var(--fc) * var(--ca-tan-x)
+                    + (1 - var(--fa)) * (1 - var(--fc)) * var(--a-shadow-x)
+                )
+            ;
+            --point-a1y: 
+                calc(
+                    var(--fa) * var(--object-scene-normal-22)
+                    + (1 - var(--fa)) * var(--fc) * var(--ca-tan-y)
+                    + (1 - var(--fa)) * (1 - var(--fc)) * var(--a-shadow-y)
+                )
+            ;
+            --point-a2x: 
+                calc(
+                    var(--fa) * var(--object-scene-normal-12)
+                    + (1 - var(--fa)) * var(--fb) * var(--ab-tan-x)
+                    + (1 - var(--fa)) * (1 - var(--fb)) * var(--a-shadow-x)
+                )
+            ;
+            --point-a2y: 
+                calc(
+                    var(--fa) * var(--object-scene-normal-22)
+                    + (1 - var(--fa)) * var(--fb) * var(--ab-tan-y)
+                    + (1 - var(--fa)) * (1 - var(--fb)) * var(--a-shadow-y)
+                )
+            ;
+            --point-b1x: 
+                calc(
+                    var(--fb) * var(--object-scene-normal-11)
+                    + (1 - var(--fb)) * var(--fa) * var(--ab-tan-x)
+                    + (1 - var(--fb)) * (1 - var(--fa)) * var(--b-shadow-x)
+                )
+            ;
+            --point-b1y: 
+                calc(
+                    var(--fb) * var(--object-scene-normal-21)
+                    + (1 - var(--fb)) * var(--fa) * var(--ab-tan-y)
+                    + (1 - var(--fb)) * (1 - var(--fa)) * var(--b-shadow-y)
+                )
+            ;
+            --point-b2x: 
+                calc(
+                    var(--fb) * var(--object-scene-normal-11)
+                    + (1 - var(--fb)) * var(--fc) * var(--bc-tan-x)
+                    + (1 - var(--fb)) * (1 - var(--fc)) * var(--b-shadow-x)
+                )
+            ;
+            --point-b2y: 
+                calc(
+                    var(--fb) * var(--object-scene-normal-21)
+                    + (1 - var(--fb)) * var(--fc) * var(--bc-tan-y)
+                    + (1 - var(--fb)) * (1 - var(--fc)) * var(--b-shadow-y)
+                )
+            ;
+            --point-c1x: 
+                calc(
+                    var(--fc) * var(--object-scene-normal-13)
+                    + (1 - var(--fc)) * var(--fb) * var(--bc-tan-x)
+                    + (1 - var(--fc)) * (1 - var(--fb)) * var(--c-shadow-x)
+                )
+            ;
+            --point-c1y: 
+                calc(
+                    var(--fc) * var(--object-scene-normal-23)
+                    + (1 - var(--fc)) * var(--fb) * var(--bc-tan-y)
+                    + (1 - var(--fc)) * (1 - var(--fb)) * var(--c-shadow-y)
+                )
+            ;
+            --point-c2x: 
+                calc(
+                    var(--fc) * var(--object-scene-normal-13)
+                    + (1 - var(--fc)) * var(--fa) * var(--ca-tan-x)
+                    + (1 - var(--fc)) * (1 - var(--fa)) * var(--c-shadow-x)
+                )
+            ;
+            --point-c2y: 
+                calc(
+                    var(--fc) * var(--object-scene-normal-23)
+                    + (1 - var(--fc)) * var(--fa) * var(--ca-tan-y)
+                    + (1 - var(--fc)) * (1 - var(--fa)) * var(--c-shadow-y)
+                )
+            ;
+
+
+            --point-a1: calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y));
+            --point-a2: calc(50% + 50% * var(--point-a2x)) calc(50% - 50% * var(--point-a2y));
+            --point-b1: calc(50% + 50% * var(--point-b1x)) calc(50% - 50% * var(--point-b1y));
+            --point-b2: calc(50% + 50% * var(--point-b2x)) calc(50% - 50% * var(--point-b2y));
+            --point-c1: calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y));
+            --point-c2: calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y));
 
             --arc-test: cw;
             clip-path: shape(
