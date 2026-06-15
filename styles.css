@@ -1859,6 +1859,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
             rotateY(calc(var(--scene-y) * -1)) 
             rotateX(calc(var(--scene-x) * -1));
             opacity: 0.2;
+            display: none;
         }
         #object-layer .octantsphere .face:nth-child(5)::before {
             border-radius: 50%;
@@ -1876,8 +1877,8 @@ body:has(input#natural-light:checked) #shade-layer .face {
             rotateY(calc(var(--scene-y) * -1)) 
             rotateX(calc(var(--scene-x) * -1))
             translateZ(calc(var(--object-size) * 2.5));
-            opacity: .2;
-            /* --arc-test: if( style(--object-scene-normal-32 < 0): ccw; style(--object-scene-normal-32 >= 0): cw); */
+            opacity: var(--opacity);
+            /* display: none; */
 
             --dab: hypot(var(--object-scene-normal-32), var(--object-scene-normal-31));
             --dbc: hypot(var(--object-scene-normal-31), var(--object-scene-normal-33));
@@ -1890,7 +1891,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
             --ca-tan-x: calc((abs(var(--object-scene-normal-32)) * var(--object-scene-normal-13) + abs(var(--object-scene-normal-33)) * var(--object-scene-normal-12)) / var(--dca));
             --ca-tan-y: calc((abs(var(--object-scene-normal-32)) * var(--object-scene-normal-23) + abs(var(--object-scene-normal-33)) * var(--object-scene-normal-22)) / var(--dca));
 
-            --rim-a: hypot(var(--object-scene-normal-12), var(--object-scene-normal-22));
+            /* --rim-a: hypot(var(--object-scene-normal-12), var(--object-scene-normal-22));
             --rim-b: hypot(var(--object-scene-normal-11), var(--object-scene-normal-21));
             --rim-c: hypot(var(--object-scene-normal-13), var(--object-scene-normal-23));
 
@@ -1899,94 +1900,110 @@ body:has(input#natural-light:checked) #shade-layer .face {
             --b-shadow-x: calc(var(--object-scene-normal-11)/ var(--rim-b));
             --b-shadow-y: calc(var(--object-scene-normal-21)/ var(--rim-b));
             --c-shadow-x: calc(var(--object-scene-normal-13)/ var(--rim-c));
-            --c-shadow-y: calc(var(--object-scene-normal-23)/ var(--rim-c));
+            --c-shadow-y: calc(var(--object-scene-normal-23)/ var(--rim-c)); */
 
             --fa: clamp(0, sign(var(--object-scene-normal-32)), 1);
             --fb: clamp(0, sign(var(--object-scene-normal-31)), 1);
             --fc: clamp(0, sign(var(--object-scene-normal-33)), 1);
 
+            --opacity: max(var(--fa), var(--fb), var(--fc));
+
+            /* "both endpoints of this edge are behind" */
+            --h-ab: calc((1 - var(--fa)) * (1 - var(--fb)));   /* edge AB, opposite corner C */
+            --h-bc: calc((1 - var(--fb)) * (1 - var(--fc)));   /* edge BC, opposite corner A */
+            --h-ca: calc((1 - var(--fc)) * (1 - var(--fa)));   /* edge CA, opposite corner B */
+
+            /* hidden edge -> 50% circle; otherwise |opposite_z| * 50% (abs!) */
+            --minor-ab: calc(50% * (var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-scene-normal-33))));
+            --minor-bc: calc(50% * (var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-scene-normal-32))));
+            --minor-ca: calc(50% * (var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-scene-normal-31))));
+            
+            --dir-ab: if( style(--object-scene-normal-33 < 0): ccw; style(--object-scene-normal-33 >= 0): cw);
+            --dir-bc: if( style(--object-scene-normal-32 < 0): ccw; style(--object-scene-normal-32 >= 0): cw);
+            --dir-ca: if( style(--object-scene-normal-31 < 0): ccw; style(--object-scene-normal-31 >= 0): cw);
+
             --point-a1x: 
                 calc(
                     var(--fa) * var(--object-scene-normal-12)
                     + (1 - var(--fa)) * var(--fc) * var(--ca-tan-x)
-                    + (1 - var(--fa)) * (1 - var(--fc)) * var(--a-shadow-x)
+                    + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-x)
                 )
             ;
             --point-a1y: 
                 calc(
                     var(--fa) * var(--object-scene-normal-22)
                     + (1 - var(--fa)) * var(--fc) * var(--ca-tan-y)
-                    + (1 - var(--fa)) * (1 - var(--fc)) * var(--a-shadow-y)
+                    + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-y)
                 )
             ;
             --point-a2x: 
                 calc(
                     var(--fa) * var(--object-scene-normal-12)
                     + (1 - var(--fa)) * var(--fb) * var(--ab-tan-x)
-                    + (1 - var(--fa)) * (1 - var(--fb)) * var(--a-shadow-x)
+                    + (1 - var(--fa)) * (1 - var(--fb)) * var(--ca-tan-x)
                 )
             ;
             --point-a2y: 
                 calc(
                     var(--fa) * var(--object-scene-normal-22)
                     + (1 - var(--fa)) * var(--fb) * var(--ab-tan-y)
-                    + (1 - var(--fa)) * (1 - var(--fb)) * var(--a-shadow-y)
+                    + (1 - var(--fa)) * (1 - var(--fb)) * var(--ca-tan-y)
                 )
             ;
             --point-b1x: 
                 calc(
                     var(--fb) * var(--object-scene-normal-11)
                     + (1 - var(--fb)) * var(--fa) * var(--ab-tan-x)
-                    + (1 - var(--fb)) * (1 - var(--fa)) * var(--b-shadow-x)
+                    + (1 - var(--fb)) * (1 - var(--fa)) * var(--bc-tan-x)
                 )
             ;
             --point-b1y: 
                 calc(
                     var(--fb) * var(--object-scene-normal-21)
                     + (1 - var(--fb)) * var(--fa) * var(--ab-tan-y)
-                    + (1 - var(--fb)) * (1 - var(--fa)) * var(--b-shadow-y)
+                    + (1 - var(--fb)) * (1 - var(--fa)) * var(--bc-tan-y)
                 )
             ;
             --point-b2x: 
                 calc(
                     var(--fb) * var(--object-scene-normal-11)
                     + (1 - var(--fb)) * var(--fc) * var(--bc-tan-x)
-                    + (1 - var(--fb)) * (1 - var(--fc)) * var(--b-shadow-x)
+                    + (1 - var(--fb)) * (1 - var(--fc)) * var(--ab-tan-x)
                 )
             ;
             --point-b2y: 
                 calc(
                     var(--fb) * var(--object-scene-normal-21)
                     + (1 - var(--fb)) * var(--fc) * var(--bc-tan-y)
-                    + (1 - var(--fb)) * (1 - var(--fc)) * var(--b-shadow-y)
+                    + (1 - var(--fb)) * (1 - var(--fc)) * var(--ab-tan-y)
                 )
             ;
             --point-c1x: 
                 calc(
                     var(--fc) * var(--object-scene-normal-13)
                     + (1 - var(--fc)) * var(--fb) * var(--bc-tan-x)
-                    + (1 - var(--fc)) * (1 - var(--fb)) * var(--c-shadow-x)
+                    + (1 - var(--fc)) * (1 - var(--fb)) * var(--ca-tan-x)
                 )
             ;
             --point-c1y: 
                 calc(
                     var(--fc) * var(--object-scene-normal-23)
                     + (1 - var(--fc)) * var(--fb) * var(--bc-tan-y)
-                    + (1 - var(--fc)) * (1 - var(--fb)) * var(--c-shadow-y)
+                    + (1 - var(--fc)) * (1 - var(--fb)) * var(--ca-tan-y)
                 )
             ;
             --point-c2x: 
                 calc(
                     var(--fc) * var(--object-scene-normal-13)
                     + (1 - var(--fc)) * var(--fa) * var(--ca-tan-x)
-                    + (1 - var(--fc)) * (1 - var(--fa)) * var(--c-shadow-x)
+                    + (1 - var(--fc)) * (1 - var(--fa)) * var(--bc-tan-x)
                 )
             ;
             --point-c2y: 
                 calc(
                     var(--fc) * var(--object-scene-normal-23)
                     + (1 - var(--fc)) * var(--fa) * var(--ca-tan-y)
-                    + (1 - var(--fc)) * (1 - var(--fa)) * var(--c-shadow-y)
+                    + (1 - var(--fc)) * (1 - var(--fa)) * var(--bc-tan-y)
                 )
             ;
 
@@ -2002,11 +2019,11 @@ body:has(input#natural-light:checked) #shade-layer .face {
             clip-path: shape(
                 from var(--point-a1),
                 arc to var(--point-a2) of 50% 50% cw small,
-                arc to var(--point-b1) of calc((var(--object-scene-normal-33) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-23), var(--object-scene-normal-13))),
+                arc to var(--point-b1) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-scene-normal-23), var(--object-scene-normal-13))),
                 arc to var(--point-b2) of 50% 50% cw small,
-                arc to var(--point-c1) of calc((var(--object-scene-normal-32) * 50%)) 50% var(--arc-test) small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
+                arc to var(--point-c1) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
                 arc to var(--point-c2) of 50% 50% cw small,
-                arc to var(--point-a1) of calc((var(--object-scene-normal-31) * 50%)) 50% cw small rotate calc(-1 * atan2(var(--object-scene-normal-21), var(--object-scene-normal-11))),
+                arc to var(--point-a1) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-scene-normal-21), var(--object-scene-normal-11))),
                 close);
             }
         .octantsphere .face:nth-child(6)::before, .octantsphere .face:nth-child(6)::after {
