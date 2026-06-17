@@ -562,6 +562,141 @@
 
         </div>
     </div>
+    <div id="css-debug"></div>
     <script src="tabs.js"></script>
+    <script>
+const target = document.querySelector('.octantsphere .face:nth-child(6)');
+
+const vars = [
+    '--object-scene-normal-11',
+    '--object-scene-normal-12',
+    '--object-scene-normal-13',
+    '--object-scene-normal-21',
+    '--object-scene-normal-22',
+    '--object-scene-normal-23',
+    '--object-scene-normal-31',
+    '--object-scene-normal-32',
+    '--object-scene-normal-33',
+
+    '--dab',
+    '--dbc',
+    '--dca',
+
+    '--ab-tan-x',
+    '--ab-tan-y',
+    '--bc-tan-x',
+    '--bc-tan-y',
+    '--ca-tan-x',
+    '--ca-tan-y',
+
+    '--fa',
+    '--fb',
+    '--fc',
+
+    '--h-ab',
+    '--h-bc',
+    '--h-ca',
+
+    '--minor-ab',
+    '--minor-bc',
+    '--minor-ca',
+
+    '--point-a1x',
+    '--point-a1y',
+    '--point-a2x',
+    '--point-a2y',
+
+    '--point-b1x',
+    '--point-b1y',
+    '--point-b2x',
+    '--point-b2y',
+
+    '--point-c1x',
+    '--point-c1y',
+    '--point-c2x',
+    '--point-c2y'
+];
+
+const panel = document.getElementById('css-debug');
+
+Object.assign(panel.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '500px',
+    height: '100vh',
+    overflow: 'auto',
+    background: 'rgba(0,0,0,.9)',
+    color: '#0f0',
+    font: '12px monospace',
+    whiteSpace: 'pre',
+    padding: '10px',
+    zIndex: '999999'
+});
+
+const probe = document.createElement('div');
+
+Object.assign(probe.style, {
+    position: 'absolute',
+    visibility: 'hidden',
+    width: '0',
+    height: '0',
+    pointerEvents: 'none'
+});
+
+target.appendChild(probe);
+
+function evaluateVariable(name) {
+
+    try {
+
+        probe.style.left = `calc(var(${name}) * 1000px)`;
+
+        const left = getComputedStyle(probe).left;
+
+        const px = parseFloat(left);
+
+        if (Number.isNaN(px))
+            return left;
+
+        return px / 1000;
+
+    } catch (e) {
+
+        return 'ERROR';
+
+    }
+
+}
+
+function update() {
+
+    let text = '';
+
+    vars.forEach(name => {
+
+        const raw =
+            getComputedStyle(target)
+                .getPropertyValue(name)
+                .trim();
+
+        const value = evaluateVariable(name);
+
+        text +=
+            name.padEnd(30) +
+            String(value).padEnd(20) +
+            raw +
+            '\n';
+
+    });
+
+    panel.textContent = text;
+
+}
+
+requestAnimationFrame(function loop() {
+    update();
+    requestAnimationFrame(loop);
+});    </script>
 </body>
 </html>
