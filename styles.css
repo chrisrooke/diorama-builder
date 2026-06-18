@@ -46,6 +46,9 @@
 @property --minor-ab { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
 @property --minor-bc { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
 @property --minor-ca { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
+@property --dir-ab { syntax: "cw | ccw"; inherits: true; initial-value: cw; }
+@property --dir-bc { syntax: "cw | ccw"; inherits: true; initial-value: cw; }
+@property --dir-ca { syntax: "cw | ccw"; inherits: true; initial-value: cw; }
 
 @property --point-a1x { syntax: "<number>"; inherits: true; initial-value: 0; }
 @property --point-a1y { syntax: "<number>"; inherits: true; initial-value: 0; }
@@ -1910,7 +1913,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
         .octantsphere .face:nth-child(6) {
             width: 100%;
             height: 100%;
-            background-color: coral;
+            background-color: transparent;
             transform: 
             rotateZ(calc(var(--object-z) * -1))
             rotateY(calc(var(--object-y) * -1))
@@ -1922,9 +1925,17 @@ body:has(input#natural-light:checked) #shade-layer .face {
             
             /* display: none; */
 
-            --dab: hypot(var(--object-scene-normal-32), var(--object-scene-normal-31));
-            --dbc: hypot(var(--object-scene-normal-31), var(--object-scene-normal-33));
-            --dca: hypot(var(--object-scene-normal-33), var(--object-scene-normal-32));
+            /* hypot()=0 when two depth components vanish (axis-aligned views),
+               giving 0/0 = NaN in the tan vectors below. NaN * a 0 coefficient
+               is STILL NaN (calc has no short-circuit), so it poisons whichever
+               --point-* it touches and the shape() collapses to an empty region.
+               (@property registration clamps NaN->0 at each registered step, which
+               is why some intermediates look fine in the panel while the shape
+               still vanishes.) Clamp the denominator so it is never exactly 0:
+               the numerator vanishes proportionally, so the tan goes cleanly to 0. */
+            --dab: max(0.000001, hypot(var(--object-scene-normal-32), var(--object-scene-normal-31)));
+            --dbc: max(0.000001, hypot(var(--object-scene-normal-31), var(--object-scene-normal-33)));
+            --dca: max(0.000001, hypot(var(--object-scene-normal-33), var(--object-scene-normal-32)));
 
             --ab-tan-x: calc((abs(var(--object-scene-normal-31)) * var(--object-scene-normal-12) + abs(var(--object-scene-normal-32)) * var(--object-scene-normal-11)) / var(--dab));
             --ab-tan-y: calc((abs(var(--object-scene-normal-31)) * var(--object-scene-normal-22) + abs(var(--object-scene-normal-32)) * var(--object-scene-normal-21)) / var(--dab));
@@ -1944,9 +1955,17 @@ body:has(input#natural-light:checked) #shade-layer .face {
             --c-shadow-x: calc(var(--object-scene-normal-13)/ var(--rim-c));
             --c-shadow-y: calc(var(--object-scene-normal-23)/ var(--rim-c)); */
 
-            --fa: clamp(0, sign(var(--object-scene-normal-32)), 1);
-            --fb: clamp(0, sign(var(--object-scene-normal-31)), 1);
-            --fc: clamp(0, sign(var(--object-scene-normal-33)), 1);
+            /* round(up,…) is ceil: razor-sensitive at 0. At the rest (z) view the
+               depth components are exactly 0, so ceil(0)=0 is clean. But looking
+               down x/y is reached via a 90deg rotation, and cos(90deg) etc. leave
+               ~1e-16 floating dirt where 0 is expected. ceil(+1e-16)=1 flips the
+               front-face flag, building the shape for the wrong octant -> vanish.
+               Subtract a tiny epsilon so exact-0 AND dirt both round to 0 (the
+               validated silhouette convention); real front faces (depth>eps) keep 1. */
+            --ff-eps: 0.0001;
+            --fa: clamp(0, round(up, var(--object-scene-normal-32) - var(--ff-eps)), 1);
+            --fb: clamp(0, round(up, var(--object-scene-normal-31) - var(--ff-eps)), 1);
+            --fc: clamp(0, round(up, var(--object-scene-normal-33) - var(--ff-eps)), 1);
 
             --opacity: max(var(--fa), var(--fb), var(--fc));
 
@@ -1956,9 +1975,9 @@ body:has(input#natural-light:checked) #shade-layer .face {
             --h-ca: calc((1 - var(--fc)) * (1 - var(--fa)));   /* edge CA, opposite corner B */
 
             /* hidden edge -> 50% circle; otherwise |opposite_z| * 50% (abs!) */
-            --minor-ab: calc(50% * (var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-scene-normal-33))));
-            --minor-bc: calc(50% * (var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-scene-normal-32))));
-            --minor-ca: calc(50% * (var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-scene-normal-31))));
+            --minor-ab: max(1%, calc(50% * (var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-scene-normal-33)))));
+            --minor-bc: max(1%, calc(50% * (var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-scene-normal-32)))));
+            --minor-ca: max(1%, calc(50% * (var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-scene-normal-31)))));
             
             --dir-ab: if( style(--object-scene-normal-33 < 0): ccw; style(--object-scene-normal-33 >= 0): cw);
             --dir-bc: if( style(--object-scene-normal-32 < 0): ccw; style(--object-scene-normal-32 >= 0): cw);
@@ -2058,7 +2077,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
             --point-c2: calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y));
 
             --arc-test: cw;
-            clip-path: shape(
+            /* --clip-path: shape(
                 from var(--point-a1),
                 arc to var(--point-a2) of 50% 50% cw small,
                 arc to var(--point-b1) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-scene-normal-23), var(--object-scene-normal-13))),
@@ -2066,9 +2085,34 @@ body:has(input#natural-light:checked) #shade-layer .face {
                 arc to var(--point-c1) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
                 arc to var(--point-c2) of 50% 50% cw small,
                 arc to var(--point-a1) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-scene-normal-21), var(--object-scene-normal-11))),
+                close); */
+            --clip-path: shape(
+                from calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y)),
+                arc to calc(50% + 50% * var(--point-a2x)) calc(50% - 50% * var(--point-a2y)) of 50% 50% cw small,
+                arc to calc(50% + 50% * var(--point-b1x)) calc(50% - 50% * var(--point-b1y)) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-scene-normal-23), var(--object-scene-normal-13))),
+                arc to calc(50% + 50% * var(--point-b2x)) calc(50% - 50% * var(--point-b2y)) of 50% 50% cw small,
+                arc to calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y)) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-scene-normal-22), var(--object-scene-normal-12))),
+                arc to calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y)) of 50% 50% cw small,
+                arc to calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y)) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-scene-normal-21), var(--object-scene-normal-11))),
                 close);
+            clip-path: unset;
+            /* clip-path: shape(
+                from 50% 0%,
+                arc to 50% 0% of 50% 50% cw small,
+                arc to 50% 50% of 1% 50% cw small rotate 90deg,
+                arc to 50% 50% of 50% 50% cw small,
+                arc to 0% 50% of 1% 50% cw small rotate 0deg,
+                arc to 0% 50% of 50% 50% cw small,
+                arc to 50% 0% of 50% 50% cw small rotate 0deg,
+                close); */
             }
-        .octantsphere .face:nth-child(6)::before, .octantsphere .face:nth-child(6)::after {
+        #object-layer .octantsphere .face:nth-child(6)::before {
+            content: '';
+            background-color: coral;
+            border: 0;
+            backface-visibility: visible;
+        }
+        #object-layer .octantsphere .face:nth-child(6)::after {
             content: unset;
         }
 
