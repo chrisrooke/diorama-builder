@@ -19,49 +19,6 @@
 @property --object-y-unit { syntax: "<number>"; inherits: true; initial-value: 0; }
 @property --object-z-unit { syntax: "<number>"; inherits: true; initial-value: 0; }
 
-@property --object-scene-normal-11 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-12 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-13 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-21 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-22 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-23 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-31 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-32 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --object-scene-normal-33 { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --dab { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --dbc { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --dca { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --ab-tan-x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --ab-tan-y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --bc-tan-x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --bc-tan-y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --ca-tan-x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --ca-tan-y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --fa { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --fb { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --fc { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --h-ab { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --h-bc { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --h-ca { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --minor-ab { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
-@property --minor-bc { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
-@property --minor-ca { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
-@property --dir-ab { syntax: "cw | ccw"; inherits: true; initial-value: cw; }
-@property --dir-bc { syntax: "cw | ccw"; inherits: true; initial-value: cw; }
-@property --dir-ca { syntax: "cw | ccw"; inherits: true; initial-value: cw; }
-
-@property --point-a1x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-a1y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-a2x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-a2y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-b1x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-b1y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-b2x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-b2y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-c1x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-c1y { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-c2x { syntax: "<number>"; inherits: true; initial-value: 0; }
-@property --point-c2y { syntax: "<number>"; inherits: true; initial-value: 0; }
 
 *, *::before, *::after {
     box-sizing: border-box;
