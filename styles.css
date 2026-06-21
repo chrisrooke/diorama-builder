@@ -2008,8 +2008,12 @@ body:has(input#natural-light:checked) #shade-layer .face {
     .octantsphere .face:first-child > .curved-lighting {
         width: 200%;
         height: 200%;
-        left: calc(-50% + var(--octant-center-x) * var(--object-size));
-        top: calc(-50% + var(--octant-center-y) * var(--object-size));
+        left: -50%;
+        top: -50%;
+        translate:
+            calc(var(--octant-center-x) * var(--object-size))
+            calc(var(--octant-center-y) * var(--object-size));
+        will-change: transform;
     }
 
     .octantsphere .face:nth-child(2) {
