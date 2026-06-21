@@ -1794,8 +1794,51 @@ body:has(input#natural-light:checked) #shade-layer .face {
 
     .object.octantsphere {
         --elevation-surface: var(--object-size-half-neg);
-        width: calc(var(--object-size) * 2);
+        /* width: calc(var(--object-size) * 2);
+        height: calc(var(--object-size) * 2); */
     }
+
+    .octantsphere .face {
+        --face-translate: var(--object-size-half);
+        --border-radius: 100% 0 0 0;
+    }
+
+    .octantsphere .face::after {
+        --border-radius: 0 100% 0 0;
+    }
+
+    .octantsphere .face:nth-child(n + 5) {
+        display: none;
+    } 
+
+    .octantsphere .face:first-child {
+        transform: 
+            rotateZ(calc(var(--object-z) * -1))
+            rotateY(calc(var(--object-y) * -1))
+            rotateX(calc(var(--object-x) * -1))
+            rotateY(calc(var(--scene-y) * -1)) 
+            rotateX(calc(var(--scene-x) * -1))
+            translateZ(var(--object-size))
+        ;
+        --border-radius: 0;
+        width: 200%;
+        height: 200%;
+    }
+
+    .octantsphere .face:nth-child(2) {
+        --face-x-deg: -90deg;
+    }
+    .octantsphere .face:nth-child(3) {
+        --face-y-deg: 90deg;
+    }
+    .octantsphere .face:nth-child(4) {
+        --face-y-deg: 180deg;
+        --border-radius: 0 100% 0 0;
+    }
+    .octantsphere .face:nth-child(4)::after {
+        --border-radius: 100% 0 0 0;
+    }
+
 
     /* .object.octantsphere {
         --elevation-surface: var(--object-size-half-neg);
@@ -2027,6 +2070,4 @@ body:has(input#natural-light:checked) #shade-layer .face {
         content: unset;
     }
 
-    .octantsphere .face:nth-child(n + 7) {
-        display: none;
-    } */
+    */
