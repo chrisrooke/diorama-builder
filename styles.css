@@ -1749,7 +1749,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
           rotateX(calc(var(--object-x) * -1))                                                   
           rotateY(var(--light-y))         
           rotateX(var(--light-x))                                                               
-          translateZ(var(--lighting-translate));                                                        ;
+          translateZ(var(--lighting-translate));
         ;
     }
     .hemisphere .curved-lighting::after {
@@ -1762,8 +1762,8 @@ body:has(input#natural-light:checked) #shade-layer .face {
           rotateX(calc(var(--object-x) * -1))                                                   
           rotateY(var(--light-y))         
           rotateX(var(--light-x))    
-            rotateY(180deg)                                                           
-          translateZ(var(--lighting-translate));                                                        ;
+            rotateY(180deg)   
+          translateZ(var(--lighting-translate));
         ;
     }
 
@@ -2031,6 +2031,10 @@ body:has(input#natural-light:checked) #shade-layer .face {
     }
 
 
+
+    #shadow-layer .object.octantsphere .face:first-child, #shadow-layer .object.octantsphere .face:first-child::before, #shadow-layer .object.octantsphere .face:first-child::after {
+        clip-path: unset;
+    }
     /* .object.octantsphere {
         --elevation-surface: var(--object-size-half-neg);
         width: calc(var(--object-size) * 5);
