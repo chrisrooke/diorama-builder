@@ -748,7 +748,8 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --object-normal-32: calc((var(--s-ox) * var(--c-oz)) + (var(--s-oy) * var(--s-oz) * var(--c-ox)));
     --object-normal-33: calc(var(--c-ox) * var(--c-oy));
 
-    /* Octant sphere use */
+    /* Rotation of the object taking into account scene's rotation: 
+    scene * object = scene row * object column*/
     --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11) + var(--scene-normal-12) * var(--object-normal-21) + var(--scene-normal-13) * var(--object-normal-31));
     --object-scene-normal-12: calc( var(--scene-normal-11) * var(--object-normal-12) + var(--scene-normal-12) * var(--object-normal-22) + var(--scene-normal-13) * var(--object-normal-32));
     --object-scene-normal-13: calc( var(--scene-normal-11) * var(--object-normal-13) + var(--scene-normal-12) * var(--object-normal-23) + var(--scene-normal-13) * var(--object-normal-33));
@@ -759,16 +760,17 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --object-scene-normal-32: calc( var(--scene-normal-31) * var(--object-normal-12) + var(--scene-normal-32) * var(--object-normal-22) + var(--scene-normal-33) * var(--object-normal-32));
     --object-scene-normal-33: calc( var(--scene-normal-31) * var(--object-normal-13) + var(--scene-normal-32) * var(--object-normal-23) + var(--scene-normal-33) * var(--object-normal-33));
 
-    /* Octant sphere shadow use: object normal expressed in LIGHT space (mirror of --object-scene-normal, scene -> light) */
-    --object-light-normal-11: calc( var(--light-normal-11) * var(--object-normal-11) + var(--light-normal-12) * var(--object-normal-21) + var(--light-normal-13) * var(--object-normal-31));
-    --object-light-normal-12: calc( var(--light-normal-11) * var(--object-normal-12) + var(--light-normal-12) * var(--object-normal-22) + var(--light-normal-13) * var(--object-normal-32));
-    --object-light-normal-13: calc( var(--light-normal-11) * var(--object-normal-13) + var(--light-normal-12) * var(--object-normal-23) + var(--light-normal-13) * var(--object-normal-33));
-    --object-light-normal-21: calc( var(--light-normal-21) * var(--object-normal-11) + var(--light-normal-22) * var(--object-normal-21) + var(--light-normal-23) * var(--object-normal-31));
-    --object-light-normal-22: calc( var(--light-normal-21) * var(--object-normal-12) + var(--light-normal-22) * var(--object-normal-22) + var(--light-normal-23) * var(--object-normal-32));
-    --object-light-normal-23: calc( var(--light-normal-21) * var(--object-normal-13) + var(--light-normal-22) * var(--object-normal-23) + var(--light-normal-23) * var(--object-normal-33));
-    --object-light-normal-31: calc( var(--light-normal-31) * var(--object-normal-11) + var(--light-normal-32) * var(--object-normal-21) + var(--light-normal-33) * var(--object-normal-31));
-    --object-light-normal-32: calc( var(--light-normal-31) * var(--object-normal-12) + var(--light-normal-32) * var(--object-normal-22) + var(--light-normal-33) * var(--object-normal-32));
-    --object-light-normal-33: calc( var(--light-normal-31) * var(--object-normal-13) + var(--light-normal-32) * var(--object-normal-23) + var(--light-normal-33) * var(--object-normal-33));
+    /* How does the object look from the light's perspective
+    transpose(light) * object = light column · object column  */
+    --object-light-normal-11: calc(var(--light-normal-11) * var(--object-normal-11) + var(--light-normal-21) * var(--object-normal-21) + var(--light-normal-31) * var(--object-normal-31));
+    --object-light-normal-12: calc(var(--light-normal-11) * var(--object-normal-12) + var(--light-normal-21) * var(--object-normal-22) + var(--light-normal-31) * var(--object-normal-32));
+    --object-light-normal-13: calc(var(--light-normal-11) * var(--object-normal-13) + var(--light-normal-21) * var(--object-normal-23) + var(--light-normal-31) * var(--object-normal-33));
+    --object-light-normal-21: calc(var(--light-normal-12) * var(--object-normal-11) + var(--light-normal-22) * var(--object-normal-21) + var(--light-normal-32) * var(--object-normal-31));
+    --object-light-normal-22: calc(var(--light-normal-12) * var(--object-normal-12) + var(--light-normal-22) * var(--object-normal-22) + var(--light-normal-32) * var(--object-normal-32));
+    --object-light-normal-23: calc(var(--light-normal-12) * var(--object-normal-13) + var(--light-normal-22) * var(--object-normal-23) + var(--light-normal-32) * var(--object-normal-33));
+    --object-light-normal-31: calc(var(--light-normal-13) * var(--object-normal-11) + var(--light-normal-23) * var(--object-normal-21) + var(--light-normal-33) * var(--object-normal-31));
+    --object-light-normal-32: calc(var(--light-normal-13) * var(--object-normal-12) + var(--light-normal-23) * var(--object-normal-22) + var(--light-normal-33) * var(--object-normal-32));
+    --object-light-normal-33: calc(var(--light-normal-13) * var(--object-normal-13) + var(--light-normal-23) * var(--object-normal-23) + var(--light-normal-33) * var(--object-normal-33));
 
     /* Cylinder use */
     --light-cylinder-normal-a: calc(var(--object-normal-11) * var(--light-normal-13) + var(--object-normal-21) * var(--light-normal-23) + var(--object-normal-31) * var(--light-normal-33));
@@ -2063,8 +2065,31 @@ body:has(input#natural-light:checked) #shade-layer .face {
         --object-env-31: var(--object-light-normal-31);
         --object-env-32: var(--object-light-normal-32);
         --object-env-33: var(--object-light-normal-33);
+
+      transform:
+          rotateZ(calc(var(--object-z) * -1))
+          rotateY(calc(var(--object-y) * -1))
+          rotateX(calc(var(--object-x) * -1))
+          /* was: rotateY(-scene-y) rotateX(-scene-x)  — undoing the camera */
+          rotateY(var(--light-y))      /* undo the .object Ry(-ly) */
+          rotateX(var(--light-x))      /* undo the .object Rx(-lx) */
+          translateZ(var(--object-size))
+      ;
+
+      clip-path: unset;
+      background: transparent;
     }
 
+    #shadow-layer .octantsphere .face:first-child::before {
+        /* translate: unset; */
+        clip-path: var(--clip-path);
+        background-color: hsl(0 0 62.5%);
+
+    }
+
+    /* #shadow-layer .octantsphere .face:nth-child(n + 2) {
+        display: none;
+    } */
 
     /* .object.octantsphere {
         --elevation-surface: var(--object-size-half-neg);
