@@ -1806,9 +1806,34 @@ body:has(input#natural-light:checked) #shade-layer .face {
 /* Octant-sphere */
 
     .object.octantsphere {
-        --elevation-surface: var(--object-size-half-neg);
-    }
+          /* guard = 1 when that axis is POSITIVE (curved candidate invalid), else 0 */
+          --oct-guard-x: max(0, sign(var(--corner-Rx)));
+          --oct-guard-y: max(0, sign(var(--corner-Ry)));
+          --oct-guard-z: max(0, sign(var(--corner-Rz)));
 
+          /* four corners (heights), now −max convention */
+          --corner1: calc((var(--corner-Rx) * var(--object-size-half))     + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));     /* A */
+          --corner2: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));     /* B  
+  apex/centre */
+          --corner3: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half))     - (var(--corner-Rz) * var(--object-size-half)));     /* C */
+          --corner4: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg))); /* D */
+
+          /* curved-bulge candidates, disabled (+huge) when their guard trips */
+          --corner5: calc(var(--corner2) - var(--object-size)                                            + var(--object-size) * 999 * (var(--oct-guard-x) + var(--oct-guard-y) +
+  var(--oct-guard-z))); /* interior */
+          --corner6: calc(var(--corner2) - var(--object-size) * hypot(var(--corner-Rx), var(--corner-Ry)) + var(--object-size) * 999 * (var(--oct-guard-x) + var(--oct-guard-y))); /* arc 
+  A–C */
+          --corner7: calc(var(--corner2) - var(--object-size) * hypot(var(--corner-Ry), var(--corner-Rz)) + var(--object-size) * 999 * (var(--oct-guard-y) + var(--oct-guard-z))); /* arc 
+  C–D */
+          --corner8: calc(var(--corner2) - var(--object-size) * hypot(var(--corner-Rx), var(--corner-Rz)) + var(--object-size) * 999 * (var(--oct-guard-x) + var(--oct-guard-z))); /* arc 
+  A–D */
+
+          --elevation-surface: min(
+              var(--corner1), var(--corner2), var(--corner3), var(--corner4),
+              var(--corner5), var(--corner6), var(--corner7), var(--corner8)
+          );
+      }
+    
     .octantsphere .face {
         --face-translate: var(--object-size-half);
         --border-radius: 100% 0 0 0;
