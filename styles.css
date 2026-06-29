@@ -1807,8 +1807,6 @@ body:has(input#natural-light:checked) #shade-layer .face {
 
     .object.octantsphere {
         --elevation-surface: var(--object-size-half-neg);
-        /* width: calc(var(--object-size) * 2);
-        height: calc(var(--object-size) * 2); */
     }
 
     .octantsphere .face {
@@ -2086,6 +2084,63 @@ body:has(input#natural-light:checked) #shade-layer .face {
         background-color: hsl(0 0 62.5%);
 
     }
+
+    /* Very similar to sphere */
+    #shade-layer .octantsphere .face:first-child {
+        --lighting-translate: 0;
+        --lighting-bg-angle: calc(90deg + (atan2(var(--light-adjusted-normal-b), var(--light-adjusted-normal-a))));
+        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
+        --shade-light: hsl(0 0 62.5%);
+        --shade-dark: hsl(0 0 37.5%);
+        --shade-light-transform: 
+            rotateX(var(--scene-x))
+            rotateY(var(--scene-y)) 
+            rotateY(var(--light-y)) 
+            rotateX(var(--light-x))   
+            rotateY(0deg)
+            translateZ(var(--lighting-translate))             
+        ;
+        --shade-dark-transform: 
+            rotateX(var(--scene-x))
+            rotateY(var(--scene-y)) 
+            rotateY(var(--light-y)) 
+            rotateX(var(--light-x))   
+            rotateY(180deg)
+            translateZ(var(--lighting-translate))             
+        ;        
+        --after-display: none;
+        --before-transform: unset;
+        --border-radius: 50%;
+    }
+
+    .octantsphere .curved-lighting {
+        display: block;
+        overflow: hidden; /* to review */
+        clip-path: var(--clip-path);
+    }
+
+    .octantsphere .curved-lighting::before, .octantsphere .curved-lighting::after {
+        border-radius: var(--border-radius);
+        clip-path: unset;
+    } 
+
+    .octantsphere .highlight {
+        top: calc(50% - var(--object-size) * .1);
+        left: calc(50% - var(--object-size) * .1);
+        width: calc(var(--object-size) * .2);
+        height: calc(var(--object-size) * .2);
+        background-color: hsl(0 0 75%);
+        --lighting-translate: var(--object-size);
+        transform:  rotateX(var(--scene-x))
+            rotateY(var(--scene-y)) 
+            rotateY(var(--light-y)) 
+            rotateX(var(--light-x))   
+            rotateY(0deg)
+            translateZ(var(--lighting-translate))             
+        ;
+        clip-path: unset;
+    }
+
 
     /* #shadow-layer .octantsphere .face:nth-child(n + 2) {
         display: none;
