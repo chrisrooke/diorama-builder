@@ -2244,3 +2244,44 @@ body:has(input#natural-light:checked) #shade-layer .face {
         ;
         clip-path: unset;
     }
+
+
+
+#object-layer .cylinder.corner, #shade-layer .cylinder.corner {
+        /* --object-env-11: var(--object-scene-normal-11);
+        --object-env-12: var(--object-scene-normal-12);
+        --object-env-13: var(--object-scene-normal-13);
+        --object-env-21: var(--object-scene-normal-21);
+        --object-env-22: var(--object-scene-normal-22);
+        --object-env-23: var(--object-scene-normal-23);
+        --object-env-31: var(--object-scene-normal-31);
+        --object-env-32: var(--object-scene-normal-32);
+        --object-env-33: var(--object-scene-normal-33); */
+
+}
+.cylinder.corner .face:first-child {
+    /* --face-width: hypot(var(--object-size), var(--object-size));
+    width: var(--face-width);
+    left: calc((var(--face-width) - var(--object-size)) / -2); */
+    transform: 
+        /* translateZ(var(--object-size-half-neg))  */
+        /* translateX(var(--object-size-half))  */
+        rotateY(var(--face-y-deg)) rotateX(var(--face-x-deg)) translateZ(var(--face-translate));
+}
+
+.cylinder.corner .face:first-child::before {
+    --before-background: transparent
+}
+
+.cylinder.corner .face:nth-child(2)::before {
+    --border-radius: 100% 0 0 0;
+}
+.cylinder.corner .face:nth-child(2)::after {
+    --border-radius: 0 100% 0 0;
+}
+.cylinder.corner .face:nth-child(3)::before {
+    --border-radius: 0 0 0 100%;
+}
+.cylinder.corner .face:nth-child(3)::after {
+    --border-radius: 0 0 100% 0;
+}
