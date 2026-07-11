@@ -2487,6 +2487,9 @@ body:has(input#natural-light:checked) #shade-layer .face {
 #shade-layer .corner-cylinder {
     opacity: 0;
 }
+#shadow-layer .corner-cylinder {
+    display: none;
+}
 
 #object-layer .corner-cylinder .face:first-child, #shade-layer .corner-cylinder .face:first-child {
     --object-env-11: var(--object-scene-normal-11);
