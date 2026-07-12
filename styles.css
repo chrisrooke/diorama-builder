@@ -2277,6 +2277,16 @@ body:has(input#natural-light:checked) #shade-layer .face {
         rotateX(calc(var(--scene-x) * -1))
         translateZ(var(--object-size))
     ;
+
+    --corner-cylinder-curve-facing: max(
+        calc(var(--object-env-31) * -1),
+        var(--object-env-33)
+    );
+    --opacity: clamp(
+        0,
+        round(up, calc(var(--corner-cylinder-curve-facing) - var(--ff-eps))),
+        1
+    );
     opacity: var(--opacity);
 
     --octant-center-x: calc(.5 * var(--object-env-11) - .5 * var(--object-env-12) - .5 * var(--object-env-13));
@@ -2298,8 +2308,11 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --fb: clamp(0, round(up, var(--object-env-32) - var(--ff-eps)), 1);
     --fc: clamp(0, round(up, var(--object-env-33) - var(--ff-eps)), 1);
 
-    --opacity: max(var(--fa), var(--fb), var(--fc));
-    --opacity: 0.5;
+    /* --opacity: max(var(--fa), var(--fb), var(--fc)); */
+    /* --opacity: 0.5; */
+
+    --corner-cylinder-curve-unit: var(--object-size);
+    --corner-cylinder-curve-canvas: calc(var(--corner-cylinder-curve-unit) * 5);
 
     /* "both endpoints of this edge are behind" */
     --h-ab: calc((1 - var(--fa)) * (1 - var(--fb)));   /* edge AB, opposite corner C */
@@ -2307,13 +2320,21 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --h-ca: calc((1 - var(--fc)) * (1 - var(--fa)));   /* edge CA, opposite corner B */
 
     /* hidden edge -> 50% circle; otherwise |opposite_z| * 50% (abs!) */
-    --minor-ab: max(1%, calc(50% * (var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-env-33)))));
+    /* --minor-ab: max(1%, calc(50% * (var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-env-33)))));
     --minor-bc: max(1%, calc(50% * (var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-env-31)))));
-    --minor-ca: max(1%, calc(50% * (var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-env-32)))));
-    
+    --minor-ca: max(1%, calc(50% * (var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-env-32))))); */
+
+    --minor-ab-scale: calc(var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-env-33)));
+    --minor-bc-scale: calc(var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-env-31)));
+    --minor-ca-scale: calc(var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-env-32)));
+    --minor-ab: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * var(--minor-ab-scale)));
+    --minor-bc: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * var(--minor-bc-scale)));
+    --minor-ca: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * var(--minor-ca-scale)));
+
     --dir-ab: if( style(--object-env-33 < 0): ccw; style(--object-env-33 >= 0): cw);
     --dir-bc: if( style(--object-env-31 < 0): cw; style(--object-env-31 >= 0): ccw);
     --dir-ca: if( style(--object-env-32 < 0): ccw; style(--object-env-32 >= 0): cw);
+    --dir-ca-reverse: if( style(--object-env-32 < 0): cw; style(--object-env-32 >= 0): ccw);
 
     --point-a1x:
         calc(
@@ -2329,7 +2350,9 @@ body:has(input#natural-light:checked) #shade-layer .face {
             + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-y)
         )
     ;
-    --point-a2x:
+    --point-bx: calc(var(--point-a1x) + var(--object-env-12));
+    --point-by: calc(var(--point-a1y) + var(--object-env-22));
+    /* --point-a2x:
         calc(
             var(--fa) * var(--object-env-11) * -1
             + (1 - var(--fa)) * var(--fb) * var(--ab-tan-x)
@@ -2342,8 +2365,8 @@ body:has(input#natural-light:checked) #shade-layer .face {
             + (1 - var(--fa)) * var(--fb) * var(--ab-tan-y)
             + (1 - var(--fa)) * (1 - var(--fb)) * var(--ca-tan-y)
         )
-    ;
-    --point-b1x: 
+    ; */
+    /* --point-b1x: 
         calc(
             var(--fb) * var(--object-env-12)
             + (1 - var(--fb)) * var(--fa) * var(--ab-tan-x)
@@ -2370,8 +2393,8 @@ body:has(input#natural-light:checked) #shade-layer .face {
             + (1 - var(--fb)) * var(--fc) * var(--bc-tan-y)
             + (1 - var(--fb)) * (1 - var(--fc)) * var(--ab-tan-y)
         )
-    ;
-    --point-c1x: 
+    ; */
+    /* --point-c1x: 
         calc(
             var(--fc) * var(--object-env-13)
             + (1 - var(--fc)) * var(--fb) * var(--bc-tan-x)
@@ -2384,7 +2407,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
             + (1 - var(--fc)) * var(--fb) * var(--bc-tan-y)
             + (1 - var(--fc)) * (1 - var(--fb)) * var(--ca-tan-y)
         )
-    ;
+    ; */
     --point-c2x: 
         calc(
             var(--fc) * var(--object-env-13)
@@ -2399,14 +2422,16 @@ body:has(input#natural-light:checked) #shade-layer .face {
             + (1 - var(--fc)) * (1 - var(--fa)) * var(--bc-tan-y)
         )
     ;
+    --point-dx: calc(var(--point-c2x) + var(--object-env-12));
+    --point-dy: calc(var(--point-c2y) + var(--object-env-22));
 
 
-    --point-a1: calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y));
+    /* --point-a1: calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y));
     --point-a2: calc(50% + 50% * var(--point-a2x)) calc(50% - 50% * var(--point-a2y));
     --point-b1: calc(50% + 50% * var(--point-b1x)) calc(50% - 50% * var(--point-b1y));
     --point-b2: calc(50% + 50% * var(--point-b2x)) calc(50% - 50% * var(--point-b2y));
     --point-c1: calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y));
-    --point-c2: calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y));
+    --point-c2: calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y)); */
 
     --arc-test: cw;
     /* --clip-path: shape(
@@ -2419,36 +2444,37 @@ body:has(input#natural-light:checked) #shade-layer .face {
         arc to var(--point-a1) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
         close); */
     --clip-path: shape(
-        from calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y)),
-        arc to calc(50% + 50% * var(--point-a2x)) calc(50% - 50% * var(--point-a2y)) of 50% 50% cw small,
-        arc to calc(50% + 50% * var(--point-b1x)) calc(50% - 50% * var(--point-b1y)) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-env-23), var(--object-env-13))),
-        arc to calc(50% + 50% * var(--point-b2x)) calc(50% - 50% * var(--point-b2y)) of 50% 50% cw small,
-        arc to calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y)) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
-        arc to calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y)) of 50% 50% cw small,
-        arc to calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y)) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        from calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a1y)),
+        line to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-bx)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-by)),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-dx)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-dy)) of var(--minor-ca) var(--corner-cylinder-curve-unit) var(--dir-ca-reverse) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        line to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-c2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-c2y)),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a1y)) of var(--minor-ca) var(--corner-cylinder-curve-unit) var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        /* from calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a1y)),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a2y)) of 50% 50% cw small,
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-b1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-b1y)) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-env-23), var(--object-env-13))),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-b2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-b2y)) of 50% 50% cw small,
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-c1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-c1y)) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-c2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-c2y)) of 50% 50% cw small,
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a1y)) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))), */
         close);
     clip-path: unset;
 
 }
 
 .corner-cylinder .face:first-child::before {
-    width: 500%;
-    height: 500%;
-    left: -200%;
-    top: -200%;
+    width: var(--corner-cylinder-curve-canvas);
+    height: var(--corner-cylinder-curve-canvas);
+    left: calc(50% - (var(--corner-cylinder-curve-canvas) / 2));
+    top: calc(50% - (var(--corner-cylinder-curve-canvas) / 2));
     translate:
         calc(var(--octant-center-x) * var(--object-size))
         calc(var(--octant-center-y) * var(--object-size));
     will-change: transform;
-
 }
 
 
 .corner-cylinder .face:nth-child(2) {
     --face-x-deg: -90deg;
-}
-
-.corner-cylinder .face:nth-child(2)::before {
     --border-radius: 100% 0 0 0;
 }
 .corner-cylinder .face:nth-child(2)::after {
@@ -2457,8 +2483,6 @@ body:has(input#natural-light:checked) #shade-layer .face {
 
 .corner-cylinder .face:nth-child(3) {
     --face-x-deg: 90deg;
-}
-.corner-cylinder .face:nth-child(3)::before {
     --border-radius: 0 0 0 100%;
 }
 .corner-cylinder .face:nth-child(3)::after {
@@ -2466,29 +2490,20 @@ body:has(input#natural-light:checked) #shade-layer .face {
 }
 .corner-cylinder .face:nth-child(4) {
     --face-y-deg: 180deg;
-    --face-translate: var(--object-size-half);
 }
 .corner-cylinder .face:nth-child(5) {
     --face-y-deg: 90deg;
-    --face-translate: var(--object-size-half);
 }
-
 .corner-cylinder .face:nth-child(5) {
     --face-y-deg: 90deg;
-    --face-translate: var(--object-size-half);
 }
-
 .corner-cylinder .face:nth-child(n+6) {
     display: none;
 }
 
 
-
 #shade-layer .corner-cylinder {
     opacity: 0;
-}
-#shadow-layer .corner-cylinder {
-    display: none;
 }
 
 #object-layer .corner-cylinder .face:first-child, #shade-layer .corner-cylinder .face:first-child {
@@ -2501,4 +2516,34 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --object-env-31: var(--object-scene-normal-31);
     --object-env-32: var(--object-scene-normal-32);
     --object-env-33: var(--object-scene-normal-33);
+}
+
+#shadow-layer .corner-cylinder .face:first-child {
+    --object-env-11: var(--object-light-normal-11);
+    --object-env-12: var(--object-light-normal-12);
+    --object-env-13: var(--object-light-normal-13);
+    --object-env-21: var(--object-light-normal-21);
+    --object-env-22: var(--object-light-normal-22);
+    --object-env-23: var(--object-light-normal-23);
+    --object-env-31: var(--object-light-normal-31);
+    --object-env-32: var(--object-light-normal-32);
+    --object-env-33: var(--object-light-normal-33);
+
+    transform:
+        rotateZ(calc(var(--object-z) * -1))
+        rotateY(calc(var(--object-y) * -1))
+        rotateX(calc(var(--object-x) * -1))
+        /* was: rotateY(-scene-y) rotateX(-scene-x)  — undoing the camera */
+        rotateY(var(--light-y))      /* undo the .object Ry(-ly) */
+        rotateX(var(--light-x))      /* undo the .object Rx(-lx) */
+        translateZ(var(--object-size))
+    ;
+
+    clip-path: unset;
+    background: transparent;
+}
+#shadow-layer .corner-cylinder .face:first-child::before {
+    /* translate: unset; */
+    clip-path: var(--clip-path);
+    background-color: hsl(0 0 62.5%);
 }
