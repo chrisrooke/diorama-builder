@@ -2594,62 +2594,47 @@ body:has(input#natural-light:checked) #shade-layer .face {
         background: linear-gradient(calc(90deg + var(--background-rotation)), hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
     } 
 
-#shade-layer .object.corner-cylinder .face:first-child {
-    /* background-color: green; */
-        --before-background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
-        --before-transform: calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1);
-        /* --before-transform: unset; */
-        /* --before-angle: calc(90deg + 180deg * clamp(0, round(up, var(--dot-product-light-scene-face-object-scene-x)), 1)); */
-        clip-path: var(--clip-path);
-        transform:
-            rotateZ(calc(var(--object-z) * -1))
-            rotateY(calc(var(--object-y) * -1))
-            rotateX(calc(var(--object-x) * -1))
-            rotateY(calc(var(--scene-y) * -1)) 
-            rotateX(calc(var(--scene-x) * -1))
-            translateZ(var(--object-size))
-            translateX(calc(var(--octant-center-x) * var(--object-size)))
-            translateY(calc(var(--octant-center-y) * var(--object-size)));
-        --face-y-deg: calc(atan2(var(--px), var(--pz)));
-}
-#shade-layer .object.corner-cylinder .face:first-child::before {
-    clip-path: unset;
+    #shade-layer .corner-cylinder .face:first-child {
+    --face-y-deg: calc(atan2(var(--px), var(--pz)));
+        --octant-center-x: calc(.5 * var(--object-env-11) - .5 * var(--object-env-12) - .5 * var(--object-env-13));
+        --octant-center-y: calc(-.5 * var(--object-env-21) + .5 * var(--object-env-22) + .5 * var(--object-env-23));
+
+    clip-path: var(--clip-path);
+        transform: 
+        rotateZ(calc(var(--object-z) * -1))
+        rotateY(calc(var(--object-y) * -1))
+        rotateX(calc(var(--object-x) * -1))
+        rotateY(calc(var(--scene-y) * -1)) 
+        rotateX(calc(var(--scene-x) * -1))
+        translateZ(var(--object-size))
+        translateX(calc(var(--octant-center-x) * var(--object-size)))
+        translateY(calc(var(--octant-center-y) * var(--object-size)))
+    ;
+
+    }
+
+#shade-layer .corner-cylinder .face:first-child::before {
+
+    background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+    width: calc(var(--object-size) * 5);
+    height: calc(var(--object-size) * 5);
+    top: calc(var(--object-size) * -2);
+    left: calc(var(--object-size) * -2);
     translate: unset;
-    width: 500%;
-    height: 500%;
-    top: -200%;
-    left: -200%;
-    transform: 
-        translateX(calc(-1 * var(--octant-center-x) * var(--object-size)))
-        translateY(calc(-1 * var(--octant-center-y) * var(--object-size)))
-        rotateX(var(--scene-x))
-        rotateY(var(--scene-y))
-        rotateX(var(--object-x))
-        rotateY(var(--object-y))
-        rotateZ(var(--object-z))
-        rotateY(var(--face-y-deg))
-        scaleX(var(--before-transform))
-        ;
-}
-
-#shade-layer .object.corner-cylinder .top-bottom {
-    display: none;
-}
-
-#shade-layer .object.corner-cylinder .curved-lighting {
-    width: 200%;
-    height: 100%;
-    top: 0;
-    left: -50%;
-    position: absolute;
-    display: block;
-        --shade-light: hsl(0 0 var(--lightness-bright));
-        --shade-dark: hsl(0 0 var(--lightness-dark));
-    transform: 
-        rotateY(calc(atan2(calc(var(--light-cylinder-normal-a)),var(--light-cylinder-normal-c))))
-      rotateY(calc((atan2(var(--px) * -1, var(--pz)))));
-}
-
-#shade-layer .object.corner-cylinder .curved-lighting::before, #shade-layer .object.corner-cylinder .curved-lighting::after {
     clip-path: unset;
+    transform: 
+            translateY(calc(-1 * var(--octant-center-y) * var(--object-size)))
+            translateX(calc(-1 * var(--octant-center-x) * var(--object-size)))
+            rotateX(var(--scene-x))
+            rotateY(var(--scene-y))
+            rotateX(var(--object-x))
+            rotateY(var(--object-y))
+            rotateZ(var(--object-z))
+            translateX(var(--object-size-half))
+            translateZ(var(--object-size-half-neg))
+            rotateY(var(--face-y-deg))
+            scaleX(calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1));
+        /* translateZ(calc(hypot(var(--object-size), var(--object-size)) / 2))
+        translateX(calc(var(--octant-center-x) * var(--object-size))) */
+    ;
 }
