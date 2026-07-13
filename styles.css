@@ -2501,11 +2501,6 @@ body:has(input#natural-light:checked) #shade-layer .face {
     display: none;
 }
 
-
-#shade-layer .corner-cylinder {
-    opacity: 0;
-}
-
 #object-layer .corner-cylinder .face:first-child, #shade-layer .corner-cylinder .face:first-child {
     --object-env-11: var(--object-scene-normal-11);
     --object-env-12: var(--object-scene-normal-12);
@@ -2546,4 +2541,115 @@ body:has(input#natural-light:checked) #shade-layer .face {
     /* translate: unset; */
     clip-path: var(--clip-path);
     background-color: hsl(0 0 62.5%);
+}
+
+#shade-layer .corner-cylinder .face {
+    --after-display: none;
+}
+
+#shade-layer .object.corner-cylinder {
+        --face-x-deg: 0deg;
+        --face-x-calc: calc(var(--face-x-deg) * -1);
+        --s-fx: sin(var(--face-x-calc));
+        --c-fx: cos(var(--face-x-calc));
+
+        --face-bright-y-deg: calc(atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
+        --face-dark-y-deg: calc(180deg + atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
+        --face-bright-y-calc: calc(var(--face-bright-y-deg) * -1);
+        --face-dark-y-calc: calc(var(--face-dark-y-deg) * -1);
+
+        --face-bright-normal-a: calc(sin(var(--face-bright-y-calc)) * var(--c-fx));
+        --face-bright-normal-b: calc(-1 * var(--s-fx));
+        --face-bright-normal-c: calc(var(--c-fx) * cos(var(--face-bright-y-calc)));
+        --bright-dot-product: calc(
+            (var(--face-bright-normal-a) * var(--light-cylinder-normal-a)) +
+            (var(--face-bright-normal-b) * var(--light-cylinder-normal-b)) +
+            (var(--face-bright-normal-c) * var(--light-cylinder-normal-c))
+        );
+
+        --face-dark-normal-a: calc(sin(var(--face-dark-y-calc)) * var(--c-fx));
+        --face-dark-normal-b: calc(-1 * var(--s-fx));
+        --face-dark-normal-c: calc(var(--c-fx) * cos(var(--face-dark-y-calc)));
+        --dark-dot-product: calc(
+            (var(--face-dark-normal-a) * var(--light-cylinder-normal-a)) +
+            (var(--face-dark-normal-b) * var(--light-cylinder-normal-b)) +
+            (var(--face-dark-normal-c) * var(--light-cylinder-normal-c))
+        );
+
+        --lighting-peak-bright: cos(var(--cone-angle));
+        --lighting-peak-dark: calc(var(--lighting-peak-bright) * -1);
+        --lighting-multiplier-bright: calc(
+            ((1 - sign(var(--light-cylinder-normal-b) - var(--lighting-peak-bright))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-bright)) / (var(--lighting-peak-bright) + 1),2)) + 
+            ((1 + sign(var(--light-cylinder-normal-b) - var(--lighting-peak-bright))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-bright)) / (1 - var(--lighting-peak-bright)),2))
+        );
+        --lighting-multiplier-dark: calc(
+            ((1 - sign(var(--light-cylinder-normal-b) - var(--lighting-peak-dark))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-dark)) / (var(--lighting-peak-dark) + 1),2)) + 
+            ((1 + sign(var(--light-cylinder-normal-b) - var(--lighting-peak-dark))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-dark)) / (1 - var(--lighting-peak-dark)),2))
+        );
+
+        /* --lightness-bright: calc(50% + (25% - 12.5% * var(--lighting-multiplier-bright)) * var(--bright-dot-product)); */
+        --lightness-bright: calc(37.5% + (25% * clamp(0, round(down, var(--bright-dot-product) + 1, 1), 1)));
+        /* --lightness-dark: calc(50% + (25% - 12.5% * var(--lighting-multiplier-dark)) * var(--dark-dot-product)); */
+        --lightness-dark: calc(37.5% + (25% * clamp(0, round(down, var(--dark-dot-product) + 1, 1), 1)));
+        background: linear-gradient(calc(90deg + var(--background-rotation)), hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+    } 
+
+#shade-layer .object.corner-cylinder .face:first-child {
+    /* background-color: green; */
+        --before-background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+        --before-transform: calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1);
+        /* --before-transform: unset; */
+        /* --before-angle: calc(90deg + 180deg * clamp(0, round(up, var(--dot-product-light-scene-face-object-scene-x)), 1)); */
+        clip-path: var(--clip-path);
+        transform:
+            rotateZ(calc(var(--object-z) * -1))
+            rotateY(calc(var(--object-y) * -1))
+            rotateX(calc(var(--object-x) * -1))
+            rotateY(calc(var(--scene-y) * -1)) 
+            rotateX(calc(var(--scene-x) * -1))
+            translateZ(var(--object-size))
+            translateX(calc(var(--octant-center-x) * var(--object-size)))
+            translateY(calc(var(--octant-center-y) * var(--object-size)));
+        --face-y-deg: calc(atan2(var(--px), var(--pz)));
+}
+#shade-layer .object.corner-cylinder .face:first-child::before {
+    clip-path: unset;
+    translate: unset;
+    width: 500%;
+    height: 500%;
+    top: -200%;
+    left: -200%;
+    transform: 
+        translateX(calc(-1 * var(--octant-center-x) * var(--object-size)))
+        translateY(calc(-1 * var(--octant-center-y) * var(--object-size)))
+        rotateX(var(--scene-x))
+        rotateY(var(--scene-y))
+        rotateX(var(--object-x))
+        rotateY(var(--object-y))
+        rotateZ(var(--object-z))
+        rotateY(var(--face-y-deg))
+        scaleX(var(--before-transform))
+        ;
+}
+
+#shade-layer .object.corner-cylinder .top-bottom {
+    display: none;
+}
+
+#shade-layer .object.corner-cylinder .curved-lighting {
+    width: 200%;
+    height: 100%;
+    top: 0;
+    left: -50%;
+    position: absolute;
+    display: block;
+        --shade-light: hsl(0 0 var(--lightness-bright));
+        --shade-dark: hsl(0 0 var(--lightness-dark));
+    transform: 
+        rotateY(calc(atan2(calc(var(--light-cylinder-normal-a)),var(--light-cylinder-normal-c))))
+      rotateY(calc((atan2(var(--px) * -1, var(--pz)))));
+}
+
+#shade-layer .object.corner-cylinder .curved-lighting::before, #shade-layer .object.corner-cylinder .curved-lighting::after {
+    clip-path: unset;
 }
