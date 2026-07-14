@@ -2262,6 +2262,20 @@ body:has(input#natural-light:checked) #shade-layer .face {
 .object.corner-cylinder {
     --elevation-surface: var(--object-size-half-neg);
     --cone-angle: 90deg;
+    --corner1: calc((var(--corner-Rx) * var(--object-size-half))     + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));     /* Front base */
+    --corner2: calc((var(--corner-Rx) * var(--object-size-half))     + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));     /* Front top */
+    --corner3: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));     /* apex/centre */
+    --corner4: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half))     - (var(--corner-Rz) * var(--object-size-half)));     /* above apex */
+    --corner5: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg))); /* Left base */
+    --corner6: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half-neg))); /* Left top */
+  --elevation-surface: calc(
+      -1 * max(var(--corner-Ry), calc(var(--corner-Ry) * -1)) * var(--object-size-half)
+      - var(--object-size-half) * (var(--corner-Rx) + var(--corner-Rz))
+      - var(--object-size) * sqrt(
+          pow(max(0, calc(var(--corner-Rx) * -1)), 2)
+        + pow(max(0, calc(var(--corner-Rz) * -1)), 2)
+      )
+  );
 }
 
 .corner-cylinder .face {
@@ -2620,6 +2634,10 @@ body:has(input#natural-light:checked) #shade-layer .face {
     height: calc(var(--object-size) * 5);
     top: calc(var(--object-size) * -2);
     left: calc(var(--object-size) * -2);
+    width: calc(var(--object-size) * 2);
+    height: calc(var(--object-size));
+    top: 0;
+    left: calc(var(--object-size) * -.5);
     translate: unset;
     clip-path: unset;
     transform: 
@@ -2637,4 +2655,58 @@ body:has(input#natural-light:checked) #shade-layer .face {
         /* translateZ(calc(hypot(var(--object-size), var(--object-size)) / 2))
         translateX(calc(var(--octant-center-x) * var(--object-size))) */
     ;
+}
+
+#shade-layer .corner-cylinder .curved-lighting {
+    width: calc(var(--object-size) * 2);
+    height: calc(var(--object-size) * 2);
+    top: calc(var(--object-size) * -.5);
+    left: calc(var(--object-size) * -.5);
+    display: block;
+    transform:
+        translateY(calc(-1 * var(--octant-center-y) * var(--object-size)))
+        translateX(calc(-1 * var(--octant-center-x) * var(--object-size)))
+        rotateX(var(--scene-x))
+        rotateY(var(--scene-y))
+        rotateX(var(--object-x))
+        rotateY(var(--object-y))
+        rotateZ(var(--object-z))
+        translateX(var(--object-size-half))
+        translateZ(var(--object-size-half-neg))
+        rotateY(var(--face-y-deg))
+        rotateY(calc(atan2(calc(var(--light-cylinder-normal-a)),var(--light-cylinder-normal-c))))
+        rotateY(calc((atan2(var(--px) * -1, var(--pz)))))
+    ;
+}
+
+#shade-layer .corner-cylinder .curved-lighting::before, #shade-layer .corner-cylinder .curved-lighting::after {
+    clip-path: unset;
+    /* background: blue; */
+}
+
+#shade-layer .corner-cylinder .curved-lighting::before {
+    background: hsl(0 0 62.5%);
+}
+#shade-layer .corner-cylinder .curved-lighting::after {
+    background: hsl(0 0 37.5%);
+}
+
+#shade-layer .corner-cylinder .highlight {
+    clip-path: unset;
+    --cone-angle: 90deg;
+    --highlight-angle: calc(90deg - var(--cone-angle));
+    --highlight-scale: clamp(0, calc((var(--bright-dot-product) - var(--shade-calc))/(1 - var(--shade-calc))), 1);
+    /* --lightness-highlight: calc(50% + 25% * var(--bright-dot-product)); */
+    --lightness-highlight: 75%;
+    background-color: hsl(0 0 var(--lightness-highlight));
+    left: calc(50% - var(--object-size) * .1);
+    width: calc(var(--object-size) * .2);
+    transform:         
+    translateZ(var(--object-size)) rotateX(var(--highlight-angle)) scaleX(var(--highlight-scale));
+
+}
+
+#shade-layer .corner-cylinder .top-bottom {
+    /* height: calc(var(--object-size) * 2);
+    top: calc(var(--object-size) * -.5); */
 }
