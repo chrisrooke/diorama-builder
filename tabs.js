@@ -164,7 +164,7 @@ bindSlider('scene-x', '--scene-x-unit');
 bindSlider('scene-y', '--scene-y-unit');
 
 // Objects
-const SHAPE_CLASSES = ['cube', 'tetrahedron', 'pyramid', 'dodecahedron', 'sphere', 'cylinder', 'cone', 'hemisphere', 'octantsphere', 'slope', 'slope-corner', 'corner-cylinder'];
+const SHAPE_CLASSES = ['cube', 'tetrahedron', 'pyramid', 'dodecahedron', 'sphere', 'cylinder', 'cone', 'hemisphere', 'octantsphere', 'slope', 'slope-corner', 'corner-cylinder', 'corner-cone'];
 
 const OBJECT_DEFAULTS = {
     // 'object1': { '--x-pos': '3', '--y-pos': '0', '--z-pos': '2' },
