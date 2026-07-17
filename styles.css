@@ -2782,7 +2782,15 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --fb: clamp(0, round(up, var(--object-env-32) - var(--ff-eps)), 1);
     --fc: clamp(0, round(up, var(--object-env-33) - var(--ff-eps)), 1);
 
-    --opacity: max(var(--fa), var(--fb), var(--fc));
+    /* Cone visibility: the curved patch shows iff some ruling faces the
+        viewer, i.e. max g(θ) > 0 over θ∈[0deg,90deg] where
+        g(θ) = -e31·cosθ + e33·sinθ + e32 = R·cos(θ-ψ) + e32 is the depth
+        component of the surface normal along the ruling (see the silhouette
+        notes at the clip path below). The max of the cosine over the quarter
+        turn is cos of the angular distance from ψ to [0deg,90deg]. */
+    --cone-psi-n: calc(mod(var(--cone-psi) + 135deg, 360deg) - 135deg);
+    --cone-gmax: calc(var(--dca) * cos(max(0deg, calc(-1 * var(--cone-psi-n)), calc(var(--cone-psi-n) - 90deg))) + var(--object-env-32));
+    --opacity: clamp(0, round(up, calc(var(--cone-gmax) - var(--ff-eps))), 1);
 
     /* "both endpoints of this edge are behind" */
     --h-ab: calc((1 - var(--fa)) * (1 - var(--fb)));   /* edge AB, opposite corner C */
@@ -2891,24 +2899,72 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --point-c1: calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y));
     --point-c2: calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y));
 
-    --arc-test: cw;
-    /* --clip-path: shape(
-        from var(--point-a1),
-        arc to var(--point-a2) of 50% 50% cw small,
-        arc to var(--point-b1) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-env-23), var(--object-env-13))),
-        arc to var(--point-b2) of 50% 50% cw small,
-        arc to var(--point-c1) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
-        arc to var(--point-c2) of 50% 50% cw small,
-        arc to var(--point-a1) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
-        close); */
+    /* ---- cone silhouette ----
+        The curved patch projects through the fan of rulings: segments from
+        the apex projection P=(e12,e22) to the base arc
+        q(θ) = cosθ·A + sinθ·C, A=(-e11,-e21), C=(e13,e23), θ∈[0deg,90deg].
+        The billboard is composited on top of the flat faces, so the clip
+        must cover only the VISIBLE part of the curved surface. The solid is
+        convex, so that is exactly the front-facing part: rulings where the
+        surface normal's depth g(θ) = -e31·cosθ + e33·sinθ + e32
+        = R·cos(θ-ψ) + e32 is ≥ 0 (equivalently: the ray P→q(θ) is tangent
+        to the base ellipse at g = 0), i.e. θ ∈ (ψ-α, ψ+α) with
+        α = acos(-e32/R), R = --dca. The lower clamp on the acos argument is
+        biased off -1 so views hit at exactly e32 = 1/√2 (e.g. scene-x -45)
+        resolve as "wrapped" below instead of collapsing the shape. */
+    --cone-psi: atan2(var(--object-env-33), calc(-1 * var(--object-env-31)));
+    --cone-alpha: acos(clamp(-0.999999, calc(-1 * var(--object-env-32) / var(--dca)), 1));
+
+    /* Roots normalized into [-135deg, 225deg) — the window centred on the
+        arc's 45deg midpoint — so a root genuinely inside [0deg,90deg] always
+        keeps its true value; roots outside then clamp to the nearest end. */
+    --cone-t1: calc(mod(var(--cone-psi) - var(--cone-alpha) + 135deg, 360deg) - 135deg);
+    --cone-t2: calc(mod(var(--cone-psi) + var(--cone-alpha) + 135deg, 360deg) - 135deg);
+    --cone-u1: clamp(0deg, min(var(--cone-t1), var(--cone-t2)), 90deg);
+    --cone-u2: clamp(0deg, max(var(--cone-t1), var(--cone-t2)), 90deg);
+
+    /* Which side of the roots is front-facing? If the normalized g>0
+        interval doesn't wrap the window edge (t1 < t2), the visible span is
+        the single piece [u1,u2]. If it wraps (t1 > t2), the back-facing dip
+        lies between the roots and the visible span is the two end pieces
+        [0deg,u1] and [u2,90deg] — the "sliver at each end" views. sin of the
+        half-difference turns the angle comparison into a number for the
+        style() queries; its sign matches (t1 - t2). */
+    --cone-wrap-s: calc(sin(calc((var(--cone-t1) - var(--cone-t2)) / 2)));
+    --cone-va1: if( style(--cone-wrap-s > 0): 0deg; style(--cone-wrap-s <= 0): var(--cone-u1));
+    --cone-va2: if( style(--cone-wrap-s > 0): var(--cone-u1); style(--cone-wrap-s <= 0): var(--cone-u2));
+    --cone-vb2: if( style(--cone-wrap-s > 0): 90deg; style(--cone-wrap-s <= 0): var(--cone-u2));
+
+    --cone-va1x: calc(sin(var(--cone-va1)) * var(--object-env-13) - cos(var(--cone-va1)) * var(--object-env-11));
+    --cone-va1y: calc(sin(var(--cone-va1)) * var(--object-env-23) - cos(var(--cone-va1)) * var(--object-env-21));
+    --cone-va2x: calc(sin(var(--cone-va2)) * var(--object-env-13) - cos(var(--cone-va2)) * var(--object-env-11));
+    --cone-va2y: calc(sin(var(--cone-va2)) * var(--object-env-23) - cos(var(--cone-va2)) * var(--object-env-21));
+    --cone-vb1x: calc(sin(var(--cone-u2)) * var(--object-env-13) - cos(var(--cone-u2)) * var(--object-env-11));
+    --cone-vb1y: calc(sin(var(--cone-u2)) * var(--object-env-23) - cos(var(--cone-u2)) * var(--object-env-21));
+    --cone-vb2x: calc(sin(var(--cone-vb2)) * var(--object-env-13) - cos(var(--cone-vb2)) * var(--object-env-11));
+    --cone-vb2y: calc(sin(var(--cone-vb2)) * var(--object-env-23) - cos(var(--cone-vb2)) * var(--object-env-21));
+
+    /* base-circle projection: minor semi-axis 50%·|e32| along B̂'s
+        projection, major 50%; same 1% floor as the sphere's --minor-ca */
+    --cone-minor: max(1%, calc(50% * abs(var(--object-env-32))));
+    --cone-rot: calc(-1 * atan2(var(--object-env-22), var(--object-env-12)));
+
+    /* screen sweep sense of q(θ) with θ increasing (A→C) flips with the
+        apex depth; both arcs below are drawn θ-increasing */
+    --cone-dir-inc: if( style(--object-env-32 < 0): cw; style(--object-env-32 >= 0): ccw);
+
+    /* Two pie sub-fans P→[va1,va2] and P→[u2,vb2]; the second collapses to
+        zero area in the unwrapped case (vb2 = u2). The fan edges at
+        θ = 0deg / 90deg coincide with the hypotenuses of the back and right
+        triangle faces, and tangent-ruling edges are where the surface curls
+        out of view, so the clip meets the flat faces exactly. */
     --clip-path: shape(
-        from calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y)),
-        arc to calc(50% + 50% * var(--point-a2x)) calc(50% - 50% * var(--point-a2y)) of 50% 50% cw small,
-        arc to calc(50% + 50% * var(--point-b1x)) calc(50% - 50% * var(--point-b1y)) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-env-23), var(--object-env-13))),
-        arc to calc(50% + 50% * var(--point-b2x)) calc(50% - 50% * var(--point-b2y)) of 50% 50% cw small,
-        arc to calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y)) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
-        arc to calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y)) of 50% 50% cw small,
-        arc to calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y)) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        from calc(50% + 50% * var(--object-env-12)) calc(50% - 50% * var(--object-env-22)),
+        line to calc(50% + 50% * var(--cone-va1x)) calc(50% - 50% * var(--cone-va1y)),
+        arc to calc(50% + 50% * var(--cone-va2x)) calc(50% - 50% * var(--cone-va2y)) of var(--cone-minor) 50% var(--cone-dir-inc) small rotate var(--cone-rot),
+        line to calc(50% + 50% * var(--object-env-12)) calc(50% - 50% * var(--object-env-22)),
+        line to calc(50% + 50% * var(--cone-vb1x)) calc(50% - 50% * var(--cone-vb1y)),
+        arc to calc(50% + 50% * var(--cone-vb2x)) calc(50% - 50% * var(--cone-vb2y)) of var(--cone-minor) 50% var(--cone-dir-inc) small rotate var(--cone-rot),
         close);
     clip-path: unset;
 }
@@ -2928,6 +2984,10 @@ body:has(input#natural-light:checked) #shade-layer .face {
             calc(var(--octant-center-x) * var(--object-size))
             calc(var(--octant-center-y) * var(--object-size));
         will-change: transform;
+    }
+    #object-layer .corner-cone .face:first-child::before {
+            background-color: coral;
+
     }
     .corner-cone .face:nth-child(2) {
         --face-x-deg: -90deg;
