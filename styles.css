@@ -2715,18 +2715,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
     display: none;
 }
 
-#object-layer .cylinder2 .face:nth-child(4) {
-    --object-env-11: var(--object-scene-normal-11);
-    --object-env-12: var(--object-scene-normal-12);
-    --object-env-13: var(--object-scene-normal-13);
-    --object-env-21: var(--object-scene-normal-21);
-    --object-env-22: var(--object-scene-normal-22);
-    --object-env-23: var(--object-scene-normal-23);
-    --object-env-31: var(--object-scene-normal-31);
-    --object-env-32: var(--object-scene-normal-32);
-    --object-env-33: var(--object-scene-normal-33);
-
-
+.cylinder2 .face:nth-child(4) {
     display: block;
     transform: 
         rotateZ(calc(var(--object-z) * -1))
@@ -2738,12 +2727,54 @@ body:has(input#natural-light:checked) #shade-layer .face {
     ;
 }
 
-#object-layer .cylinder2 .face:nth-child(4)::before {
+#object-layer .cylinder2 .face:nth-child(4), #shade-layer .cylinder2 .face:nth-child(4) {
+    --object-env-11: var(--object-scene-normal-11);
+    --object-env-12: var(--object-scene-normal-12);
+    --object-env-13: var(--object-scene-normal-13);
+    --object-env-21: var(--object-scene-normal-21);
+    --object-env-22: var(--object-scene-normal-22);
+    --object-env-23: var(--object-scene-normal-23);
+    --object-env-31: var(--object-scene-normal-31);
+    --object-env-32: var(--object-scene-normal-32);
+    --object-env-33: var(--object-scene-normal-33);
+}
+
+#shadow-layer .cylinder2 .face:nth-child(4) {
+    --object-env-11: var(--object-light-normal-11);
+    --object-env-12: var(--object-light-normal-12);
+    --object-env-13: var(--object-light-normal-13);
+    --object-env-21: var(--object-light-normal-21);
+    --object-env-22: var(--object-light-normal-22);
+    --object-env-23: var(--object-light-normal-23);
+    --object-env-31: var(--object-light-normal-31);
+    --object-env-32: var(--object-light-normal-32);
+    --object-env-33: var(--object-light-normal-33);
+
+    transform:
+        rotateZ(calc(var(--object-z) * -1))
+        rotateY(calc(var(--object-y) * -1))
+        rotateX(calc(var(--object-x) * -1))
+        /* was: rotateY(-scene-y) rotateX(-scene-x)  — undoing the camera */
+        rotateY(var(--light-y))      /* undo the .object Ry(-ly) */
+        rotateX(var(--light-x))      /* undo the .object Rx(-lx) */
+        translateZ(var(--object-size))
+    ;
+
+    clip-path: unset;
+    /* background: transparent; */
+}
+
+.cylinder2 .face:nth-child(4)::before {
     width: calc(var(--object-size) * 2);
     height: calc(var(--object-size) * 2);
     left: calc(var(--object-size) * -.5);
     top: calc(var(--object-size) * -.5);
-    background-color: coral;
+}
+.cylinder2 .face:nth-child(4) {
+        --face-translate: 0;
+        --face-y-deg: calc(atan2(var(--px), var(--pz)));
+        --before-background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+        --before-transform: scaleX(calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1));
 
     --corner-cylinder-curve-facing: max(
         calc(var(--object-env-31) * -1),
@@ -2957,7 +2988,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --dir-ca: if( style(--object-env-32 < 0): ccw; style(--object-env-32 >= 0): cw);
     --dir-ca-reverse: if( style(--object-env-32 < 0): cw; style(--object-env-32 >= 0): ccw);
 
-    clip-path: shape(
+    --clip-path: shape(
         from calc(50% + var(--object-size-half) * var(--cyl-p1x)) calc(50% - var(--object-size-half) * var(--cyl-p1y)),
         arc to calc(50% + var(--object-size-half) * var(--cyl-p2x)) calc(50% - var(--object-size-half) * var(--cyl-p2y)) of var(--cyl-minor) var(--object-size-half) var(--dir-ca-reverse) small rotate var(--cyl-rotate),
         line to calc(50% - var(--object-size-half) * var(--cyl-p1x)) calc(50% + var(--object-size-half) * var(--cyl-p1y)),
@@ -2965,4 +2996,49 @@ body:has(input#natural-light:checked) #shade-layer .face {
         close
     );
     /* clip-path: var(--clip-path); */
+}
+#shadow-layer .cylinder2 .face:nth-child(4) {
+    background: transparent;
+}
+#shadow-layer .cylinder2 .face:nth-child(4)::before {
+    clip-path: var(--clip-path);
+    background-color: hsl(0 0 62.5%);
+}
+
+#shade-layer .cylinder2 .face:nth-child(4)::before {
+    display: none;
+}
+
+.clip-reset {
+    --face-y-deg: calc(atan2(var(--px), var(--pz)));
+    transform:
+        rotateX(var(--scene-x))
+        rotateY(var(--scene-y))
+        rotateX(var(--object-x))
+        rotateY(var(--object-y))
+        rotateZ(var(--object-z))
+        rotateY(var(--face-y-deg))
+    ;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+}
+
+#shade-layer .cylinder2 .curved-lighting::before, #shade-layer .cylinder2 .curved-lighting::after {
+    clip-path: unset;
+}
+
+.clip-reset::before {
+    --face-y-deg: calc(atan2(var(--px), var(--pz)));
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--before-background);
+    transform: var(--before-transform);
+    content: '';
 }
