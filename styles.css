@@ -264,6 +264,10 @@ body:has(#shape_slope:checked) {
 body:has(#shape_slope-corner:checked) {
     --object-shape: slope-corner;
 }
+body:has(#shape_corner-cylinder:checked) {
+    --object-shape: corner-cylinder;
+}
+
 
 figure, ul {
     margin: 0;
@@ -2736,6 +2740,9 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --octant-center-x: calc(.5 * var(--object-env-11) - .5 * var(--object-env-12) - .5 * var(--object-env-13));
     --octant-center-y: calc(-.5 * var(--object-env-21) + .5 * var(--object-env-22) + .5 * var(--object-env-23));
 
+    --corner-cylinder-curve-unit: var(--object-size);
+    --corner-cylinder-curve-canvas: calc(var(--corner-cylinder-curve-unit) * 5);
+
     opacity: var(--opacity);
         
     /* display: none; */
@@ -2944,9 +2951,11 @@ body:has(input#natural-light:checked) #shade-layer .face {
     --cone-vb2x: calc(sin(var(--cone-vb2)) * var(--object-env-13) - cos(var(--cone-vb2)) * var(--object-env-11));
     --cone-vb2y: calc(sin(var(--cone-vb2)) * var(--object-env-23) - cos(var(--cone-vb2)) * var(--object-env-21));
 
-    /* base-circle projection: minor semi-axis 50%·|e32| along B̂'s
-        projection, major 50%; same 1% floor as the sphere's --minor-ca */
-    --cone-minor: max(1%, calc(50% * abs(var(--object-env-32))));
+    /* base-circle projection: minor semi-axis |e32|·R along B̂'s projection,
+        major R = curve-unit. Length-based (not %) so the same --clip-path
+        resolves identically on the object layer's 200% ::before and the
+        shade layer's 100% face box; .02 floor matches the old 1%-of-2S. */
+    --cone-minor: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * abs(var(--object-env-32))));
     --cone-rot: calc(-1 * atan2(var(--object-env-22), var(--object-env-12)));
 
     /* screen sweep sense of q(θ) with θ increasing (A→C) flips with the
@@ -2959,12 +2968,12 @@ body:has(input#natural-light:checked) #shade-layer .face {
         triangle faces, and tangent-ruling edges are where the surface curls
         out of view, so the clip meets the flat faces exactly. */
     --clip-path: shape(
-        from calc(50% + 50% * var(--object-env-12)) calc(50% - 50% * var(--object-env-22)),
-        line to calc(50% + 50% * var(--cone-va1x)) calc(50% - 50% * var(--cone-va1y)),
-        arc to calc(50% + 50% * var(--cone-va2x)) calc(50% - 50% * var(--cone-va2y)) of var(--cone-minor) 50% var(--cone-dir-inc) small rotate var(--cone-rot),
-        line to calc(50% + 50% * var(--object-env-12)) calc(50% - 50% * var(--object-env-22)),
-        line to calc(50% + 50% * var(--cone-vb1x)) calc(50% - 50% * var(--cone-vb1y)),
-        arc to calc(50% + 50% * var(--cone-vb2x)) calc(50% - 50% * var(--cone-vb2y)) of var(--cone-minor) 50% var(--cone-dir-inc) small rotate var(--cone-rot),
+        from calc(50% + var(--corner-cylinder-curve-unit) * var(--object-env-12)) calc(50% - var(--corner-cylinder-curve-unit) * var(--object-env-22)),
+        line to calc(50% + var(--corner-cylinder-curve-unit) * var(--cone-va1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--cone-va1y)),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--cone-va2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--cone-va2y)) of var(--cone-minor) var(--corner-cylinder-curve-unit) var(--cone-dir-inc) small rotate var(--cone-rot),
+        line to calc(50% + var(--corner-cylinder-curve-unit) * var(--object-env-12)) calc(50% - var(--corner-cylinder-curve-unit) * var(--object-env-22)),
+        line to calc(50% + var(--corner-cylinder-curve-unit) * var(--cone-vb1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--cone-vb1y)),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--cone-vb2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--cone-vb2y)) of var(--cone-minor) var(--corner-cylinder-curve-unit) var(--cone-dir-inc) small rotate var(--cone-rot),
         close);
     clip-path: unset;
 }
@@ -2973,9 +2982,11 @@ body:has(input#natural-light:checked) #shade-layer .face {
         --face-translate: var(--object-size-half);
     }
 
-    .corner-cone .face:first-child::before,
-    .corner-cone .face:first-child::after,
-    .corner-cone .face:first-child > .curved-lighting {
+    #object-layer .corner-cone .face:first-child::before {
+        background-color: coral;
+    }
+
+    .corner-cone .face:first-child::before {
         width: 200%;
         height: 200%;
         left: -50%;
@@ -2985,10 +2996,9 @@ body:has(input#natural-light:checked) #shade-layer .face {
             calc(var(--octant-center-y) * var(--object-size));
         will-change: transform;
     }
-    #object-layer .corner-cone .face:first-child::before {
+    /* #object-layer .corner-cone .face:first-child::before {
             background-color: coral;
-
-    }
+    } */
     .corner-cone .face:nth-child(2) {
         --face-x-deg: -90deg;
         --border-radius: 100% 0 0 0;
@@ -3059,3 +3069,160 @@ body:has(input#natural-light:checked) #shade-layer .face {
         background-color: hsl(0 0 62.5%);
 
     }
+
+#shade-layer .corner-cone .face {
+    --after-display: none;
+}
+
+#shade-layer .object.corner-cone {
+        /* elevation of the curved-surface normal: 90deg - cone-angle = 45deg.
+            (The cylinder this block was copied from uses 0deg — horizontal
+            wall normals; cf. the plain cone's 26.565deg at its r/h ratio.) */
+        --face-x-deg: calc(90deg - var(--cone-angle));
+        --face-x-calc: calc(var(--face-x-deg) * -1);
+        --s-fx: sin(var(--face-x-calc));
+        --c-fx: cos(var(--face-x-calc));
+
+        --face-bright-y-deg: calc(atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
+        --face-dark-y-deg: calc(180deg + atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
+        --face-bright-y-calc: calc(var(--face-bright-y-deg) * -1);
+        --face-dark-y-calc: calc(var(--face-dark-y-deg) * -1);
+
+        --face-bright-normal-a: calc(sin(var(--face-bright-y-calc)) * var(--c-fx));
+        --face-bright-normal-b: calc(-1 * var(--s-fx));
+        --face-bright-normal-c: calc(var(--c-fx) * cos(var(--face-bright-y-calc)));
+        --bright-dot-product: calc(
+            (var(--face-bright-normal-a) * var(--light-cylinder-normal-a)) +
+            (var(--face-bright-normal-b) * var(--light-cylinder-normal-b)) +
+            (var(--face-bright-normal-c) * var(--light-cylinder-normal-c))
+        );
+
+        --face-dark-normal-a: calc(sin(var(--face-dark-y-calc)) * var(--c-fx));
+        --face-dark-normal-b: calc(-1 * var(--s-fx));
+        --face-dark-normal-c: calc(var(--c-fx) * cos(var(--face-dark-y-calc)));
+        --dark-dot-product: calc(
+            (var(--face-dark-normal-a) * var(--light-cylinder-normal-a)) +
+            (var(--face-dark-normal-b) * var(--light-cylinder-normal-b)) +
+            (var(--face-dark-normal-c) * var(--light-cylinder-normal-c))
+        );
+
+        --lighting-peak-bright: cos(var(--cone-angle));
+        --lighting-peak-dark: calc(var(--lighting-peak-bright) * -1);
+        --lighting-multiplier-bright: calc(
+            ((1 - sign(var(--light-cylinder-normal-b) - var(--lighting-peak-bright))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-bright)) / (var(--lighting-peak-bright) + 1),2)) + 
+            ((1 + sign(var(--light-cylinder-normal-b) - var(--lighting-peak-bright))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-bright)) / (1 - var(--lighting-peak-bright)),2))
+        );
+        --lighting-multiplier-dark: calc(
+            ((1 - sign(var(--light-cylinder-normal-b) - var(--lighting-peak-dark))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-dark)) / (var(--lighting-peak-dark) + 1),2)) + 
+            ((1 + sign(var(--light-cylinder-normal-b) - var(--lighting-peak-dark))) / 2) * (1 - pow(((var(--light-cylinder-normal-b)) - var(--lighting-peak-dark)) / (1 - var(--lighting-peak-dark)),2))
+        );
+
+        /* --lightness-bright: calc(50% + (25% - 12.5% * var(--lighting-multiplier-bright)) * var(--bright-dot-product)); */
+        --lightness-bright: calc(37.5% + (25% * clamp(0, round(down, var(--bright-dot-product) + 1, 1), 1)));
+        /* --lightness-dark: calc(50% + (25% - 12.5% * var(--lighting-multiplier-dark)) * var(--dark-dot-product)); */
+        --lightness-dark: calc(37.5% + (25% * clamp(0, round(down, var(--dark-dot-product) + 1, 1), 1)));
+        background: linear-gradient(calc(90deg + var(--background-rotation)), hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+    } 
+
+    #shade-layer .corner-cone .face:first-child {
+    --face-y-deg: calc(atan2(var(--px), var(--pz)));
+        --octant-center-x: calc(.5 * var(--object-env-11) - .5 * var(--object-env-12) - .5 * var(--object-env-13));
+        --octant-center-y: calc(-.5 * var(--object-env-21) + .5 * var(--object-env-22) + .5 * var(--object-env-23));
+
+    clip-path: var(--clip-path);
+        transform:
+
+        rotateZ(calc(var(--object-z) * -1))
+        rotateY(calc(var(--object-y) * -1))
+        rotateX(calc(var(--object-x) * -1))
+        rotateY(calc(var(--scene-y) * -1))
+        rotateX(calc(var(--scene-x) * -1))
+        translateZ(var(--object-size))
+        translateX(calc(var(--octant-center-x) * var(--object-size)))
+        translateY(calc(var(--octant-center-y) * var(--object-size)))
+    ;
+
+    }
+
+#shade-layer .corner-cone .face:first-child::before {
+
+    background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+    width: calc(var(--object-size) * 5);
+    height: calc(var(--object-size) * 5);
+    top: calc(var(--object-size) * -2);
+    left: calc(var(--object-size) * -2);
+    width: calc(var(--object-size) * 2);
+    height: calc(var(--object-size));
+    top: 0;
+    left: calc(var(--object-size) * -.5);
+    translate: unset;
+    clip-path: unset;
+    transform: 
+            translateY(calc(-1 * var(--octant-center-y) * var(--object-size)))
+            translateX(calc(-1 * var(--octant-center-x) * var(--object-size)))
+            rotateX(var(--scene-x))
+            rotateY(var(--scene-y))
+            rotateX(var(--object-x))
+            rotateY(var(--object-y))
+            rotateZ(var(--object-z))
+            translateX(var(--object-size-half))
+            translateZ(var(--object-size-half-neg))
+            rotateY(var(--face-y-deg))
+            scaleX(calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1));
+        /* translateZ(calc(hypot(var(--object-size), var(--object-size)) / 2))
+        translateX(calc(var(--octant-center-x) * var(--object-size))) */
+    ;
+}
+
+#shade-layer .corner-cone .curved-lighting {
+    width: calc(var(--object-size) * 2);
+    height: calc(var(--object-size) * 2);
+    top: calc(var(--object-size) * -.5);
+    left: calc(var(--object-size) * -.5);
+    display: block;
+    transform:
+        translateY(calc(-1 * var(--octant-center-y) * var(--object-size)))
+        translateX(calc(-1 * var(--octant-center-x) * var(--object-size)))
+        rotateX(var(--scene-x))
+        rotateY(var(--scene-y))
+        rotateX(var(--object-x))
+        rotateY(var(--object-y))
+        rotateZ(var(--object-z))
+        translateX(var(--object-size-half))
+        translateZ(var(--object-size-half-neg))
+        rotateY(var(--face-y-deg))
+        rotateY(calc(atan2(calc(var(--light-cylinder-normal-a)),var(--light-cylinder-normal-c))))
+        rotateY(calc((atan2(var(--px) * -1, var(--pz)))))
+    ;
+}
+
+#shade-layer .corner-cone .curved-lighting::before, #shade-layer .corner-cone .curved-lighting::after {
+    clip-path: unset;
+    /* background: blue; */
+}
+
+#shade-layer .corner-cone .curved-lighting::before {
+    background: hsl(0 0 62.5%);
+}
+#shade-layer .corner-cone .curved-lighting::after {
+    background: hsl(0 0 37.5%);
+}
+
+#shade-layer .corner-cone .highlight {
+    clip-path: unset;
+    --cone-angle: 45deg;
+    --highlight-angle: calc(90deg - var(--cone-angle));
+    --highlight-scale: clamp(0, calc((var(--bright-dot-product) - var(--shade-calc))/(1 - var(--shade-calc))), 1);
+    /* --lightness-highlight: calc(50% + 25% * var(--bright-dot-product)); */
+    --lightness-highlight: 75%;
+    background-color: hsl(0 0 var(--lightness-highlight));
+    left: calc(50% - var(--object-size) * .1);
+    width: calc(var(--object-size) * .2);
+    transform:         
+    translateZ(var(--object-size)) rotateX(var(--highlight-angle)) scaleX(var(--highlight-scale));
+
+}
+
+#shadow-layer {
+    display: none;
+}
