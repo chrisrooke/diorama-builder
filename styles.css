@@ -2710,3 +2710,259 @@ body:has(input#natural-light:checked) #shade-layer .face {
     /* height: calc(var(--object-size) * 2);
     top: calc(var(--object-size) * -.5); */
 }
+
+.cylinder2 .face:first-child {
+    display: none;
+}
+
+#object-layer .cylinder2 .face:nth-child(4) {
+    --object-env-11: var(--object-scene-normal-11);
+    --object-env-12: var(--object-scene-normal-12);
+    --object-env-13: var(--object-scene-normal-13);
+    --object-env-21: var(--object-scene-normal-21);
+    --object-env-22: var(--object-scene-normal-22);
+    --object-env-23: var(--object-scene-normal-23);
+    --object-env-31: var(--object-scene-normal-31);
+    --object-env-32: var(--object-scene-normal-32);
+    --object-env-33: var(--object-scene-normal-33);
+
+
+    display: block;
+    transform: 
+        rotateZ(calc(var(--object-z) * -1))
+        rotateY(calc(var(--object-y) * -1))
+        rotateX(calc(var(--object-x) * -1))
+        rotateY(calc(var(--scene-y) * -1)) 
+        rotateX(calc(var(--scene-x) * -1))
+        translateZ(var(--object-size))
+    ;
+}
+
+#object-layer .cylinder2 .face:nth-child(4)::before {
+    width: calc(var(--object-size) * 2);
+    height: calc(var(--object-size) * 2);
+    left: calc(var(--object-size) * -.5);
+    top: calc(var(--object-size) * -.5);
+    background-color: coral;
+
+    --corner-cylinder-curve-facing: max(
+        calc(var(--object-env-31) * -1),
+        var(--object-env-33)
+    );
+    --opacity: clamp(
+        0,
+        round(up, calc(var(--corner-cylinder-curve-facing) - var(--ff-eps))),
+        1
+    );
+
+    --octant-center-x: calc(.5 * var(--object-env-11) - .5 * var(--object-env-12) - .5 * var(--object-env-13));
+    --octant-center-y: calc(-.5 * var(--object-env-21) + .5 * var(--object-env-22) + .5 * var(--object-env-23));
+
+    --dab: max(0.000001, hypot(var(--object-env-31), var(--object-env-32)));
+    --dbc: max(0.000001, hypot(var(--object-env-32), var(--object-env-33)));
+    --dca: max(0.000001, hypot(var(--object-env-33), var(--object-env-31)));
+
+    --ab-tan-x: calc((-1 * abs(var(--object-env-32)) * var(--object-env-11) + abs(var(--object-env-31)) * var(--object-env-12)) / var(--dab));
+    --ab-tan-y: calc((-1 * abs(var(--object-env-32)) * var(--object-env-21) + abs(var(--object-env-31)) * var(--object-env-22)) / var(--dab));
+    --bc-tan-x: calc((abs(var(--object-env-33)) * var(--object-env-12) + abs(var(--object-env-32)) * var(--object-env-13)) / var(--dbc));
+    --bc-tan-y: calc((abs(var(--object-env-33)) * var(--object-env-22) + abs(var(--object-env-32)) * var(--object-env-23)) / var(--dbc));
+    --ca-tan-x: calc((abs(var(--object-env-31)) * var(--object-env-13) - abs(var(--object-env-33)) * var(--object-env-11)) / var(--dca));
+    --ca-tan-y: calc((abs(var(--object-env-31)) * var(--object-env-23) - abs(var(--object-env-33)) * var(--object-env-21)) / var(--dca));
+
+    --ff-eps: 0.0001;
+    --fa: clamp(0, round(up, calc(-1 * var(--object-env-31) - var(--ff-eps))), 1);
+    --fb: clamp(0, round(up, var(--object-env-32) - var(--ff-eps)), 1);
+    --fc: clamp(0, round(up, var(--object-env-33) - var(--ff-eps)), 1);
+
+    /* --opacity: max(var(--fa), var(--fb), var(--fc)); */
+    /* --opacity: 0.5; */
+
+    --corner-cylinder-curve-unit: var(--object-size);
+    --corner-cylinder-curve-canvas: calc(var(--corner-cylinder-curve-unit) * 5);
+
+    /* "both endpoints of this edge are behind" */
+    --h-ab: calc((1 - var(--fa)) * (1 - var(--fb)));   /* edge AB, opposite corner C */
+    --h-bc: calc((1 - var(--fb)) * (1 - var(--fc)));   /* edge BC, opposite corner A */
+    --h-ca: calc((1 - var(--fc)) * (1 - var(--fa)));   /* edge CA, opposite corner B */
+
+    /* hidden edge -> 50% circle; otherwise |opposite_z| * 50% (abs!) */
+    /* --minor-ab: max(1%, calc(50% * (var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-env-33)))));
+    --minor-bc: max(1%, calc(50% * (var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-env-31)))));
+    --minor-ca: max(1%, calc(50% * (var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-env-32))))); */
+
+    --minor-ab-scale: calc(var(--h-ab) + (1 - var(--h-ab)) * abs(var(--object-env-33)));
+    --minor-bc-scale: calc(var(--h-bc) + (1 - var(--h-bc)) * abs(var(--object-env-31)));
+    --minor-ca-scale: calc(var(--h-ca) + (1 - var(--h-ca)) * abs(var(--object-env-32)));
+    --minor-ab: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * var(--minor-ab-scale)));
+    --minor-bc: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * var(--minor-bc-scale)));
+    --minor-ca: max(calc(var(--corner-cylinder-curve-unit) * .02), calc(var(--corner-cylinder-curve-unit) * var(--minor-ca-scale)));
+
+    --dir-ab: if( style(--object-env-33 < 0): ccw; style(--object-env-33 >= 0): cw);
+    --dir-bc: if( style(--object-env-31 < 0): cw; style(--object-env-31 >= 0): ccw);
+    --dir-ca: if( style(--object-env-32 < 0): ccw; style(--object-env-32 >= 0): cw);
+    --dir-ca-reverse: if( style(--object-env-32 < 0): cw; style(--object-env-32 >= 0): ccw);
+
+    --point-a1x:
+        calc(
+            var(--fa) * var(--object-env-11) * -1
+            + (1 - var(--fa)) * var(--fc) * var(--ca-tan-x)
+            + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-x)
+        )
+    ;
+    --point-a1y:
+        calc(
+            var(--fa) * var(--object-env-21) * -1
+            + (1 - var(--fa)) * var(--fc) * var(--ca-tan-y)
+            + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-y)
+        )
+    ;
+    --point-bx: calc(var(--point-a1x) + var(--object-env-12));
+    --point-by: calc(var(--point-a1y) + var(--object-env-22));
+
+    --point-c2x:
+        calc(
+            var(--fa) * var(--object-env-11)
+            + (1 - var(--fa)) * var(--fc) * var(--ca-tan-x)
+            + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-x)
+        )
+    ;
+    --point-c2y:
+        calc(
+            var(--fa) * var(--object-env-21)
+            + (1 - var(--fa)) * var(--fc) * var(--ca-tan-y)
+            + (1 - var(--fa)) * (1 - var(--fc)) * var(--ab-tan-y)
+        )
+    ;
+
+    /* --point-a2x:
+        calc(
+            var(--fa) * var(--object-env-11) * -1
+            + (1 - var(--fa)) * var(--fb) * var(--ab-tan-x)
+            + (1 - var(--fa)) * (1 - var(--fb)) * var(--ca-tan-x)
+        )
+    ;
+    --point-a2y:
+        calc(
+            var(--fa) * var(--object-env-21) * -1
+            + (1 - var(--fa)) * var(--fb) * var(--ab-tan-y)
+            + (1 - var(--fa)) * (1 - var(--fb)) * var(--ca-tan-y)
+        )
+    ; */
+    /* --point-b1x: 
+        calc(
+            var(--fb) * var(--object-env-12)
+            + (1 - var(--fb)) * var(--fa) * var(--ab-tan-x)
+            + (1 - var(--fb)) * (1 - var(--fa)) * var(--bc-tan-x)
+        )
+    ;
+    --point-b1y: 
+        calc(
+            var(--fb) * var(--object-env-22)
+            + (1 - var(--fb)) * var(--fa) * var(--ab-tan-y)
+            + (1 - var(--fb)) * (1 - var(--fa)) * var(--bc-tan-y)
+        )
+    ;
+    --point-b2x: 
+        calc(
+            var(--fb) * var(--object-env-12)
+            + (1 - var(--fb)) * var(--fc) * var(--bc-tan-x)
+            + (1 - var(--fb)) * (1 - var(--fc)) * var(--ab-tan-x)
+        )
+    ;
+    --point-b2y: 
+        calc(
+            var(--fb) * var(--object-env-22)
+            + (1 - var(--fb)) * var(--fc) * var(--bc-tan-y)
+            + (1 - var(--fb)) * (1 - var(--fc)) * var(--ab-tan-y)
+        )
+    ; */
+    /* --point-c1x: 
+        calc(
+            var(--fc) * var(--object-env-13)
+            + (1 - var(--fc)) * var(--fb) * var(--bc-tan-x)
+            + (1 - var(--fc)) * (1 - var(--fb)) * var(--ca-tan-x)
+        )
+    ;
+    --point-c1y: 
+        calc(
+            var(--fc) * var(--object-env-23)
+            + (1 - var(--fc)) * var(--fb) * var(--bc-tan-y)
+            + (1 - var(--fc)) * (1 - var(--fb)) * var(--ca-tan-y)
+        )
+    ; */
+    /* --point-c2x: 
+        calc(
+            var(--fc) * var(--object-env-13)
+            + (1 - var(--fc)) * var(--fa) * var(--ca-tan-x)
+            + (1 - var(--fc)) * (1 - var(--fa)) * var(--bc-tan-x)
+        )
+    ;
+    --point-c2y: 
+        calc(
+            var(--fc) * var(--object-env-23)
+            + (1 - var(--fc)) * var(--fa) * var(--ca-tan-y)
+            + (1 - var(--fc)) * (1 - var(--fa)) * var(--bc-tan-y)
+        )
+    ; */
+    --point-dx: calc(var(--point-c2x) + var(--object-env-12));
+    --point-dy: calc(var(--point-c2y) + var(--object-env-22));
+
+
+    /* --point-a1: calc(50% + 50% * var(--point-a1x)) calc(50% - 50% * var(--point-a1y));
+    --point-a2: calc(50% + 50% * var(--point-a2x)) calc(50% - 50% * var(--point-a2y));
+    --point-b1: calc(50% + 50% * var(--point-b1x)) calc(50% - 50% * var(--point-b1y));
+    --point-b2: calc(50% + 50% * var(--point-b2x)) calc(50% - 50% * var(--point-b2y));
+    --point-c1: calc(50% + 50% * var(--point-c1x)) calc(50% - 50% * var(--point-c1y));
+    --point-c2: calc(50% + 50% * var(--point-c2x)) calc(50% - 50% * var(--point-c2y)); */
+
+    --arc-test: cw;
+    /* --clip-path: shape(
+        from var(--point-a1),
+        arc to var(--point-a2) of 50% 50% cw small,
+        arc to var(--point-b1) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-env-23), var(--object-env-13))),
+        arc to var(--point-b2) of 50% 50% cw small,
+        arc to var(--point-c1) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        arc to var(--point-c2) of 50% 50% cw small,
+        arc to var(--point-a1) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
+        close); */
+    --clip-path: shape(
+        from calc(50% + var(--object-size-half) * var(--point-a1x)) calc(50% - var(--object-size-half) * var(--point-a1y)),
+        line to calc(50% + var(--object-size-half) * var(--point-bx)) calc(50% - var(--object-size-half) * var(--point-by)),
+        arc to calc(50% + var(--object-size-half) * var(--point-dx)) calc(50% - var(--object-size-half) * var(--point-dy)) of var(--minor-ca) var(--corner-cylinder-curve-unit) var(--dir-ca-reverse) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        line to calc(50% + var(--object-size-half) * var(--point-c2x)) calc(50% - var(--object-size-half) * var(--point-c2y)),
+        arc to calc(50% + var(--object-size-half) * var(--point-a1x)) calc(50% - var(--object-size-half) * var(--point-a1y)) of var(--minor-ca) var(--corner-cylinder-curve-unit) var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))),
+        /* from calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a1y)),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a2y)) of 50% 50% cw small,
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-b1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-b1y)) of var(--minor-ab) 50% var(--dir-ab) small rotate calc(-1 * atan2(var(--object-env-23), var(--object-env-13))),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-b2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-b2y)) of 50% 50% cw small,
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-c1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-c1y)) of var(--minor-bc) 50% var(--dir-bc) small rotate calc(-1 * atan2(var(--object-env-21), var(--object-env-11))),
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-c2x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-c2y)) of 50% 50% cw small,
+        arc to calc(50% + var(--corner-cylinder-curve-unit) * var(--point-a1x)) calc(50% - var(--corner-cylinder-curve-unit) * var(--point-a1y)) of var(--minor-ca) 50% var(--dir-ca) small rotate calc(-1 * atan2(var(--object-env-22), var(--object-env-12))), */
+        close);
+
+    /* projected cylinder axis (column 2 of env matrix) and its unit perpendicular */
+    --cyl-axis-proj: max(0.000001, hypot(var(--object-env-12), var(--object-env-22)));
+    --cyl-perp-x: calc(-1 * var(--object-env-22) / var(--cyl-axis-proj));
+    --cyl-perp-y: calc(var(--object-env-12) / var(--cyl-axis-proj));
+
+    /* silhouette tangent points on the +y cap; the -y cap points are their negations */
+    --cyl-p1x: calc(var(--object-env-12) + var(--cyl-perp-x));
+    --cyl-p1y: calc(var(--object-env-22) + var(--cyl-perp-y));
+    --cyl-p2x: calc(var(--object-env-12) - var(--cyl-perp-x));
+    --cyl-p2y: calc(var(--object-env-22) - var(--cyl-perp-y));
+
+    --cyl-minor: max(calc(var(--object-size-half) * .02), calc(var(--object-size-half) * abs(var(--object-env-32))));
+    --cyl-rotate: calc(-1 * atan2(var(--object-env-22), var(--object-env-12)));
+
+    --dir-ca: if( style(--object-env-32 < 0): ccw; style(--object-env-32 >= 0): cw);
+    --dir-ca-reverse: if( style(--object-env-32 < 0): cw; style(--object-env-32 >= 0): ccw);
+
+    clip-path: shape(
+        from calc(50% + var(--object-size-half) * var(--cyl-p1x)) calc(50% - var(--object-size-half) * var(--cyl-p1y)),
+        arc to calc(50% + var(--object-size-half) * var(--cyl-p2x)) calc(50% - var(--object-size-half) * var(--cyl-p2y)) of var(--cyl-minor) var(--object-size-half) var(--dir-ca-reverse) small rotate var(--cyl-rotate),
+        line to calc(50% - var(--object-size-half) * var(--cyl-p1x)) calc(50% + var(--object-size-half) * var(--cyl-p1y)),
+        arc to calc(50% - var(--object-size-half) * var(--cyl-p2x)) calc(50% + var(--object-size-half) * var(--cyl-p2y)) of var(--cyl-minor) var(--object-size-half) var(--dir-ca) small rotate var(--cyl-rotate),
+        close
+    );
+    /* clip-path: var(--clip-path); */
+}
