@@ -203,8 +203,10 @@ body {
     /* --light-scene-normal-32: calc( var(--scene-normal-31) * var(--light-normal-12) + var(--scene-normal-32) * var(--light-normal-22) + var(--scene-normal-33) * var(--light-normal-32)); */
     --light-scene-normal-33: calc( var(--scene-normal-31) * var(--light-normal-13) + var(--scene-normal-32) * var(--light-normal-23) + var(--scene-normal-33) * var(--light-normal-33));
 
-    --light-adjusted-normal-a: calc(var(--c-lx) * sin(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))));
-    --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc))))));
+    /* --light-adjusted-normal-a: calc(var(--c-lx) * sin(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))));
+    --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))))); */
+  --light-adjusted-normal-a: calc(var(--c-lx) * sin(var(--light-y-calc) + var(--scene-y-calc)));
+  --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(var(--light-y-calc) + var(--scene-y-calc))));
 
     /* --light-adjusted-normal-c: calc((var(--s-lx) * var(--s-sx) * -1) + (var(--c-lx) * var(--c-sx) * cos(var(--light-y-calc) + var(--scene-y-calc)))); */
 
@@ -1422,8 +1424,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
 
     #shade-layer .sphere .face {
         --lighting-translate: 0;
-        --lighting-bg-angle: calc(90deg + (atan2(var(--light-adjusted-normal-b), var(--light-adjusted-normal-a))));
-        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
+  --lighting-bg-angle: calc(180deg + (atan2(var(--light-adjusted-normal-a), var(--light-adjusted-normal-b))));        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
         --shade-light: hsl(0 0 62.5%);
         --shade-dark: hsl(0 0 37.5%);
         --shade-light-transform: 
@@ -1781,8 +1782,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
 
     #shade-layer .hemisphere .face {
         --lighting-translate: 0;
-        --lighting-bg-angle: calc(90deg + (atan2(var(--light-adjusted-normal-b), var(--light-adjusted-normal-a))));
-        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
+  --lighting-bg-angle: calc(180deg + (atan2(var(--light-adjusted-normal-a), var(--light-adjusted-normal-b))));        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
         --shade-light: hsl(0 0 62.5%);
         --shade-dark: hsl(0 0 37.5%);
         --shade-light-transform: rotateX(var(--scene-x)) rotateY(var(--scene-y)) rotateY(var(--light-y)) rotateX(var(--light-x)) rotateY(0deg) translateZ(var(--lighting-translate));
@@ -2192,8 +2192,7 @@ body:has(input#natural-light:checked) #shade-layer .face {
     /* Very similar to sphere */
     #shade-layer .octantsphere .face:first-child {
         --lighting-translate: 0;
-        --lighting-bg-angle: calc(90deg + (atan2(var(--light-adjusted-normal-b), var(--light-adjusted-normal-a))));
-        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
+        --lighting-bg-angle: calc(180deg + (atan2(var(--light-adjusted-normal-a), var(--light-adjusted-normal-b))));        --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
         --shade-light: hsl(0 0 62.5%);
         --shade-dark: hsl(0 0 37.5%);
         --shade-light-transform: 

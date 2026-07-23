@@ -1,8 +1,63 @@
 @property --grid-size { syntax: "<length>"; inherits: false; initial-value: 50vh; }
 @property --cell-size { syntax: "<number>"; inherits: false; initial-value: 5; }
-@property --object-size { syntax: "<length>"; inherits: false; initial-value: 10vh; }
-@property --object-size-half { syntax: "<length>"; inherits: false; initial-value: 5vh; }
-@property --object-size-half-neg { syntax: "<length>"; inherits: false; initial-value: -5vh; }
+@property --object-size { syntax: "<length>"; inherits: true; initial-value: 10vh; }
+@property --object-size-half { syntax: "<length>"; inherits: true; initial-value: 5vh; }
+@property --object-size-half-neg { syntax: "<length>"; inherits: true; initial-value: -5vh; }
+
+@property --scene-x-unit { syntax: "<number>"; inherits: false; initial-value: -30; }
+@property --scene-y-unit { syntax: "<number>"; inherits: false; initial-value: 45; }
+@property --scene-x { syntax: "<angle>"; inherits: true; initial-value: -30deg; }
+@property --scene-y { syntax: "<angle>"; inherits: true; initial-value: 45deg; }
+@property --scene-x-calc { syntax: "<angle>"; inherits: false; initial-value: 30deg; }
+@property --scene-y-calc { syntax: "<angle>"; inherits: false; initial-value: 45deg; }
+@property --s-sx { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --c-sx { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
+@property --s-sy { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --c-sy { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --scene-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; }
+@property --scene-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
+@property --scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: -0.3535533906; }
+@property --scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; }
+@property --scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.6123724357; }
+
+@property --light-x-unit { syntax: "<number>"; inherits: false; initial-value: 60; }
+@property --light-y-unit { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-x { syntax: "<angle>"; inherits: true; initial-value: 60deg; }
+@property --light-y { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --light-x-calc { syntax: "<angle>"; inherits: false; initial-value: -60deg; }
+@property --light-y-calc { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --s-lx { syntax: "<number>"; inherits: false; initial-value: -0.8660254038; }
+@property --c-lx { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --s-ly { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --c-ly { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --light-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --light-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --light-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
+@property --light-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-normal-32 { syntax: "<number>"; inherits: false; initial-value: -0.8660254038; }
+@property --light-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+
+/* @property --light-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; } */
+/* @property --light-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
+@property --light-scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; }
+/* @property --light-scene-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; } */
+/* @property --light-scene-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; } */
+@property --light-scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0.5732233047; }
+/* @property --light-scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
+/* @property --light-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: -0.2803300859; } */
+@property --light-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; }
+
+@property --shade-calc { syntax: "<number>"; inherits: true; initial-value: 0.995037; }
+
+
+
 
 *, *::before, *::after {
     box-sizing: border-box;
@@ -108,12 +163,98 @@ body {
     animation-timeline: --_sx, --_sy, --_lx, --_ly, --_ox, --_oy, --_oz, --_px, --_py, --_pz, --_hue;
     animation-range: entry 100% exit 0%; */
 
+    /* counter-reset: 
+        scene-x round(var(--scene-x-unit))
+        scene-y round(var(--scene-y-unit))
+        light-x round(var(--light-x-unit))
+        light-y round(var(--light-y-unit))
+        object-x round(var(--object-x-unit))
+        object-y round(var(--object-y-unit))
+        object-z round(var(--object-z-unit))
+    ; */
+
     --grid-size: min(45vw, 50vh);
     --cell-size: 5;
 
     --object-size: calc(var(--grid-size) / var(--cell-size));
     --object-size-half: calc(var(--object-size) * .5);
     --object-size-half-neg: calc(var(--object-size-half) * -1);
+
+    /* Defaults:
+    --scene-x-unit: -30;
+    --scene-y-unit: 45; */
+
+    --scene-x: calc(var(--scene-x-unit) * 1deg);
+    --scene-y: calc(var(--scene-y-unit) * 1deg);
+    --scene-x-calc: calc(var(--scene-x) * -1);
+    --scene-y-calc: var(--scene-y);
+    --s-sx: sin(var(--scene-x-calc));
+    --c-sx: cos(var(--scene-x-calc));
+    --s-sy: sin(var(--scene-y-calc));
+    --c-sy: cos(var(--scene-y-calc));
+
+    --scene-normal-11: var(--c-sy);
+    --scene-normal-12: 0;
+    --scene-normal-13: var(--s-sy);
+    --scene-normal-21: calc(var(--s-sx) * var(--s-sy));
+    --scene-normal-22: var(--c-sx);
+    --scene-normal-23: calc(var(--s-sx) * var(--c-sy) * -1);
+    --scene-normal-31: calc(var(--c-sx) * var(--s-sy) * -1);
+    --scene-normal-32: var(--s-sx);
+    --scene-normal-33: calc(var(--c-sx) * var(--c-sy));
+
+    /* Defaults: 
+    --light-x-unit: 60;
+    --light-y-unit: 0; */
+    --light-x: calc(var(--light-x-unit) * 1deg);
+    --light-y: calc(var(--light-y-unit) * 1deg);
+    --light-x-calc: calc(var(--light-x) * -1);
+    --light-y-calc: var(--light-y);
+    --s-lx: sin(var(--light-x-calc));
+    --c-lx: cos(var(--light-x-calc));
+    --s-ly: sin(var(--light-y-calc));
+    --c-ly: cos(var(--light-y-calc));
+    --light-normal-11: var(--c-ly);
+    --light-normal-12: calc(var(--s-ly) * var(--s-lx));
+    --light-normal-13: calc(var(--s-ly) * var(--c-lx));
+    --light-normal-21: 0;
+    --light-normal-22: var(--c-lx);
+    --light-normal-23: calc(-1 * var(--s-lx));
+    --light-normal-31: calc(-1 * var(--s-ly));
+    --light-normal-32: calc(var(--s-lx) * var(--c-ly));
+    --light-normal-33: calc(var(--c-lx) * var(--c-ly));
+
+    /* Matrix product of the scene and light normals. 
+    Captures the light's direction vector within the scene's rotation. */
+    /* --light-scene-normal-11: calc( var(--scene-normal-11) * var(--light-normal-11) + var(--scene-normal-12) * var(--light-normal-21) + var(--scene-normal-13) * var(--light-normal-31)); */
+    /* --light-scene-normal-12: calc( var(--scene-normal-11) * var(--light-normal-12) + var(--scene-normal-12) * var(--light-normal-22) + var(--scene-normal-13) * var(--light-normal-32)); */
+    --light-scene-normal-13: calc( var(--scene-normal-11) * var(--light-normal-13) + var(--scene-normal-12) * var(--light-normal-23) + var(--scene-normal-13) * var(--light-normal-33));
+    /* --light-scene-normal-21: calc( var(--scene-normal-21) * var(--light-normal-11) + var(--scene-normal-22) * var(--light-normal-21) + var(--scene-normal-23) * var(--light-normal-31)); */
+    /* --light-scene-normal-22: calc( var(--scene-normal-21) * var(--light-normal-12) + var(--scene-normal-22) * var(--light-normal-22) + var(--scene-normal-23) * var(--light-normal-32)); */
+    --light-scene-normal-23: calc( var(--scene-normal-21) * var(--light-normal-13) + var(--scene-normal-22) * var(--light-normal-23) + var(--scene-normal-23) * var(--light-normal-33));
+    /* --light-scene-normal-31: calc( var(--scene-normal-31) * var(--light-normal-11) + var(--scene-normal-32) * var(--light-normal-21) + var(--scene-normal-33) * var(--light-normal-31)); */
+    /* --light-scene-normal-32: calc( var(--scene-normal-31) * var(--light-normal-12) + var(--scene-normal-32) * var(--light-normal-22) + var(--scene-normal-33) * var(--light-normal-32)); */
+    --light-scene-normal-33: calc( var(--scene-normal-31) * var(--light-normal-13) + var(--scene-normal-32) * var(--light-normal-23) + var(--scene-normal-33) * var(--light-normal-33));
+
+    /* TO UPDATE:
+    Replace light-adjusted-normal values with light-scene values, see mapping below 
+    New sphere background var should be: 
+    --lighting-bg-angle: calc(180deg + (atan2(var(--light-adjusted-normal-a), var(--light-adjusted-normal-b)))); */
+    /* --light-adjusted-normal-a: calc(var(--c-lx) * sin(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))));
+    --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))))); */
+    /* --light-adjusted-normal-c: calc((var(--s-lx) * var(--s-sx) * -1) + (var(--c-lx) * var(--c-sx) * cos(var(--light-y-calc) + var(--scene-y-calc)))); */
+    /* --light-adjusted-normal-a: calc(var(--c-lx) * sin(var(--light-y-calc) + var(--scene-y-calc)));
+    --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(var(--light-y-calc) + var(--scene-y-calc)))); */
+    /* --light-adjusted-normal-a: var(--light-scene-normal-13);
+    --light-adjusted-normal-b: var(--light-scene-normal-23);
+    --light-adjusted-normal-c: var(--light-scene-normal-33); */
+
+    /* cos value of a specific angle: 5.71°, calculating to ~0.995037. 
+    We use this value to calculate how highlights should appear on flat planes and on curved objects in a single direction (cyl/cone). 
+    this angle is set because our highlight is currently .1 of the object size, so the triangle is adj and hypot of .05 and .5.
+    cos(atan(0.05/0.5))) might be more straightforward. 
+    will need multiple of these for multiple shading levels*/
+    --shade-calc: calc(.5 / (sqrt(pow(.05,2) + pow(.5,2))));
 
 }
 
@@ -123,3 +264,46 @@ body {
         grid-template-rows: 1fr;
     }
 }
+
+/* @keyframes --_sx {0%{--_sx: 1}}
+@keyframes --_sy {0%{--_sy: 1}}
+@keyframes --_lx {0%{--_lx: 1}}
+@keyframes --_ly {0%{--_ly: 1}}
+@keyframes --_ox {0%{--_ox: 1}}
+@keyframes --_oy {0%{--_oy: 1}}
+@keyframes --_oz {0%{--_oz: 1}}
+@keyframes --_px {0%{--_px: 1}}
+@keyframes --_py {0%{--_py: 1}}
+@keyframes --_pz {0%{--_pz: 1}}
+@keyframes --_hue {0%{--_hue: 1}} */
+
+/* body:has(#shape_tetrahedron:checked) {
+    --object-shape: tetrahedron;
+}
+body:has(#shape_pyramid:checked) {
+    --object-shape: pyramid;
+}
+body:has(#shape_dodecahedron:checked) {
+    --object-shape: dodecahedron;
+}
+body:has(#shape_sphere:checked) {
+    --object-shape: sphere;
+}
+body:has(#shape_cylinder:checked) {
+    --object-shape: cylinder;
+}
+body:has(#shape_cone:checked) {
+    --object-shape: cone;
+}
+body:has(#shape_hemisphere:checked) {
+    --object-shape: hemisphere;
+}
+body:has(#shape_octantsphere:checked) {
+    --object-shape: octantsphere;
+}
+body:has(#shape_slope:checked) {
+    --object-shape: slope;
+}
+body:has(#shape_slope-corner:checked) {
+    --object-shape: slope-corner;
+} */
