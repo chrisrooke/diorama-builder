@@ -1,5 +1,19 @@
-@property --grid-size { syntax: "<length>"; inherits: false; initial-value: 50vh; }
-@property --cell-size { syntax: "<number>"; inherits: false; initial-value: 5; }
+/*
+Table of Contents:
+T01: Property Declarations
+T02: Universal and Helpers
+T03: Environment Setup
+T04: Scene Setup
+T05: Object Setup
+*/
+
+
+/*
+T01: Property Declarations
+*/
+
+@property --grid-size { syntax: "<length>"; inherits: true; initial-value: 50vh; }
+@property --cell-size { syntax: "<number>"; inherits: true; initial-value: 5; }
 @property --object-size { syntax: "<length>"; inherits: true; initial-value: 10vh; }
 @property --object-size-half { syntax: "<length>"; inherits: true; initial-value: 5vh; }
 @property --object-size-half-neg { syntax: "<length>"; inherits: true; initial-value: -5vh; }
@@ -14,15 +28,15 @@
 @property --c-sx { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
 @property --s-sy { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
 @property --c-sy { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
-@property --scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
-@property --scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
-@property --scene-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; }
-@property --scene-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
-@property --scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: -0.3535533906; }
-@property --scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; }
-@property --scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
-@property --scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.6123724357; }
+@property --scene-normal-11 { syntax: "<number>"; inherits: true; initial-value: 0.7071067812; }
+@property --scene-normal-12 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --scene-normal-13 { syntax: "<number>"; inherits: true; initial-value: 0.7071067812; }
+@property --scene-normal-21 { syntax: "<number>"; inherits: true; initial-value: 0.3535533906; }
+@property --scene-normal-22 { syntax: "<number>"; inherits: true; initial-value: 0.8660254038; }
+@property --scene-normal-23 { syntax: "<number>"; inherits: true; initial-value: -0.3535533906; }
+@property --scene-normal-31 { syntax: "<number>"; inherits: true; initial-value: -0.6123724357; }
+@property --scene-normal-32 { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --scene-normal-33 { syntax: "<number>"; inherits: true; initial-value: 0.6123724357; }
 
 @property --light-x-unit { syntax: "<number>"; inherits: false; initial-value: 60; }
 @property --light-y-unit { syntax: "<number>"; inherits: false; initial-value: 0; }
@@ -34,15 +48,15 @@
 @property --c-lx { syntax: "<number>"; inherits: false; initial-value: 0.5; }
 @property --s-ly { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --c-ly { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --light-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --light-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --light-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --light-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --light-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
-@property --light-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
-@property --light-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --light-normal-32 { syntax: "<number>"; inherits: false; initial-value: -0.8660254038; }
-@property --light-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --light-normal-11 { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --light-normal-12 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --light-normal-13 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --light-normal-21 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --light-normal-22 { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --light-normal-23 { syntax: "<number>"; inherits: true; initial-value: 0.8660254038; }
+@property --light-normal-31 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --light-normal-32 { syntax: "<number>"; inherits: true; initial-value: -0.8660254038; }
+@property --light-normal-33 { syntax: "<number>"; inherits: true; initial-value: 0.5; }
 
 /* @property --light-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; } */
 /* @property --light-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
@@ -57,7 +71,87 @@
 @property --shade-calc { syntax: "<number>"; inherits: true; initial-value: 0.995037; }
 
 
+@property --object-x-unit { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-y-unit { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-z-unit { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-x { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --object-y { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --object-z { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --object-x-calc { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --object-y-calc { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --object-z-calc { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --s-ox { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --c-ox { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --s-oy { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --c-oy { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --s-oz { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --c-oz { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --object-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --object-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-normal-22 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --object-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --object-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --object-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --object-scene-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; }
+@property --object-scene-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
+@property --object-scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: -0.3535533906; }
+@property --object-scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; }
+@property --object-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --object-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.6123724357; }
+@property --object-light-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --object-light-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-light-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-light-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-light-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --object-light-normal-23 { syntax: "<number>"; inherits: false; initial-value: -0.8660254038; }
+@property --object-light-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --object-light-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
+@property --object-light-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.5; }
 
+@property --light-cylinder-normal-a { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-cylinder-normal-b { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
+@property --light-cylinder-normal-c { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --px { syntax: "<number>"; inherits: false; initial-value: -0.7071067812; }
+@property --py { syntax: "<number>"; inherits: false; initial-value: 0.5773502692; }
+@property --pz { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --light-px { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --light-pz { syntax: "<number>"; inherits: false; initial-value: 1; }
+
+@property --x-pos { syntax: "<number>"; inherits: false; initial-value: 2; }
+@property --y-pos { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --z-pos { syntax: "<number>"; inherits: false; initial-value: 2; }
+@property --elevation-surface { syntax: "<length>"; inherits: false; initial-value: -5vh; }
+@property --elevation-manual { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --elevation { syntax: "<length>"; inherits: false; initial-value: -5vh; }
+
+/* --depth and --magnitude aren't registered yet: they depend on --x-pos/--y-pos/--z-pos
+and --elevation-surface, none of which are registered custom properties in this file,
+so there isn't a reliable computed initial-value to lock in yet.
+@property --depth { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --magnitude { syntax: "<length>"; inherits: false; initial-value: 1000vh; } */
+
+@property --face-x-deg { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --face-y-deg { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --face-x-calc { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --face-y-calc { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --s-fx { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --c-fx { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --s-fy { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --c-fy { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --face-translate { syntax: "<length>"; inherits: false; initial-value: 5vh; }
+
+@property --clip-path { syntax: "<string>"; inherits: false; initial-value: unset; }
+@property --border-radius { syntax: "<length>"; inherits: false; initial-value: 0px; }
+
+/*
+T02: Universal and Helpers
+*/
 
 *, *::before, *::after {
     box-sizing: border-box;
@@ -69,6 +163,20 @@ html, body {
     padding: 0;
     margin: 0;
 }
+
+figure, ul {
+    margin: 0;
+}
+
+.is-hidden {
+    display: none;
+}
+
+
+
+/* 
+T03: Environment Setup
+*/
 
 body {
     /* --hue-bg: calc(var(--hue) + 240); */
@@ -307,3 +415,246 @@ body:has(#shape_slope:checked) {
 body:has(#shape_slope-corner:checked) {
     --object-shape: slope-corner;
 } */
+
+
+
+/*
+T04: Scene Setup
+*/
+
+.scene-container {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: stretch;
+    align-items: center;
+    overflow: hidden;
+    transform-style: preserve-3d;
+}
+
+.scene {
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform: rotateX(var(--scene-x)) rotateY(var(--scene-y));
+    will-change: transform;
+    pointer-events: none;
+}
+
+.ground, .wall-x, .wall-x::before, .wall-x::after, .wall-y, .wall-y::before, .wall-y::after {
+    width: var(--grid-size);
+    height: var(--grid-size);
+    top: calc(50% - var(--grid-size) * .5);
+    left: calc(50% - var(--grid-size) * .5);
+    background: linear-gradient(to right, rgba(0,0,0,0.1) 0% 1px, rgba(0,0,0,0) 1px calc(100% - 1px), rgba(0,0,0,0.1) calc(100% - 1px) 100%), linear-gradient(to bottom, rgba(0,0,0,0.1) 0% 1px, rgba(0,0,0,0) 1px calc(100% - 1px), rgba(0,0,0,0.1) calc(100% - 1px) 100%);
+    background-size: var(--object-size) var(--object-size);
+    background-repeat: repeat;
+    background-position: center center;
+    border: 1px solid rgba(0,0,0,0.1);
+    transform: rotateX(var(--scene-x)) rotateY(var(--scene-y)) rotateX(90deg) translateZ(calc(var(--grid-size) * -.5)) ;
+    pointer-events: none;
+    position: absolute;
+    backface-visibility: hidden;
+    content: '';
+    transform-style: preserve-3d;
+}
+.wall-x, .wall-y {
+    background: unset;
+    border: 0;
+    transform: rotateX(var(--scene-x)) rotateY(var(--scene-y)) rotateY(-90deg);
+}
+.wall-y {
+    transform: rotateX(var(--scene-x)) rotateY(var(--scene-y));
+}
+.wall-x::before, .wall-y::before {
+    transform: translateZ(calc(var(--grid-size) * -.5));
+}
+.wall-x::after, .wall-y::after {
+    transform: rotateY(180deg) translateZ(calc(var(--grid-size) * -.5));
+}
+
+#light {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background-color: gold;
+    position: absolute;
+    transform: rotateY(var(--light-y)) rotateX(var(--light-x)) translateZ(var(--grid-size));
+    will-change: transform;
+}
+
+
+
+/*
+T05: Object Setup
+*/
+
+.object {
+    --object-x: calc(var(--object-x-unit) * 1deg);
+    --object-y: calc(var(--object-y-unit) * 1deg);
+    --object-z: calc(var(--object-z-unit) * 1deg);
+    --object-x-calc: calc(var(--object-x) * -1);
+    --object-y-calc: var(--object-y);
+    --object-z-calc: calc(var(--object-z) * -1);
+
+    --s-ox: sin(var(--object-x-calc));
+    --c-ox: cos(var(--object-x-calc));
+    --s-oy: sin(var(--object-y-calc));
+    --c-oy: cos(var(--object-y-calc));
+    --s-oz: sin(var(--object-z-calc));
+    --c-oz: cos(var(--object-z-calc));
+
+    /* x, y, z coodinates used in that order, would change depending on order of object rotations */
+    --object-normal-11: calc(var(--c-oy) * var(--c-oz));
+    --object-normal-12: calc(var(--s-oz) * var(--c-oy) * -1);
+    --object-normal-13: var(--s-oy);
+    --object-normal-21: calc((var(--s-oz) * var(--c-ox)) + (var(--s-ox) * var(--s-oy) * var(--c-oz)));
+    --object-normal-22: calc((var(--c-ox) * var(--c-oz)) - (var(--s-ox) * var(--s-oy) * var(--s-oz)));
+    --object-normal-23: calc(var(--s-ox) * var(--c-oy) * -1);
+    --object-normal-31: calc((var(--s-ox) * var(--s-oz)) - (var(--s-oy) * var(--c-ox) * var(--c-oz)));
+    --object-normal-32: calc((var(--s-ox) * var(--c-oz)) + (var(--s-oy) * var(--s-oz) * var(--c-ox)));
+    --object-normal-33: calc(var(--c-ox) * var(--c-oy));
+
+    /* Rotation of the object taking into account scene's rotation: 
+    scene * object = scene row * object column*/
+    --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11) + var(--scene-normal-12) * var(--object-normal-21) + var(--scene-normal-13) * var(--object-normal-31));
+    --object-scene-normal-12: calc( var(--scene-normal-11) * var(--object-normal-12) + var(--scene-normal-12) * var(--object-normal-22) + var(--scene-normal-13) * var(--object-normal-32));
+    --object-scene-normal-13: calc( var(--scene-normal-11) * var(--object-normal-13) + var(--scene-normal-12) * var(--object-normal-23) + var(--scene-normal-13) * var(--object-normal-33));
+    --object-scene-normal-21: calc( var(--scene-normal-21) * var(--object-normal-11) + var(--scene-normal-22) * var(--object-normal-21) + var(--scene-normal-23) * var(--object-normal-31));
+    --object-scene-normal-22: calc( var(--scene-normal-21) * var(--object-normal-12) + var(--scene-normal-22) * var(--object-normal-22) + var(--scene-normal-23) * var(--object-normal-32));
+    --object-scene-normal-23: calc( var(--scene-normal-21) * var(--object-normal-13) + var(--scene-normal-22) * var(--object-normal-23) + var(--scene-normal-23) * var(--object-normal-33));
+    --object-scene-normal-31: calc( var(--scene-normal-31) * var(--object-normal-11) + var(--scene-normal-32) * var(--object-normal-21) + var(--scene-normal-33) * var(--object-normal-31));
+    --object-scene-normal-32: calc( var(--scene-normal-31) * var(--object-normal-12) + var(--scene-normal-32) * var(--object-normal-22) + var(--scene-normal-33) * var(--object-normal-32));
+    --object-scene-normal-33: calc( var(--scene-normal-31) * var(--object-normal-13) + var(--scene-normal-32) * var(--object-normal-23) + var(--scene-normal-33) * var(--object-normal-33));
+
+    /* How does the object look from the light's perspective
+    transpose(light) * object = light column · object column  */
+    --object-light-normal-11: calc(var(--light-normal-11) * var(--object-normal-11) + var(--light-normal-21) * var(--object-normal-21) + var(--light-normal-31) * var(--object-normal-31));
+    --object-light-normal-12: calc(var(--light-normal-11) * var(--object-normal-12) + var(--light-normal-21) * var(--object-normal-22) + var(--light-normal-31) * var(--object-normal-32));
+    --object-light-normal-13: calc(var(--light-normal-11) * var(--object-normal-13) + var(--light-normal-21) * var(--object-normal-23) + var(--light-normal-31) * var(--object-normal-33));
+    --object-light-normal-21: calc(var(--light-normal-12) * var(--object-normal-11) + var(--light-normal-22) * var(--object-normal-21) + var(--light-normal-32) * var(--object-normal-31));
+    --object-light-normal-22: calc(var(--light-normal-12) * var(--object-normal-12) + var(--light-normal-22) * var(--object-normal-22) + var(--light-normal-32) * var(--object-normal-32));
+    --object-light-normal-23: calc(var(--light-normal-12) * var(--object-normal-13) + var(--light-normal-22) * var(--object-normal-23) + var(--light-normal-32) * var(--object-normal-33));
+    --object-light-normal-31: calc(var(--light-normal-13) * var(--object-normal-11) + var(--light-normal-23) * var(--object-normal-21) + var(--light-normal-33) * var(--object-normal-31));
+    --object-light-normal-32: calc(var(--light-normal-13) * var(--object-normal-12) + var(--light-normal-23) * var(--object-normal-22) + var(--light-normal-33) * var(--object-normal-32));
+    --object-light-normal-33: calc(var(--light-normal-13) * var(--object-normal-13) + var(--light-normal-23) * var(--object-normal-23) + var(--light-normal-33) * var(--object-normal-33));
+
+    /* Cylinder use 
+    From the cylinder's point of view, which way is the light coming from?
+    We transpose the object's rotation matrix to "undo" its rotation
+    We use the third light-normal column because that we don't rotate the light around it, therefore it is the direction that the light is pointing. 
+    This takes the light direction from being described in relation to the scene, to being described in relation to the object
+    */
+    --light-cylinder-normal-a: calc(var(--object-normal-11) * var(--light-normal-13) + var(--object-normal-21) * var(--light-normal-23) + var(--object-normal-31) * var(--light-normal-33));
+    --light-cylinder-normal-b: calc(var(--object-normal-12) * var(--light-normal-13) + var(--object-normal-22) * var(--light-normal-23) + var(--object-normal-32) * var(--light-normal-33));
+    --light-cylinder-normal-c: calc(var(--object-normal-13) * var(--light-normal-13) + var(--object-normal-23) * var(--light-normal-23) + var(--object-normal-33) * var(--light-normal-33));
+
+    /*
+    From our view, which direction is the cylinder's long/y axis pointing, expressed as a unit vector
+    They need to be unit vectors to satisy cos^2+sin^2=1 for use in atan2 functions later
+    */
+    --px: calc(var(--object-scene-normal-31) / (sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2))));
+    --py: calc(var(--object-scene-normal-32) / (sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2))));
+    --pz: calc(var(--object-scene-normal-33) / (sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2))));
+    
+    /*
+    From the light's view, which direction is the cylinder's long axis pointing, expressed as a unit vector
+    */
+    --light-px: calc(var(--light-cylinder-normal-a) / (sqrt(pow(var(--light-cylinder-normal-a), 2) + pow(var(--light-cylinder-normal-c), 2))));
+    --light-pz: calc(var(--light-cylinder-normal-c) / (sqrt(pow(var(--light-cylinder-normal-a), 2) + pow(var(--light-cylinder-normal-c), 2))));
+
+    /* Row 2 of object-normal, i.e. object-normal-21/22/23, with a sign flip on -21
+    since object-x-calc and object-z-calc negate their angles 
+    row 2 is used as it measures height */
+    /* TO UPDATE:
+    replace these with the object-normal directly, and take into account negation of corner-Rx
+    */
+    --corner-Rx: calc(var(--object-normal-21) * -1);
+    --corner-Ry: var(--object-normal-22);
+    --corner-Rz: var(--object-normal-23);
+
+    --elevation-manual: 0px;
+    --elevation: calc(var(--elevation-surface) - var(--y-pos) * var(--object-size));
+
+    /* given this object's grid coordinates, and given how the whole scene is tilted, how far along the camera's line of sight does this object actually sit? */
+    /* --depth: calc(
+        var(--x-pos) * var(--scene-normal-31)                                                                                                                                                 
+    + var(--y-pos) * var(--scene-normal-32)    
+    + var(--z-pos) * var(--scene-normal-33)                                                                                                                                                 
+    );                          
+    --magnitude: calc(var(--object-size) * 100); */
+
+    width: var(--object-size);
+    aspect-ratio: 1;
+    transform-style: preserve-3d;
+    position: absolute;
+    top: calc(50% - (var(--object-size) / 2));
+    left: calc(50% - (var(--object-size) / 2));
+    transform:
+        /* translate3d(
+            calc(var(--scene-normal-31) * var(--depth) * var(--magnitude)),
+            calc(var(--scene-normal-32) * var(--depth) * var(--magnitude) * -1),
+            calc(var(--scene-normal-33) * var(--depth) * var(--magnitude))
+        ) */
+        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateY(calc(var(--grid-size) / 2 + var(--elevation)))
+        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        rotateX(var(--object-x))
+        rotateY(var(--object-y))
+        rotateZ(var(--object-z))
+    ;
+    will-change: transform;
+    pointer-events: all;
+}
+
+.face {
+    --face-y-deg: 0deg;
+    --face-x-deg: 0deg;
+    --face-x-calc: calc(var(--face-x-deg) * -1);
+    --face-y-calc: var(--face-y-deg);
+
+    --s-fx: sin(var(--face-x-calc));
+    --c-fx: cos(var(--face-x-calc));
+    --s-fy: sin(var(--face-y-calc));
+    --c-fy: cos(var(--face-y-calc));
+
+    --clip-path: unset;
+    --border-radius: 0;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotateY(var(--face-y-deg)) rotateX(var(--face-x-deg)) translateZ(var(--face-translate));
+    transform-style: preserve-3d;
+    border-radius: var(--border-radius);
+}
+
+.face::before, .face::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    clip-path: var(--clip-path);
+    border-radius: var(--border-radius);
+}
+.face::after {
+    transform: rotateY(180deg);
+}
+
+#object-layer .face::before {
+    background-color: oklch(0.75 0.1639 0);
+}
+#object-layer .face::after {
+    background-color: oklch(0.75 0.1639 180);
+}
