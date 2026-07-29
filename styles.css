@@ -578,6 +578,8 @@ T05: Object Setup
     --corner-Ry: var(--object-normal-22);
     --corner-Rz: var(--object-normal-23);
 
+    /* TO REMOVE: elevation-surface, or make cube default? */
+    --elevation-surface: var(--object-size-half-neg);
     --elevation-manual: 0px;
     --elevation: calc(var(--elevation-surface) - var(--y-pos) * var(--object-size));
 
@@ -623,6 +625,7 @@ T05: Object Setup
     --s-fy: sin(var(--face-y-calc));
     --c-fy: cos(var(--face-y-calc));
 
+    --face-translate: var(--object-size-half);
     --clip-path: unset;
     --border-radius: 0;
 
@@ -658,3 +661,12 @@ T05: Object Setup
 #object-layer .face::after {
     background-color: oklch(0.75 0.1639 180);
 }
+
+
+
+/* Shade Layer */
+
+#shade-layer {
+    mix-blend-mode: overlay;
+}
+
