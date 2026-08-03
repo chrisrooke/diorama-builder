@@ -235,6 +235,86 @@ not viable if Firefox matters.
 
 ---
 
+## 5a. Assessment of three previously-raised optimisation points
+
+All three were tested rather than accepted. Chrome, 45 objects / 540 faces, unthrottled,
+probe element deliberately placed *outside* every layer being hidden (an earlier run had the
+probe inside the hidden subtree, which produced a false result).
+
+### P1 — "Set variables as close to the consumer as possible, not on a shared high ancestor"
+
+**Right practice, wrong rationale — and it's already the biggest item in Stage 1.**
+
+The stated reason is that updating on `body` forces the browser to walk a large subtree. That
+does not hold here. Removing the **entire 169-element controls subtree** from the DOM changed
+recalc time not at all:
+
+| | Median |
+|---|---|
+| Baseline | 11.7 ms |
+| Controls subtree removed from DOM | 12.8 ms |
+
+Chrome already tracks which elements actually depend on `--scene-y-unit` and skips the rest, so
+the controls cost nothing despite sitting under the element being mutated. Moving the scene and
+light variables off `body` onto a scene-only wrapper would buy nothing.
+
+The principle's *other* form is where the value is: don't **compute** values on elements that
+don't consume them. That is exactly finding **F1** (26 dead per-object properties, worth 12–14%)
+and **F3** (face trig computed in three layers, read in one). Keep the practice; discard the
+"invalidation walk" reasoning.
+
+### P2 — "Register hot-path variables with `@property` and `inherits: false`"
+
+**Not applicable to this file, and the premise doesn't pay off here anyway.**
+
+Two independent checks:
+
+1. *The mechanism.* Adding **50 extra `inherits: true` registered properties** on `body`, each
+   with a `calc(sin(var(--scene-y)) * n)` chain, produced **zero** measurable change
+   (25.0 ms before, 25.0 ms after). Inherited registered properties that resolve to the same
+   value across a subtree are computed once and shared — the count is not the cost.
+2. *The candidates.* All 53 `inherits: true` properties in this file genuinely cross an element
+   boundary: `body` → `.object` (`--scene-normal-*`, `--light-normal-*`),
+   `.object` → `.face` (`--object-normal-*`, `--side-x-angle`, `--phi`),
+   `.face` → `::before`/`::after` (`--clip-path`, `--before-background`, `--after-transform`).
+   There is essentially nothing to flip.
+
+**Trap to avoid:** the `::before`/`::after` group *must* stay `inherits: true`. Pseudo-elements
+only see a custom property if it inherits; flipping those to `inherits: false` silently breaks
+every clip-path and every shade colour.
+
+### P3 — "`content-visibility: auto` is the one thing that actually skips the recompute, unlike `display: none`"
+
+**The comparative claim is false.** `display: none` skips the recompute just as completely.
+
+Measured on `#shade-layer`:
+
+| Treatment | Median | vs baseline |
+|---|---|---|
+| Baseline | 11.7 ms | — |
+| `display: none` | 6.2 ms | **−47%** |
+| `content-visibility: hidden` | 6.2 ms | **−47%** |
+| Detached from the DOM entirely | 6.2 ms | −47% |
+| `visibility: hidden` | 13.7 ms | +17% (worse) |
+
+`display: none`, `content-visibility: hidden` and full DOM removal are **indistinguishable** —
+all three reclaim the layer's entire share of style recalc. `visibility: hidden` reclaims
+nothing, because the subtree stays fully styled and laid out.
+
+`content-visibility: auto` measured similarly fast, but I am **not** claiming that result: `auto`
+only skips work for *off-screen* content, and this layout has nothing off-screen (in landscape
+the controls sit beside the scene; hidden tab panels already use `.is-hidden { display: none }`).
+My synchronous-recalc harness also doesn't give Chrome's on-screen relevance check a chance to
+run between ticks, so the number is likely an artefact.
+
+**The genuinely useful finding underneath P3:** each of the three scene layers costs roughly a
+third of style recalc, and hiding one with a single `display: none` reclaims all of it. If the
+shadow or shade layer can be user-toggleable — or auto-disabled during a drag and restored on
+release — that is a **~33–47% win from one line**, larger than any variable-level
+micro-optimisation in this document. Worth considering as its own stage.
+
+---
+
 ## 6. Staged plan
 
 ### Stage 1 — Dead code and inert declarations *(no behaviour change)*
@@ -269,6 +349,12 @@ not viable if Firefox matters.
   `.face { display: none }` plus explicit opt-ins.
 
 Hold until Stages 1–2 land: removing dead code deletes a chunk of the repetition for free.
+
+### Stage 3b — Layer toggling *(new; see §5a P3 — possibly the best effort/reward here)*
+
+- Make the shadow and/or shade layer switchable via `display: none`
+- Optionally auto-disable one during an active drag, restore on release
+- **~33–47% for a one-line change**, independent of every other stage
 
 ### Stage 4 — Compositing
 
