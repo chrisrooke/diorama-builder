@@ -1,10 +1,19 @@
 /*
 Table of Contents:
 T01: Property Declarations
+    T01A: Dodecahedron Property Declarations
 T02: Universal and Helpers
 T03: Environment Setup
 T04: Scene Setup
 T05: Object Setup
+    T05B: Shade Setup
+    T05C: Shadow Setup
+T06: Objects
+    T06A: Cube
+    T06B: Tetrahedron
+    T06C: Pyramid
+    T06D: Slope and Slope Corner
+    T06E: Dodecahedron
 */
 
 
@@ -66,7 +75,7 @@ T01: Property Declarations
 @property --light-scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0.5732233047; }
 /* @property --light-scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
 /* @property --light-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: -0.2803300859; } */
-@property --light-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; }
+/* @property --light-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; } */
 
 @property --shade-calc { syntax: "<number>"; inherits: true; initial-value: 0.995037; }
 
@@ -86,15 +95,15 @@ T01: Property Declarations
 @property --c-oy { syntax: "<number>"; inherits: false; initial-value: 1; }
 @property --s-oz { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --c-oz { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --object-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --object-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --object-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --object-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --object-normal-22 { syntax: "<number>"; inherits: false; initial-value: 1; }
-@property --object-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --object-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --object-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --object-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --object-normal-11 { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --object-normal-12 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --object-normal-13 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --object-normal-21 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --object-normal-22 { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --object-normal-23 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --object-normal-31 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --object-normal-32 { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --object-normal-33 { syntax: "<number>"; inherits: true; initial-value: 1; }
 @property --object-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
 @property --object-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --object-scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
@@ -126,6 +135,15 @@ T01: Property Declarations
 @property --x-pos { syntax: "<number>"; inherits: false; initial-value: 2; }
 @property --y-pos { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --z-pos { syntax: "<number>"; inherits: false; initial-value: 2; }
+
+@property --corner1 { syntax: "<length>"; inherits: false; initial-value: 5vh; }
+@property --corner2 { syntax: "<length>"; inherits: false; initial-value: -5vh; }
+@property --corner3 { syntax: "<length>"; inherits: false; initial-value: 5vh; }
+@property --corner4 { syntax: "<length>"; inherits: false; initial-value: -5vh; }
+@property --corner5 { syntax: "<length>"; inherits: false; initial-value: 5vh; }
+@property --corner6 { syntax: "<length>"; inherits: false; initial-value: -5vh; }
+@property --corner7 { syntax: "<length>"; inherits: false; initial-value: 5vh; }
+@property --corner8 { syntax: "<length>"; inherits: false; initial-value: -5vh; }
 @property --elevation-surface { syntax: "<length>"; inherits: false; initial-value: -5vh; }
 @property --elevation-manual { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @property --elevation { syntax: "<length>"; inherits: false; initial-value: -5vh; }
@@ -135,6 +153,10 @@ and --elevation-surface, none of which are registered custom properties in this 
 so there isn't a reliable computed initial-value to lock in yet.
 @property --depth { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --magnitude { syntax: "<length>"; inherits: false; initial-value: 1000vh; } */
+
+/* Per-shape geometry: set on the object, read by its faces, so both must inherit */
+@property --side-x-angle { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --side-height { syntax: "<length>"; inherits: true; initial-value: 10vh; }
 
 @property --face-x-deg { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
 @property --face-y-deg { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
@@ -146,8 +168,116 @@ so there isn't a reliable computed initial-value to lock in yet.
 @property --c-fy { syntax: "<number>"; inherits: false; initial-value: 1; }
 @property --face-translate { syntax: "<length>"; inherits: false; initial-value: 5vh; }
 
-@property --clip-path { syntax: "<string>"; inherits: false; initial-value: unset; }
-@property --border-radius { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --face-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --face-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-normal-22 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --face-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
+
+@property --face-object-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
+/* @property --face-object-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; } */
+@property --face-object-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-object-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* @property --face-object-normal-22 { syntax: "<number>"; inherits: false; initial-value: 1; } */
+@property --face-object-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --face-object-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* @property --face-object-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0; } */
+@property --face-object-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
+
+@property --dot-product { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --dot-product-light-scene-face-object-scene-x { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+/* @property --face-object-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; } */
+/* @property --face-object-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; } */
+/* @property --face-object-scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; } */
+/* @property --face-object-scene-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; } */
+/* @property --face-object-scene-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; } */
+/* @property --face-object-scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: -0.3535533906; } */
+/* @property --face-object-scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
+/* @property --face-object-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.5; } */
+/* @property --face-object-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.6123724357; } */
+
+@property --clip-path { syntax: "<string>"; inherits: true; initial-value: unset; }
+@property --border-radius { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
+@property --shade-value-front { syntax: "<number>"; inherits: false; initial-value: 62.5; }
+@property --shade-value-back { syntax: "<number>"; inherits: false; initial-value: 62.5; }
+@property --shade-front { syntax: "<color>"; inherits: false; initial-value: hsl(0 0% 62.5%); }
+@property --shade-back { syntax: "<color>"; inherits: false; initial-value: hsl(0 0% 62.5%); }
+@property --shade-front-transform { syntax: "<transform-list>"; inherits: false; initial-value: rotateY(0deg); }
+@property --shade-back-transform { syntax: "<transform-list>"; inherits: false; initial-value: rotateY(180deg); }
+
+@property --after-display { syntax: "block | none"; inherits: true; initial-value: block; }
+@property --before-background { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 62.5%); }
+@property --before-transform { syntax: "<transform-list>"; inherits: true; initial-value: rotateY(0deg); }
+@property --after-background { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 62.5%); }
+@property --after-transform { syntax: "<transform-list>"; inherits: true; initial-value: rotateY(180deg); }
+
+
+
+
+/*
+T01A: Dodecahedron Property Declarations
+Everything below is used only by T06E. Remove this block if the dodecahedron goes.
+Initial values are the default-state figures: --object-size 10vh, --object-size-half 5vh,
+--corner-Rx/Ry/Rz 0/1/0.
+*/
+
+/* Golden ratio, and the supplement of the dihedral angle (180deg - 116.565deg).
+Both are set on the object but read by its faces, so both must inherit */
+@property --phi { syntax: "<number>"; inherits: true; initial-value: 1.6180339887; }
+@property --dodecahedron-angle { syntax: "<angle>"; inherits: true; initial-value: 63.4349488229deg; }
+
+/* Face pentagon vertices, centre-origin and y-up, at 0.5 * (cos|sin)(90deg + k * 72deg) */
+@property --pentagon-top-x { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --pentagon-top-y { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --pentagon-tl-x { syntax: "<number>"; inherits: false; initial-value: -0.47552825814; }
+@property --pentagon-tl-y { syntax: "<number>"; inherits: false; initial-value: 0.15450849719; }
+@property --pentagon-bl-x { syntax: "<number>"; inherits: false; initial-value: -0.29389262614; }
+@property --pentagon-bl-y { syntax: "<number>"; inherits: false; initial-value: -0.40450849719; }
+@property --pentagon-br-x { syntax: "<number>"; inherits: false; initial-value: 0.29389262614; }
+@property --pentagon-br-y { syntax: "<number>"; inherits: false; initial-value: -0.40450849719; }
+@property --pentagon-tr-x { syntax: "<number>"; inherits: false; initial-value: 0.47552825814; }
+@property --pentagon-tr-y { syntax: "<number>"; inherits: false; initial-value: 0.15450849719; }
+
+/* Azimuths of the ten mid-band vertices, at 90deg + k * 72deg */
+@property --c-90 { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --s-90 { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --c-162 { syntax: "<number>"; inherits: false; initial-value: -0.95105651629; }
+@property --s-162 { syntax: "<number>"; inherits: false; initial-value: 0.30901699437; }
+@property --c-234 { syntax: "<number>"; inherits: false; initial-value: -0.58778525229; }
+@property --s-234 { syntax: "<number>"; inherits: false; initial-value: -0.80901699437; }
+@property --c-306 { syntax: "<number>"; inherits: false; initial-value: 0.58778525229; }
+@property --s-306 { syntax: "<number>"; inherits: false; initial-value: -0.80901699437; }
+@property --c-18 { syntax: "<number>"; inherits: false; initial-value: 0.95105651629; }
+@property --s-18 { syntax: "<number>"; inherits: false; initial-value: 0.30901699437; }
+
+/* Horizontal radius (phi * object-size-half) and height (object-size-half / 2phi)
+of the two mid-band vertex layers */
+@property --dodecahedron-midcorner-depth { syntax: "<length>"; inherits: false; initial-value: -8.0901699438vh; }
+@property --dodecahedron-midcorner-height { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
+
+/* Generic names, but nothing else in the file gets past eight corners.
+9-10 complete the bottom face, 11-20 are the two mid bands */
+@property --corner9 { syntax: "<length>"; inherits: false; initial-value: -6.5450849719vh; }
+@property --corner10 { syntax: "<length>"; inherits: false; initial-value: -6.5450849719vh; }
+@property --corner11 { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
+@property --corner12 { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
+@property --corner13 { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
+@property --corner14 { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
+@property --corner15 { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
+@property --corner16 { syntax: "<length>"; inherits: false; initial-value: 1.5450849719vh; }
+@property --corner17 { syntax: "<length>"; inherits: false; initial-value: 1.5450849719vh; }
+@property --corner18 { syntax: "<length>"; inherits: false; initial-value: 1.5450849719vh; }
+@property --corner19 { syntax: "<length>"; inherits: false; initial-value: 1.5450849719vh; }
+@property --corner20 { syntax: "<length>"; inherits: false; initial-value: 1.5450849719vh; }
+
+
+
 
 /*
 T02: Universal and Helpers
@@ -342,7 +472,7 @@ body {
     --light-scene-normal-23: calc( var(--scene-normal-21) * var(--light-normal-13) + var(--scene-normal-22) * var(--light-normal-23) + var(--scene-normal-23) * var(--light-normal-33));
     /* --light-scene-normal-31: calc( var(--scene-normal-31) * var(--light-normal-11) + var(--scene-normal-32) * var(--light-normal-21) + var(--scene-normal-33) * var(--light-normal-31)); */
     /* --light-scene-normal-32: calc( var(--scene-normal-31) * var(--light-normal-12) + var(--scene-normal-32) * var(--light-normal-22) + var(--scene-normal-33) * var(--light-normal-32)); */
-    --light-scene-normal-33: calc( var(--scene-normal-31) * var(--light-normal-13) + var(--scene-normal-32) * var(--light-normal-23) + var(--scene-normal-33) * var(--light-normal-33));
+    /* --light-scene-normal-33: calc( var(--scene-normal-31) * var(--light-normal-13) + var(--scene-normal-32) * var(--light-normal-23) + var(--scene-normal-33) * var(--light-normal-33)); */
 
     /* TO UPDATE:
     Replace light-adjusted-normal values with light-scene values, see mapping below 
@@ -664,9 +794,473 @@ T05: Object Setup
 
 
 
-/* Shade Layer */
+/* T05B: Shade Layer */
 
 #shade-layer {
     mix-blend-mode: overlay;
 }
 
+#shade-layer .face {
+    --face-normal-11: var(--c-fy);
+    --face-normal-12: calc(var(--s-fy) * var(--s-fx));
+    --face-normal-13: calc(var(--s-fy) * var(--c-fx));
+    --face-normal-21: 0;
+    --face-normal-22: var(--c-fx);
+    --face-normal-23: calc(-1 * var(--s-fx));
+    --face-normal-31: calc(-1 * var(--s-fy));
+    --face-normal-32: calc(var(--s-fx) * var(--c-fy));
+    --face-normal-33: calc(var(--c-fx) * var(--c-fy));
+
+    --face-object-normal-11: calc(var(--object-normal-11) * var(--face-normal-11) + var(--object-normal-12) * var(--face-normal-21) + var(--object-normal-13) * var(--face-normal-31));
+    /* --face-object-normal-12: calc(var(--object-normal-11) * var(--face-normal-12) + var(--object-normal-12) * var(--face-normal-22) + var(--object-normal-13) * var(--face-normal-32)); */
+    --face-object-normal-13: calc(var(--object-normal-11) * var(--face-normal-13) + var(--object-normal-12) * var(--face-normal-23) + var(--object-normal-13) * var(--face-normal-33));
+    --face-object-normal-21: calc(var(--object-normal-21) * var(--face-normal-11) + var(--object-normal-22) * var(--face-normal-21) + var(--object-normal-23) * var(--face-normal-31));
+    /* --face-object-normal-22: calc(var(--object-normal-21) * var(--face-normal-12) + var(--object-normal-22) * var(--face-normal-22) + var(--object-normal-23) * var(--face-normal-32)); */
+    --face-object-normal-23: calc(var(--object-normal-21) * var(--face-normal-13) + var(--object-normal-22) * var(--face-normal-23) + var(--object-normal-23) * var(--face-normal-33));
+    --face-object-normal-31: calc(var(--object-normal-31) * var(--face-normal-11) + var(--object-normal-32) * var(--face-normal-21) + var(--object-normal-33) * var(--face-normal-31));
+    /* --face-object-normal-32: calc(var(--object-normal-31) * var(--face-normal-12) + var(--object-normal-32) * var(--face-normal-22) + var(--object-normal-33) * var(--face-normal-32)); */
+    --face-object-normal-33: calc(var(--object-normal-31) * var(--face-normal-13) + var(--object-normal-32) * var(--face-normal-23) + var(--object-normal-33) * var(--face-normal-33));
+
+    /* --face-object-scene-normal-11: calc(var(--scene-normal-11) * var(--face-object-normal-11) + var(--scene-normal-12) * var(--face-object-normal-21) + var(--scene-normal-13) * var(--face-object-normal-31)); */
+    /* --face-object-scene-normal-12: calc(var(--scene-normal-11) * var(--face-object-normal-12) + var(--scene-normal-12) * var(--face-object-normal-22) + var(--scene-normal-13) * var(--face-object-normal-32)); */
+    /* --face-object-scene-normal-13: calc(var(--scene-normal-11) * var(--face-object-normal-13) + var(--scene-normal-12) * var(--face-object-normal-23) + var(--scene-normal-13) * var(--face-object-normal-33)); */
+    /* --face-object-scene-normal-21: calc(var(--scene-normal-21) * var(--face-object-normal-11) + var(--scene-normal-22) * var(--face-object-normal-21) + var(--scene-normal-23) * var(--face-object-normal-31)); */
+    /* --face-object-scene-normal-22: calc(var(--scene-normal-21) * var(--face-object-normal-12) + var(--scene-normal-22) * var(--face-object-normal-22) + var(--scene-normal-23) * var(--face-object-normal-32)); */
+    /* --face-object-scene-normal-23: calc(var(--scene-normal-21) * var(--face-object-normal-13) + var(--scene-normal-22) * var(--face-object-normal-23) + var(--scene-normal-23) * var(--face-object-normal-33)); */
+    /* --face-object-scene-normal-31: calc(var(--scene-normal-31) * var(--face-object-normal-11) + var(--scene-normal-32) * var(--face-object-normal-21) + var(--scene-normal-33) * var(--face-object-normal-31)); */
+    /* --face-object-scene-normal-32: calc(var(--scene-normal-31) * var(--face-object-normal-12) + var(--scene-normal-32) * var(--face-object-normal-22) + var(--scene-normal-33) * var(--face-object-normal-32)); */
+    /* --face-object-scene-normal-33: calc(var(--scene-normal-31) * var(--face-object-normal-13) + var(--scene-normal-32) * var(--face-object-normal-23) + var(--scene-normal-33) * var(--face-object-normal-33)); */
+
+    /* TO UPDATE: remove duplication of values */
+    --face-rotated-normal-a: var(--face-object-normal-13);
+    --face-rotated-normal-b: var(--face-object-normal-23);
+    --face-rotated-normal-c: var(--face-object-normal-33);
+    --dot-product: calc((var(--face-object-normal-13) * var(--light-normal-13)) + (var(--face-object-normal-23) * var(--light-normal-23)) + (var(--face-object-normal-33) * var(--light-normal-33)));
+    
+    
+    /* 
+    dotting the light direction against the face's column 1 — the face's local x-axis
+    how far to the left/right, across the face's surface, is the light coming from.
+    which side of the face left/right is the light coming from 
+    -1 * flips the sign so positive means light from the -x side.
+    */
+    --dot-product-light-scene-face-object-scene-x:
+    calc(
+        -1 * (
+        var(--light-normal-13) * var(--face-object-normal-11)
+        + var(--light-normal-23) * var(--face-object-normal-21)
+        + var(--light-normal-33) * var(--face-object-normal-31)
+        )
+    );
+    /* Previous version: both elements had scene rotation so have removed in new version, needs verifying */
+    /* --dot-product-light-scene-face-object-scene-x:
+    calc(
+        -1 * (
+        var(--light-scene-normal-13) * var(--face-object-scene-normal-11)
+        + var(--light-scene-normal-23) * var(--face-object-scene-normal-21)
+        + var(--light-scene-normal-33) * var(--face-object-scene-normal-31)
+        )
+    ); */
+
+    --shade-value-front: calc(
+        37.5 
+        + (25 * clamp(0, round(down, var(--dot-product) + 1, 1), 1)) 
+        + (12.5 * clamp(0, round(down, var(--dot-product) - var(--shade-calc) + 1, 1), 1))
+    );
+    --shade-value-back: calc(
+        37.5
+        + (25   * clamp(0, round(down, 1 - var(--dot-product), 1), 1))
+        + (12.5 * clamp(0, round(down, 1 - var(--dot-product) - var(--shade-calc), 1), 1))
+    );
+
+    /* TO CHECK: are all these needed? */
+    --shade-front: hsl(0 0 calc(1% * var(--shade-value-front)));
+    --shade-back: hsl(0 0 calc(1% * var(--shade-value-back)));
+    --shade-front-transform: rotateY(0deg);
+    --shade-back-transform: rotateY(180deg);
+    --after-display: block;
+    --before-background: var(--shade-front);
+    --before-transform: var(--shade-front-transform);
+    --after-background: var(--shade-back);
+    --after-transform: var(--shade-back-transform);
+}
+#shade-layer .face::before {
+    transform: var(--before-transform);
+    background: var(--before-background);
+}
+#shade-layer .face::after, .curved-lighting::after {
+    background: var(--after-background);
+    transform: var(--after-transform);
+}
+#shade-layer .face::after {
+    display: var(--after-display);
+}
+
+
+
+/* T05C: Shadow Layer */
+
+#shadow-layer {
+    mix-blend-mode: multiply;
+}
+
+#shadow-layer .scene {
+    transform: rotateX(var(--scene-x)) rotateY(var(--scene-y)) rotateX(90deg) rotateZ(calc(var(--light-y) * -1)) translateZ(calc(var(--grid-size) / -2));
+    transform-style: unset;
+}
+
+#shadow-layer .object {
+    transform: 
+        translateY(calc(((var(--elevation) / sin(var(--light-x))) * cos(var(--light-x)) * 1)))
+        scaleY(calc(1 / sin(var(--light-x))))   
+        rotateX(calc(var(--light-x) * -1)) 
+        rotateY(calc(var(--light-y) * -1))
+        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        rotateX(var(--object-x)) 
+        rotateY(var(--object-y)) 
+        rotateZ(var(--object-z))
+    ;
+}
+
+#shadow-layer .face {
+    clip-path: var(--clip-path);
+    background-color: hsl(0 0 62.5%);
+}
+
+
+
+/* T06: Objects */
+
+/* T06A: Cube */
+
+.cube {
+    --corner1: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner2: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner3: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --corner4: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --corner5: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner6: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner7: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --corner8: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --elevation-surface: calc(min(var(--corner1), var(--corner2), var(--corner3), var(--corner4), var(--corner5), var(--corner6), var(--corner7), var(--corner8)));
+}
+
+.cube .face {
+    --face-translate: var(--object-size-half);  /* Front */
+}
+.cube .face:nth-child(2) {
+    --face-x-deg: -90deg; /* Bottom */
+}
+.cube .face:nth-child(3) {
+    --face-y-deg: 180deg;  /* Back */
+}
+.cube .face:nth-child(4) {
+    --face-y-deg: 90deg; /* Right */
+}
+.cube .face:nth-child(5) {
+    --face-y-deg: -90deg; /* Left */
+}
+.cube .face:nth-child(6) {
+    --face-x-deg: 90deg; /* Top */
+}
+.cube .face:nth-child(n+7) {
+    display: none;
+}
+
+
+
+/* T06B: Tetrahedron */
+
+.tetrahedron {
+    --side-x-angle: 19.471deg;
+    --corner1: calc((var(--corner-Rx) * 0px) + (var(--corner-Ry) * (var(--object-size) * .5 * cos(var(--side-x-angle)))) - (var(--corner-Rz) * 0px));
+    --corner2: calc((var(--corner-Rx) * (var(--object-size) * .4330127019)) + (var(--corner-Ry) * (var(--object-size) * -0.25 * cos(var(--side-x-angle)))) - (var(--corner-Rz) * (var(--object-size) * -.25)));
+    --corner3: calc((var(--corner-Rx) * (var(--object-size) * -.4330127019)) + (var(--corner-Ry) * (var(--object-size) * -0.25 * cos(var(--side-x-angle)))) - (var(--corner-Rz) * (var(--object-size) * -.25)));
+    --corner4: calc((var(--corner-Rx) * 0px) + (var(--corner-Ry) * (var(--object-size) * -0.25 * cos(var(--side-x-angle)))) - (var(--corner-Rz) * (var(--object-size) * .5)));
+    --elevation-surface: calc(min(var(--corner1), var(--corner2), var(--corner3), var(--corner4)));
+}
+
+.tetrahedron .face {
+    --clip-path: polygon(50% 0%, 6.69872981% 75%, 93.30127019% 75%);
+    --face-translate: calc(var(--object-size-half) * sin(var(--side-x-angle)));
+    transform: rotateY(var(--face-y-deg)) translateZ(var(--face-translate)) rotateX(var(--face-x-deg));
+}
+.tetrahedron .face {
+    --face-x-deg: var(--side-x-angle); /* Front */
+}
+.tetrahedron .face:nth-child(2) { /* Bottom */
+    --face-x-deg: -90deg;  
+    --face-y-deg: 180deg;
+    --face-translate: calc(var(--object-size) * .25 * cos(var(--side-x-angle)));
+    transform: rotateY(var(--face-y-deg)) rotateX(var(--face-x-deg)) translateZ(var(--face-translate)) ;
+}
+.tetrahedron .face:nth-child(3) {
+    --face-y-deg: 240deg; /* Back */
+}
+.tetrahedron .face:nth-child(4) {
+    --face-y-deg: 120deg; /* Right */
+}
+.tetrahedron .face:nth-child(n+5) {
+    display: none;
+}
+
+
+
+/* T06C: Pyramid */
+
+.pyramid {
+    --side-x-angle: atan(calc(.5/1));
+    --side-height: calc(sqrt((pow(.5,2) + pow(1,2))) * var(--object-size));
+
+    --corner1: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner2: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --corner3: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner4: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --corner5: calc((var(--corner-Rx) * 0px) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * 0px));
+
+    --elevation-surface: min(
+        var(--corner1), 
+        var(--corner2), 
+        var(--corner3), 
+        var(--corner4),
+        var(--corner5)
+    );
+}
+
+.pyramid .face {
+    --face-translate: var(--object-size-half);
+    --face-x-deg: var(--side-x-angle);
+    top: unset;
+    bottom: 0;
+}
+.pyramid .face:not(:nth-child(2)) {
+    --clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    transform: rotateY(var(--face-y-deg)) translateZ(var(--face-translate)) rotateX(var(--face-x-deg));
+    transform-origin: 50% 100%;
+    height: var(--side-height);
+}
+.pyramid .face:nth-child(2) {  
+    --face-x-deg: -90deg; /* Bottom */
+}
+.pyramid .face:nth-child(3) {
+    --face-y-deg: 180deg; /* Back */
+}
+.pyramid .face:nth-child(4) {
+    --face-y-deg: 90deg; /* Right */
+}
+.pyramid .face:nth-child(5) {
+    --face-y-deg: -90deg; /* Left */
+}
+.pyramid .face:nth-child(n+6) {
+    display: none;
+}
+
+
+/* T06D: Slopes */
+
+.slope, .slope-corner {
+    --side-height: hypot(var(--object-size),var(--object-size));
+
+    --corner1: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner2: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner4: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --corner5: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner6: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
+    --corner8: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+    --elevation-surface: calc(min(var(--corner1), var(--corner2), var(--corner4), var(--corner5), var(--corner6), var(--corner8)));
+}
+
+.slope .face, .slope-corner .face {
+    --face-translate: var(--object-size-half);
+}
+
+.slope .face:first-child, .slope-corner .face:first-child, .slope-corner .face:nth-child(5) {
+    --face-translate: 0;
+    --face-x-deg: 45deg;
+    height: var(--side-height);
+    top: calc((var(--side-height) - var(--object-size)) / -2)
+}
+.slope .face:nth-child(2), .slope-corner .face:nth-child(2) {
+    --face-x-deg: -90deg; /* Bottom */
+}
+.slope .face:nth-child(3), .slope-corner .face:nth-child(3) {
+    --face-y-deg: 180deg; /* Back */
+}
+.slope .face:nth-child(4), .slope-corner .face:nth-child(4) {
+    --face-y-deg: 90deg; /* Right */
+}
+.slope .face:nth-child(5), .slope-corner .face:nth-child(5) {
+    --face-y-deg: -90deg; /* Left */
+}
+.slope .face:nth-child(n+6), .slope-corner .face:nth-child(n+6) {
+    display: none;
+}
+.slope .face:nth-child(4), .slope .face:nth-child(5)::after, .slope-corner .face:nth-child(4), .slope-corner .face:nth-child(5)::after,
+.slope-corner .face:first-child, .slope-corner .face:nth-child(3)::after {
+    --clip-path: polygon(0% 100%, 100% 0, 100% 100%);
+}
+.slope .face:nth-child(4)::after, .slope .face:nth-child(5), .slope-corner .face:nth-child(4)::after, .slope-corner .face:nth-child(5),
+.slope-corner .face:first-child::after, .slope-corner .face:nth-child(3) {
+    --clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
+}
+.slope .face:nth-child(n+7), .slope-corner .face:nth-child(n+7) {
+    display: none;
+}
+
+
+
+/* T06E: Dodecahedron */
+
+.dodecahedron {
+    --dodecahedron-angle: atan(2);
+    --phi: calc((1 + sqrt(5)) / 2);
+
+    --pentagon-top-x: 0;                    /* calc((0.5 * cos(90deg + 0 * 72deg))); */
+    --pentagon-top-y: 0.5;                  /* calc((0.5 * sin(90deg + 0 * 72deg))); */
+    --pentagon-tl-x: -0.47552825814;        /* calc((0.5 * cos(90deg + 1 * 72deg))); */
+    --pentagon-tl-y: 0.15450849719;         /* calc((0.5 * sin(90deg + 1 * 72deg))); */
+    --pentagon-bl-x: -0.29389262614;        /* calc((0.5 * cos(90deg + 2 * 72deg))); */
+    --pentagon-bl-y: -0.40450849719;        /* calc((0.5 * sin(90deg + 2 * 72deg))); */
+    --pentagon-br-x: 0.29389262614;         /* calc((0.5 * cos(90deg + 3 * 72deg))); */
+    --pentagon-br-y: -0.40450849719;        /* calc((0.5 * sin(90deg + 3 * 72deg))); */
+    --pentagon-tr-x: 0.47552825814;         /* calc((0.5 * cos(90deg + 4 * 72deg))); */
+    --pentagon-tr-y: 0.15450849719;         /* calc((0.5 * sin(90deg + 4 * 72deg))); */
+
+    --c-90: 0;                    /* cos(90deg) */
+    --s-90: 1;                    /* sin(90deg) */
+    --c-162: -0.95105651629;      /* cos(162deg) */
+    --s-162: 0.30901699437;       /* sin(162deg) */
+    --c-234: -0.58778525229;      /* cos(234deg) */
+    --s-234: -0.80901699437;      /* sin(234deg) */
+    --c-306: 0.58778525229;       /* cos(306deg) */
+    --s-306: -0.80901699437;      /* sin(306deg) */
+    --c-18: 0.95105651629;        /* cos(18deg) */
+    --s-18: 0.30901699437;        /* sin(18deg) */
+
+    --dodecahedron-midcorner-depth: calc(var(--pentagon-bl-y) * 2 * var(--object-size));
+    --dodecahedron-midcorner-height: calc(var(--face-translate) + var(--dodecahedron-midcorner-depth));
+
+    --corner1: calc((var(--corner-Rx) * var(--pentagon-top-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-top-y) * var(--object-size)));
+    --corner2: calc((var(--corner-Rx) * var(--pentagon-tl-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-tl-y) * var(--object-size)));
+    --corner3: calc((var(--corner-Rx) * var(--pentagon-bl-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-bl-y) * var(--object-size)));
+    --corner4: calc((var(--corner-Rx) * var(--pentagon-br-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-br-y) * var(--object-size)));
+    --corner5: calc((var(--corner-Rx) * var(--pentagon-tr-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-tr-y) * var(--object-size)));
+    --corner6: calc((var(--corner-Rx) * var(--pentagon-top-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-top-y) * var(--object-size) * -1));
+    --corner7: calc((var(--corner-Rx) * var(--pentagon-tl-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-tl-y) * var(--object-size) * -1));
+    --corner8: calc((var(--corner-Rx) * var(--pentagon-bl-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-bl-y) * var(--object-size) * -1));
+    --corner9: calc((var(--corner-Rx) * var(--pentagon-br-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-br-y) * var(--object-size) * -1));
+    --corner10: calc((var(--corner-Rx) * var(--pentagon-tr-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-tr-y) * var(--object-size) * -1));
+
+    --corner11: calc(
+        (var(--corner-Rx) * var(--c-90) * var(--dodecahedron-midcorner-depth)) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height)) -
+        (var(--corner-Rz) * var(--s-90) * var(--dodecahedron-midcorner-depth))
+    );
+    --corner12: calc(
+        (var(--corner-Rx) * var(--c-162) * var(--dodecahedron-midcorner-depth)) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height)) -
+        (var(--corner-Rz) * var(--s-162) * var(--dodecahedron-midcorner-depth))
+    );
+    --corner13: calc(
+        (var(--corner-Rx) * var(--c-234) * var(--dodecahedron-midcorner-depth)) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height)) -
+        (var(--corner-Rz) * var(--s-234) * var(--dodecahedron-midcorner-depth))
+    );
+    --corner14: calc(
+        (var(--corner-Rx) * var(--c-306) * var(--dodecahedron-midcorner-depth)) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height)) -
+        (var(--corner-Rz) * var(--s-306) * var(--dodecahedron-midcorner-depth))
+    );
+    --corner15: calc(
+        (var(--corner-Rx) * var(--c-18) * var(--dodecahedron-midcorner-depth)) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height)) -
+        (var(--corner-Rz) * var(--s-18) * var(--dodecahedron-midcorner-depth))
+    );
+    --corner16: calc(
+        (var(--corner-Rx) * var(--c-90) * var(--dodecahedron-midcorner-depth) * -1) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height) * -1) -
+        (var(--corner-Rz) * var(--s-90) * var(--dodecahedron-midcorner-depth) * -1)
+    );
+    --corner17: calc(
+        (var(--corner-Rx) * var(--c-162) * var(--dodecahedron-midcorner-depth) * -1) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height) * -1) -
+        (var(--corner-Rz) * var(--s-162) * var(--dodecahedron-midcorner-depth) * -1)
+    );
+    --corner18: calc(
+        (var(--corner-Rx) * var(--c-234) * var(--dodecahedron-midcorner-depth) * -1) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height) * -1) -
+        (var(--corner-Rz) * var(--s-234) * var(--dodecahedron-midcorner-depth) * -1)
+    );
+    --corner19: calc(
+        (var(--corner-Rx) * var(--c-306) * var(--dodecahedron-midcorner-depth) * -1) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height) * -1) -
+        (var(--corner-Rz) * var(--s-306) * var(--dodecahedron-midcorner-depth) * -1)
+    );
+    --corner20: calc(
+        (var(--corner-Rx) * var(--c-18) * var(--dodecahedron-midcorner-depth) * -1) +
+        (var(--corner-Ry) * var(--dodecahedron-midcorner-height) * -1) -
+        (var(--corner-Rz) * var(--s-18) * var(--dodecahedron-midcorner-depth) * -1)
+    );
+    --elevation-surface: calc(min(var(--corner1), var(--corner2), var(--corner3), var(--corner4), var(--corner5), var(--corner6), var(--corner7), var(--corner8), var(--corner9), var(--corner10), var(--corner11), var(--corner12), var(--corner13), var(--corner14), var(--corner15), var(--corner16), var(--corner17), var(--corner18), var(--corner19), var(--corner20)));
+}
+
+.dodecahedron .face {
+    --clip-path: polygon(
+        50% 0%,
+        2.45% 34.55%,
+        20.61% 90.45%,
+        79.39% 90.45%,
+        97.55% 34.55%
+    );
+    --face-translate: calc(var(--object-size-half) * (pow(var(--phi), 2) / 2));
+
+}
+.dodecahedron .face:first-child {
+    --face-x-deg: calc(var(--dodecahedron-angle) + 90deg);
+    --face-y-deg: 180deg;
+}
+.dodecahedron .face:nth-child(2) {
+    --face-x-deg: calc(var(--dodecahedron-angle) + 90deg);
+    --face-y-deg: 252deg;
+}
+.dodecahedron .face:nth-child(3) {
+    --face-x-deg: calc(var(--dodecahedron-angle) + 90deg);
+    --face-y-deg: 324deg;
+}
+.dodecahedron .face:nth-child(4) {
+    --face-x-deg: calc(var(--dodecahedron-angle) + 90deg);
+    --face-y-deg: 36deg;
+}
+.dodecahedron .face:nth-child(5) {
+    --face-x-deg: calc(var(--dodecahedron-angle) + 90deg);
+    --face-y-deg: 108deg;
+}
+.dodecahedron .face:nth-child(6) {
+    --face-x-deg: 90deg;
+    --face-y-deg: 0deg;
+}
+.dodecahedron .face:nth-child(7) {
+    --face-x-deg: calc(var(--dodecahedron-angle) - 90deg);
+    --face-y-deg: 36deg;
+}
+.dodecahedron .face:nth-child(8) {
+    --face-x-deg: calc(var(--dodecahedron-angle) - 90deg);
+    --face-y-deg: 108deg;
+}
+.dodecahedron .face:nth-child(9) {
+    --face-x-deg: calc(var(--dodecahedron-angle) - 90deg);
+    --face-y-deg: 180deg;
+}
+.dodecahedron .face:nth-child(10) {
+    --face-x-deg: calc(var(--dodecahedron-angle) - 90deg);
+    --face-y-deg: 252deg;
+}
+.dodecahedron .face:nth-child(11) {
+    --face-x-deg: calc(var(--dodecahedron-angle) - 90deg);
+    --face-y-deg: 324deg;
+}
+.dodecahedron .face:nth-child(12) {
+    --face-x-deg: -90deg;
+    --face-y-deg: 0deg;
+}
