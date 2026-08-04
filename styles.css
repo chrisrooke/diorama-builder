@@ -126,9 +126,11 @@ T01: Property Declarations
 @property --light-cylinder-normal-a { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --light-cylinder-normal-b { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
 @property --light-cylinder-normal-c { syntax: "<number>"; inherits: false; initial-value: 0.5; }
+@property --norm-denom { syntax: "<number>"; inherits: false; initial-value: 0.8660254038; }
 @property --px { syntax: "<number>"; inherits: false; initial-value: -0.7071067812; }
 @property --py { syntax: "<number>"; inherits: false; initial-value: 0.5773502692; }
 @property --pz { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; }
+@property --light-norm-denom { syntax: "<number>"; inherits: false; initial-value: 0.5; }
 @property --light-px { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --light-pz { syntax: "<number>"; inherits: false; initial-value: 1; }
 

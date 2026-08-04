@@ -1,0 +1,204 @@
+/* =============================================================================
+   F7 — @function sample code (REFERENCE ONLY — not linked from index.html)
+
+   Syntax per CSS Functions and Mixins Level 1. Verified against MDN
+   (https://developer.mozilla.org/en-US/docs/Web/CSS/@function), 2026-08-04.
+
+   Support at time of writing:
+     Chrome 139+        ✓
+     Safari TP 27.0     ✓  (release Safari 26.5.2 unconfirmed)
+     Firefox            ✗
+
+   So this file stays parked until release-Safari support is confirmed.
+   Nothing here is imported; it exists to show the shape of the refactor.
+
+   Read §"Performance caveat" at the bottom before adopting §3 — the
+   Euler-preamble collapse can make things SLOWER, not faster.
+   ============================================================================= */
+
+
+/* -----------------------------------------------------------------------------
+   1. Three-term dot product  →  collapses the 5 matrix-product blocks (45 lines)
+
+   Every one of the 3×3 products in styles.css is the same shape: a row of one
+   matrix dotted with a column of another. One function covers all 45 lines.
+   -------------------------------------------------------------------------- */
+
+@function --dot3(
+    --a1 <number>, --a2 <number>, --a3 <number>,
+    --b1 <number>, --b2 <number>, --b3 <number>
+) returns <number> {
+    result: calc(var(--a1) * var(--b1) + var(--a2) * var(--b2) + var(--a3) * var(--b3));
+}
+
+
+/* Before (styles.css:656 — scene × object, row 1):
+
+   --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11)
+                                 + var(--scene-normal-12) * var(--object-normal-21)
+                                 + var(--scene-normal-13) * var(--object-normal-31));
+
+   After: */
+
+.cylinder, .cone, .sphere {
+    --object-scene-normal-11: --dot3(
+        var(--scene-normal-11), var(--scene-normal-12), var(--scene-normal-13),
+        var(--object-normal-11), var(--object-normal-21), var(--object-normal-31));
+    --object-scene-normal-12: --dot3(
+        var(--scene-normal-11), var(--scene-normal-12), var(--scene-normal-13),
+        var(--object-normal-12), var(--object-normal-22), var(--object-normal-32));
+    /* …and so on for -13 … -33 */
+
+    /* transpose(light) × object — note only the argument ORDER changes,
+       which is exactly the bug-prone part the function removes */
+    --object-light-normal-11: --dot3(
+        var(--light-normal-11), var(--light-normal-21), var(--light-normal-31),
+        var(--object-normal-11), var(--object-normal-21), var(--object-normal-31));
+}
+
+/* The shade-layer dot product is the same function with no destination matrix: */
+#shade-layer .face {
+    --dot-product: --dot3(
+        var(--face-object-normal-13), var(--face-object-normal-23), var(--face-object-normal-33),
+        var(--light-normal-13), var(--light-normal-23), var(--light-normal-33));
+}
+
+
+/* -----------------------------------------------------------------------------
+   2. Corner formula  →  collapses 43 occurrences across 5 shapes
+
+   (Rx·X) + (Ry·Y) − (Rz·Z), where Rx/Ry/Rz come from --corner-Rx/Ry/Rz on the
+   object. Those are NOT parameters: per spec, custom properties defined on the
+   element the function is called from are visible inside the function body, so
+   they resolve per-object without being threaded through the call.
+   -------------------------------------------------------------------------- */
+
+@function --corner(--x <length>, --y <length>, --z <length>) returns <length> {
+    result: calc(
+        (var(--corner-Rx) * var(--x))
+        + (var(--corner-Ry) * var(--y))
+        - (var(--corner-Rz) * var(--z))
+    );
+}
+
+/* Before (styles.css:953-960 — the cube's eight corners):
+
+   --corner1: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
+   … ×8
+
+   After — the ±half pattern becomes readable as the cube it actually describes: */
+
+.cube {
+    --corner1: --corner(var(--object-size-half),     var(--object-size-half),     var(--object-size-half));
+    --corner2: --corner(var(--object-size-half),     var(--object-size-half-neg), var(--object-size-half));
+    --corner3: --corner(var(--object-size-half),     var(--object-size-half),     var(--object-size-half-neg));
+    --corner4: --corner(var(--object-size-half),     var(--object-size-half-neg), var(--object-size-half-neg));
+    --corner5: --corner(var(--object-size-half-neg), var(--object-size-half),     var(--object-size-half));
+    --corner6: --corner(var(--object-size-half-neg), var(--object-size-half-neg), var(--object-size-half));
+    --corner7: --corner(var(--object-size-half-neg), var(--object-size-half),     var(--object-size-half-neg));
+    --corner8: --corner(var(--object-size-half-neg), var(--object-size-half-neg), var(--object-size-half-neg));
+}
+
+/* Non-cube shapes work identically — the tetrahedron (styles.css:992-995): */
+.tetrahedron {
+    --corner1: --corner(
+        0px,
+        calc(var(--object-size) * .5 * cos(var(--side-x-angle))),
+        0px);
+    --corner2: --corner(
+        calc(var(--object-size) * .4330127019),
+        calc(var(--object-size) * -0.25 * cos(var(--side-x-angle))),
+        calc(var(--object-size) * -.25));
+    /* …corner3, corner4 */
+}
+
+/* If the "elevation is the lowest corner" idiom is worth naming too: */
+@function --lowest-corner(--c1 <length>, --c2 <length>, --c3 <length>, --c4 <length>,
+                          --c5 <length>: 0px, --c6 <length>: 0px,
+                          --c7 <length>: 0px, --c8 <length>: 0px) returns <length> {
+    result: min(var(--c1), var(--c2), var(--c3), var(--c4),
+                var(--c5), var(--c6), var(--c7), var(--c8));
+}
+/* …though note the 0px defaults make this wrong for a shape whose corners are
+   all above the origin. Probably not worth it; listed for completeness. */
+
+
+/* -----------------------------------------------------------------------------
+   3. Euler → rotation matrix  →  collapses the 4 preamble blocks
+
+   Each of the scene / light / object / face blocks does the same thing: negate
+   an angle or two, take sin and cos of each, then assemble nine entries. Nine
+   small functions replace the preamble entirely, since @function returns a
+   single value and cannot emit nine properties at once.
+
+   Only the four entries styles.css still reads are shown; the full set follows
+   the same pattern.
+   -------------------------------------------------------------------------- */
+
+@function --rotm-13(--x <angle>, --y <angle>) returns <number> {
+    result: calc(sin(var(--y)) * cos(var(--x)));
+}
+@function --rotm-23(--x <angle>) returns <number> {
+    result: calc(-1 * sin(var(--x)));
+}
+@function --rotm-31(--y <angle>) returns <number> {
+    result: calc(-1 * sin(var(--y)));
+}
+@function --rotm-33(--x <angle>, --y <angle>) returns <number> {
+    result: calc(cos(var(--x)) * cos(var(--y)));
+}
+
+/* Before (styles.css:809-825 — face preamble plus four reads):
+
+   --face-x-calc: calc(var(--face-x-deg) * -1);
+   --face-y-calc: var(--face-y-deg);
+   --s-fx: sin(var(--face-x-calc));
+   --c-fx: cos(var(--face-x-calc));
+   --s-fy: sin(var(--face-y-calc));
+   --c-fy: cos(var(--face-y-calc));
+   --face-normal-13: calc(var(--s-fy) * var(--c-fx));
+   --face-normal-23: calc(-1 * var(--s-fx));
+   --face-normal-31: calc(-1 * var(--s-fy));
+   --face-normal-33: calc(var(--c-fx) * var(--c-fy));
+
+   After — the sign convention (x negated, y not) lives in one place: */
+
+#shade-layer .face {
+    --face-normal-13: --rotm-13(calc(var(--face-x-deg) * -1), var(--face-y-deg));
+    --face-normal-23: --rotm-23(calc(var(--face-x-deg) * -1));
+    --face-normal-31: --rotm-31(var(--face-y-deg));
+    --face-normal-33: --rotm-33(calc(var(--face-x-deg) * -1), var(--face-y-deg));
+}
+
+/* The same four calls serve the scene, light and object blocks — pass
+   --scene-x/--scene-y, --light-x/--light-y, --object-x/--object-y instead. */
+
+
+/* -----------------------------------------------------------------------------
+   PERFORMANCE CAVEAT — read before adopting §3
+
+   §1 and §2 are free: each call is evaluated once and produces one value, the
+   same as the calc() it replaces.
+
+   §3 is NOT free, and cuts directly against F1. The current preamble computes
+   sin(--face-x-calc) ONCE into --s-fx and reads it from three entries. Four
+   independent function calls each recompute their own sin/cos — sin(y) is
+   evaluated by both --rotm-13 and --rotm-31, cos(x) by both --rotm-13 and
+   --rotm-33. On 180 shade faces that is a measurable regression, and it is the
+   same mistake F1 identified in the sqrt(pow()+pow()) denominators.
+
+   Options, in order of preference:
+     a) Adopt §1 and §2 only. That is ~88 of the ~90 duplicated lines anyway.
+     b) Keep the hoisted --s-fx/--c-fx/--s-fy/--c-fy preamble and have the
+        functions take the sines and cosines as parameters rather than angles:
+          @function --rotm-13(--sy <number>, --cx <number>) returns <number> {
+              result: calc(var(--sy) * var(--cx));
+          }
+        Readability is worse and the saving is small — probably not worth it.
+     c) Adopt §3 and measure. If the engine does common-subexpression elimination
+        across function calls on the same element the cost may vanish, but that
+        is not something to assume — measure per §2 of the plan (never-repeating
+        values, forced sync recalc, Safari or varied rotations in Chrome).
+
+   Recommendation: (a).
+   -------------------------------------------------------------------------- */
