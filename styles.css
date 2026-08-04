@@ -201,7 +201,6 @@ so there isn't a reliable computed initial-value to lock in yet.
 /* @property --face-object-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.5; } */
 /* @property --face-object-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.6123724357; } */
 
-@property --clip-path { syntax: "<string>"; inherits: true; initial-value: unset; }
 @property --border-radius { syntax: "<length>"; inherits: true; initial-value: 0px; }
 
 @property --shade-value-front { syntax: "<number>"; inherits: false; initial-value: 62.5; }
@@ -590,7 +589,6 @@ T04: Scene Setup
     pointer-events: none;
     position: absolute;
     backface-visibility: hidden;
-    content: '';
     transform-style: preserve-3d;
 }
 .wall-x, .wall-y {
@@ -602,9 +600,11 @@ T04: Scene Setup
     transform: rotateX(var(--scene-x)) rotateY(var(--scene-y));
 }
 .wall-x::before, .wall-y::before {
+    content: '';
     transform: translateZ(calc(var(--grid-size) * -.5));
 }
 .wall-x::after, .wall-y::after {
+    content: '';
     transform: rotateY(180deg) translateZ(calc(var(--grid-size) * -.5));
 }
 
@@ -652,7 +652,9 @@ T05: Object Setup
 
     /* Rotation of the object taking into account scene's rotation: 
     scene * object = scene row * object column*/
-    --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11) + var(--scene-normal-12) * var(--object-normal-21) + var(--scene-normal-13) * var(--object-normal-31));
+    /* Commented out as only needed on curved elements. Property declarations intact. 
+    Re-intro on cylinder, .cone, .sphere classes */
+    /* --object-scene-normal-11: calc( var(--scene-normal-11) * var(--object-normal-11) + var(--scene-normal-12) * var(--object-normal-21) + var(--scene-normal-13) * var(--object-normal-31));
     --object-scene-normal-12: calc( var(--scene-normal-11) * var(--object-normal-12) + var(--scene-normal-12) * var(--object-normal-22) + var(--scene-normal-13) * var(--object-normal-32));
     --object-scene-normal-13: calc( var(--scene-normal-11) * var(--object-normal-13) + var(--scene-normal-12) * var(--object-normal-23) + var(--scene-normal-13) * var(--object-normal-33));
     --object-scene-normal-21: calc( var(--scene-normal-21) * var(--object-normal-11) + var(--scene-normal-22) * var(--object-normal-21) + var(--scene-normal-23) * var(--object-normal-31));
@@ -660,11 +662,13 @@ T05: Object Setup
     --object-scene-normal-23: calc( var(--scene-normal-21) * var(--object-normal-13) + var(--scene-normal-22) * var(--object-normal-23) + var(--scene-normal-23) * var(--object-normal-33));
     --object-scene-normal-31: calc( var(--scene-normal-31) * var(--object-normal-11) + var(--scene-normal-32) * var(--object-normal-21) + var(--scene-normal-33) * var(--object-normal-31));
     --object-scene-normal-32: calc( var(--scene-normal-31) * var(--object-normal-12) + var(--scene-normal-32) * var(--object-normal-22) + var(--scene-normal-33) * var(--object-normal-32));
-    --object-scene-normal-33: calc( var(--scene-normal-31) * var(--object-normal-13) + var(--scene-normal-32) * var(--object-normal-23) + var(--scene-normal-33) * var(--object-normal-33));
+    --object-scene-normal-33: calc( var(--scene-normal-31) * var(--object-normal-13) + var(--scene-normal-32) * var(--object-normal-23) + var(--scene-normal-33) * var(--object-normal-33)); */
 
     /* How does the object look from the light's perspective
     transpose(light) * object = light column · object column  */
-    --object-light-normal-11: calc(var(--light-normal-11) * var(--object-normal-11) + var(--light-normal-21) * var(--object-normal-21) + var(--light-normal-31) * var(--object-normal-31));
+    /* Commented out as only needed on curved elements. Property declarations intact. 
+    Re-intro on cylinder, .cone, .sphere classes */
+    /* --object-light-normal-11: calc(var(--light-normal-11) * var(--object-normal-11) + var(--light-normal-21) * var(--object-normal-21) + var(--light-normal-31) * var(--object-normal-31));
     --object-light-normal-12: calc(var(--light-normal-11) * var(--object-normal-12) + var(--light-normal-21) * var(--object-normal-22) + var(--light-normal-31) * var(--object-normal-32));
     --object-light-normal-13: calc(var(--light-normal-11) * var(--object-normal-13) + var(--light-normal-21) * var(--object-normal-23) + var(--light-normal-31) * var(--object-normal-33));
     --object-light-normal-21: calc(var(--light-normal-12) * var(--object-normal-11) + var(--light-normal-22) * var(--object-normal-21) + var(--light-normal-32) * var(--object-normal-31));
@@ -672,7 +676,7 @@ T05: Object Setup
     --object-light-normal-23: calc(var(--light-normal-12) * var(--object-normal-13) + var(--light-normal-22) * var(--object-normal-23) + var(--light-normal-32) * var(--object-normal-33));
     --object-light-normal-31: calc(var(--light-normal-13) * var(--object-normal-11) + var(--light-normal-23) * var(--object-normal-21) + var(--light-normal-33) * var(--object-normal-31));
     --object-light-normal-32: calc(var(--light-normal-13) * var(--object-normal-12) + var(--light-normal-23) * var(--object-normal-22) + var(--light-normal-33) * var(--object-normal-32));
-    --object-light-normal-33: calc(var(--light-normal-13) * var(--object-normal-13) + var(--light-normal-23) * var(--object-normal-23) + var(--light-normal-33) * var(--object-normal-33));
+    --object-light-normal-33: calc(var(--light-normal-13) * var(--object-normal-13) + var(--light-normal-23) * var(--object-normal-23) + var(--light-normal-33) * var(--object-normal-33)); */
 
     /* Cylinder use 
     From the cylinder's point of view, which way is the light coming from?
@@ -680,23 +684,31 @@ T05: Object Setup
     We use the third light-normal column because that we don't rotate the light around it, therefore it is the direction that the light is pointing. 
     This takes the light direction from being described in relation to the scene, to being described in relation to the object
     */
-    --light-cylinder-normal-a: calc(var(--object-normal-11) * var(--light-normal-13) + var(--object-normal-21) * var(--light-normal-23) + var(--object-normal-31) * var(--light-normal-33));
+    /* Commented out as only needed on curved elements. Property declarations intact. 
+    Re-intro on cylinder, .cone, .sphere classes */
+    /* --light-cylinder-normal-a: calc(var(--object-normal-11) * var(--light-normal-13) + var(--object-normal-21) * var(--light-normal-23) + var(--object-normal-31) * var(--light-normal-33));
     --light-cylinder-normal-b: calc(var(--object-normal-12) * var(--light-normal-13) + var(--object-normal-22) * var(--light-normal-23) + var(--object-normal-32) * var(--light-normal-33));
-    --light-cylinder-normal-c: calc(var(--object-normal-13) * var(--light-normal-13) + var(--object-normal-23) * var(--light-normal-23) + var(--object-normal-33) * var(--light-normal-33));
+    --light-cylinder-normal-c: calc(var(--object-normal-13) * var(--light-normal-13) + var(--object-normal-23) * var(--light-normal-23) + var(--object-normal-33) * var(--light-normal-33)); */
 
     /*
     From our view, which direction is the cylinder's long/y axis pointing, expressed as a unit vector
     They need to be unit vectors to satisy cos^2+sin^2=1 for use in atan2 functions later
     */
-    --px: calc(var(--object-scene-normal-31) / (sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2))));
-    --py: calc(var(--object-scene-normal-32) / (sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2))));
-    --pz: calc(var(--object-scene-normal-33) / (sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2))));
+    /* Commented out as only needed on curved elements. Property declarations intact. 
+    Re-intro on cylinder, .cone, .sphere classes */
+    /* --norm-denom: sqrt(pow(var(--object-scene-normal-31), 2) + pow(var(--object-scene-normal-33), 2));
+    --px: calc(var(--object-scene-normal-31) / var(--norm-denom));
+    --py: calc(var(--object-scene-normal-32) / var(--norm-denom));
+    --pz: calc(var(--object-scene-normal-33) / var(--norm-denom)); */
     
     /*
     From the light's view, which direction is the cylinder's long axis pointing, expressed as a unit vector
     */
-    --light-px: calc(var(--light-cylinder-normal-a) / (sqrt(pow(var(--light-cylinder-normal-a), 2) + pow(var(--light-cylinder-normal-c), 2))));
-    --light-pz: calc(var(--light-cylinder-normal-c) / (sqrt(pow(var(--light-cylinder-normal-a), 2) + pow(var(--light-cylinder-normal-c), 2))));
+    /* Commented out as only needed on curved elements. Property declarations intact. 
+    Re-intro on cylinder, .cone, .sphere classes */
+    /* --light-norm-denom: sqrt(pow(var(--light-cylinder-normal-a), 2) + pow(var(--light-cylinder-normal-c), 2));
+    --light-px: calc(var(--light-cylinder-normal-a) / var(--light-norm-denom));
+    --light-pz: calc(var(--light-cylinder-normal-c) / var(--light-norm-denom)); */
 
     /* Row 2 of object-normal, i.e. object-normal-21/22/23, with a sign flip on -21
     since object-x-calc and object-z-calc negate their angles 
@@ -710,7 +722,7 @@ T05: Object Setup
 
     /* TO REMOVE: elevation-surface, or make cube default? */
     --elevation-surface: var(--object-size-half-neg);
-    --elevation-manual: 0px;
+    /* --elevation-manual: 0px; */
     --elevation: calc(var(--elevation-surface) - var(--y-pos) * var(--object-size));
 
     /* given this object's grid coordinates, and given how the whole scene is tilted, how far along the camera's line of sight does this object actually sit? */
@@ -733,9 +745,9 @@ T05: Object Setup
             calc(var(--scene-normal-32) * var(--depth) * var(--magnitude) * -1),
             calc(var(--scene-normal-33) * var(--depth) * var(--magnitude))
         ) */
-        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateX(calc((var(--x-pos) - ((var(--cell-size) - 1) / 2)) * var(--object-size)))
         translateY(calc(var(--grid-size) / 2 + var(--elevation)))
-        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateZ(calc((var(--z-pos) - ((var(--cell-size) - 1) / 2)) * var(--object-size)))
         rotateX(var(--object-x))
         rotateY(var(--object-y))
         rotateZ(var(--object-z))
@@ -747,13 +759,6 @@ T05: Object Setup
 .face {
     --face-y-deg: 0deg;
     --face-x-deg: 0deg;
-    --face-x-calc: calc(var(--face-x-deg) * -1);
-    --face-y-calc: var(--face-y-deg);
-
-    --s-fx: sin(var(--face-x-calc));
-    --c-fx: cos(var(--face-x-calc));
-    --s-fy: sin(var(--face-y-calc));
-    --c-fy: cos(var(--face-y-calc));
 
     --face-translate: var(--object-size-half);
     --clip-path: unset;
@@ -801,14 +806,22 @@ T05: Object Setup
 }
 
 #shade-layer .face {
+    --face-x-calc: calc(var(--face-x-deg) * -1);
+    --face-y-calc: var(--face-y-deg);
+
+    --s-fx: sin(var(--face-x-calc));
+    --c-fx: cos(var(--face-x-calc));
+    --s-fy: sin(var(--face-y-calc));
+    --c-fy: cos(var(--face-y-calc));
+
     --face-normal-11: var(--c-fy);
-    --face-normal-12: calc(var(--s-fy) * var(--s-fx));
+    /* --face-normal-12: calc(var(--s-fy) * var(--s-fx)); */
     --face-normal-13: calc(var(--s-fy) * var(--c-fx));
     --face-normal-21: 0;
-    --face-normal-22: var(--c-fx);
+    /* --face-normal-22: var(--c-fx); */
     --face-normal-23: calc(-1 * var(--s-fx));
     --face-normal-31: calc(-1 * var(--s-fy));
-    --face-normal-32: calc(var(--s-fx) * var(--c-fy));
+    /* --face-normal-32: calc(var(--s-fx) * var(--c-fy)); */
     --face-normal-33: calc(var(--c-fx) * var(--c-fy));
 
     --face-object-normal-11: calc(var(--object-normal-11) * var(--face-normal-11) + var(--object-normal-12) * var(--face-normal-21) + var(--object-normal-13) * var(--face-normal-31));
@@ -832,9 +845,9 @@ T05: Object Setup
     /* --face-object-scene-normal-33: calc(var(--scene-normal-31) * var(--face-object-normal-13) + var(--scene-normal-32) * var(--face-object-normal-23) + var(--scene-normal-33) * var(--face-object-normal-33)); */
 
     /* TO UPDATE: remove duplication of values */
-    --face-rotated-normal-a: var(--face-object-normal-13);
+    /* --face-rotated-normal-a: var(--face-object-normal-13);
     --face-rotated-normal-b: var(--face-object-normal-23);
-    --face-rotated-normal-c: var(--face-object-normal-33);
+    --face-rotated-normal-c: var(--face-object-normal-33); */
     --dot-product: calc((var(--face-object-normal-13) * var(--light-normal-13)) + (var(--face-object-normal-23) * var(--light-normal-23)) + (var(--face-object-normal-33) * var(--light-normal-33)));
     
     
@@ -844,14 +857,14 @@ T05: Object Setup
     which side of the face left/right is the light coming from 
     -1 * flips the sign so positive means light from the -x side.
     */
-    --dot-product-light-scene-face-object-scene-x:
+    /* --dot-product-light-scene-face-object-scene-x:
     calc(
         -1 * (
         var(--light-normal-13) * var(--face-object-normal-11)
         + var(--light-normal-23) * var(--face-object-normal-21)
         + var(--light-normal-33) * var(--face-object-normal-31)
         )
-    );
+    ); */
     /* Previous version: both elements had scene rotation so have removed in new version, needs verifying */
     /* --dot-product-light-scene-face-object-scene-x:
     calc(
@@ -915,8 +928,8 @@ T05: Object Setup
         scaleY(calc(1 / sin(var(--light-x))))   
         rotateX(calc(var(--light-x) * -1)) 
         rotateY(calc(var(--light-y) * -1))
-        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
-        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateX(calc((var(--x-pos) - ((var(--cell-size) - 1) / 2)) * var(--object-size)))
+        translateZ(calc((var(--z-pos) - ((var(--cell-size) - 1) / 2)) * var(--object-size)))
         rotateX(var(--object-x)) 
         rotateY(var(--object-y)) 
         rotateZ(var(--object-z))
@@ -983,11 +996,9 @@ T05: Object Setup
 
 .tetrahedron .face {
     --clip-path: polygon(50% 0%, 6.69872981% 75%, 93.30127019% 75%);
+    --face-x-deg: var(--side-x-angle); /* Front */
     --face-translate: calc(var(--object-size-half) * sin(var(--side-x-angle)));
     transform: rotateY(var(--face-y-deg)) translateZ(var(--face-translate)) rotateX(var(--face-x-deg));
-}
-.tetrahedron .face {
-    --face-x-deg: var(--side-x-angle); /* Front */
 }
 .tetrahedron .face:nth-child(2) { /* Bottom */
     --face-x-deg: -90deg;  
@@ -1103,9 +1114,6 @@ T05: Object Setup
 .slope .face:nth-child(4)::after, .slope .face:nth-child(5), .slope-corner .face:nth-child(4)::after, .slope-corner .face:nth-child(5),
 .slope-corner .face:first-child::after, .slope-corner .face:nth-child(3) {
     --clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
-}
-.slope .face:nth-child(n+7), .slope-corner .face:nth-child(n+7) {
-    display: none;
 }
 
 
