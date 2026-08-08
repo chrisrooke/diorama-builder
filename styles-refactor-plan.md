@@ -1,14 +1,20 @@
 # styles.css — Engineering Review & Refactor Plan
 
 **Review date:** 2026-08-03
-**Last updated:** 2026-08-04
+**Last updated:** 2026-08-08
 **Branch:** `style-refactor`
 **Scope reviewed:** `styles.css` (1266 lines at review time, 187 `@property` rules, 85 style rules)
 **Engines tested:** Chrome (via chrome-devtools MCP) and Safari Technology Preview 27.0 (via safari-mcp-stp)
 
-> **Status: Stage 1 implemented.** Findings F1–F3, F6 and most of F8 are done; F5 was
-> examined and dismissed; F7 is deferred on browser support. See §0 for the current state
-> and §4 for each finding's outcome.
+> **Status: Stage 1 implemented; sphere re-enabled.** Findings F1–F3, F6 and most of F8 are
+> done; F5 was examined and dismissed; F7 is deferred on browser support. The sphere was
+> re-enabled on 2026-08-08, producing F11–F13. See §0 for the current state and §4/§4a for
+> each finding's outcome.
+>
+> **Two entries have been corrected rather than extended** — the clarification under §5a P3,
+> and the correction note at the end of F12. F12's first version reached the *opposite*
+> conclusion because it used repeating property values (§2 trap 2). Read §2 before adding any
+> measurement to this document, and re-read it before trusting one.
 
 ---
 
@@ -31,7 +37,11 @@ marked dismissed, with the reasoning, rather than removed.
 | F6 | Latent bug in grid-centring expression | **Done** — all 4 call sites |
 | F7 | Structural repetition; `@function` collapses it | **Deferred** — sample code written, see §9 |
 | F8 | Seven smaller cleanups | **5 of 7 done**, 2 deliberately held |
-| F9 | *(new)* Column 1 of the face chain orphaned by F1 | **Open** — see §4a |
+| F9 | *(new)* Column 1 of the face chain orphaned by F1 | **Done** — commented out 2026-08-08 |
+| F10 | Residual body-level dead properties | **Open, low priority** — plus `--face-normal-11/-21/-31`, added 2026-08-08 |
+| F11 | `--light-scene-normal-13/-23` registered `inherits: false`; sphere gradient frozen | **Done** — incl. F11a placement, F11b T07 registrations |
+| F12 | Scope the shade chain off the sphere's hidden faces | **Open, recommended** — ~18%, no DOM change, needs `:where()` |
+| F13 | Gradient angle vs. rotated pseudo-element | **Closed, no action** — no measurable difference |
 
 ### Commits
 
@@ -40,7 +50,8 @@ marked dismissed, with the reasoning, rather than removed.
 | `88a5f06` | This plan, as originally written |
 | `a1b2d40` | Finding update |
 | `e31773c` | Stage 1 implementation — F1, F2, F3, F6, F8 |
-| *(working)* | `@property` registrations for the hoisted denominators; `styles-functions-sample.css` |
+| `eb56c1d` | New declarations, updated report |
+| *(working)* | Stage 1b — sphere re-enabled: F11/F11a/F11b, F9 first row; F12 and F13 investigated and closed |
 
 ### Files
 
@@ -187,8 +198,9 @@ Chrome-at-rest systematically flatters this architecture.
 > `sqrt(0² + 0.5²) = 0.5` reproduces `--light-pz: 1`. Note `--py` divides by the x/z-only
 > denominator — that matches the pre-existing behaviour and was deliberately preserved.
 >
-> **Not actioned:** `--light-scene-normal-13/-23` (`styles.css:470`, `:473`) are still live
-> and still dead. Body-level, so the cost is negligible. See also F9.
+> **Not actioned:** `--light-scene-normal-13/-23` (`styles.css:470`, `:473`) are still live.
+> Body-level, so the cost is negligible. See also F9. **Correction (2026-08-07):** these are
+> no longer dead — `styles.css:1366` reads both. See F11.
 
 Static analysis of the comment-stripped CSS shows zero `var()` reads for:
 
@@ -215,7 +227,8 @@ Also dead, same category:
   consumers `--face-object-normal-12/22/32` are commented out.
 - `--dot-product-light-scene-face-object-scene-x` (`847-854`)
 - `--face-rotated-normal-a/b/c` (`835-837`) — pure unread aliases, and unregistered
-- `--light-scene-normal-13`, `-23` (`469`, `472`) — body-only, so negligible cost, but dead
+- ~~`--light-scene-normal-13`, `-23` (`469`, `472`) — body-only, so negligible cost, but dead~~
+  — **no longer true as of `eb56c1d`;** read at `:1366`. See F11.
 - `--elevation-manual` (`713`)
 
 ### F2 — `--clip-path`'s `@property` rule is invalid and inert
@@ -364,40 +377,266 @@ column where the item was actioned.
 
 ### F9 — Column 1 of the face chain is now orphaned
 
-**Raised:** 2026-08-04, post-implementation. **Status: open.**
+**Raised:** 2026-08-04, post-implementation. **Status: half done (2026-08-08).**
 
 Commenting out `--dot-product-light-scene-face-object-scene-x` (per F1) removed the only
-consumer of the face matrix's first column. These are still computed on all 180 shade faces
+consumer of the face matrix's first column. These were still computed on all 180 shade faces
 and read by nothing:
 
-| Property | Location | Cost |
-|---|---|---|
-| `--face-object-normal-11`, `-21`, `-31` | `styles.css:827`, `:830`, `:833` | 3 three-term dot products per face |
-| `--face-normal-11`, `-21`, `-31` | `styles.css:817`, `:820`, `:823` | their sole upstream |
+| Property | Location | Cost | Status |
+|---|---|---|---|
+| `--face-object-normal-11`, `-21`, `-31` | `styles.css:805`, `:809`, `:812` | 3 three-term dot products per face | **Commented out** 2026-08-08 |
+| `--face-normal-11`, `-21`, `-31` | `styles.css:821`, `:824`, `:827` | their sole upstream | **Still live, now orphaned** |
+
+Commenting out the first row removed the only consumers of the second, so `--face-normal-11`,
+`-21` and `-31` are now dead in exactly the same way. Finish the job with the same treatment.
 
 That is **half the remaining per-face matrix work** — the same category as F4, and worth
 acting on if the shade cost is still the bottleneck after Stage 1 is measured.
 
-Deliberately left in place for now: column 1 is exactly the input the commented-out
-x-direction dot product wants back, and that block is marked "needs verifying" rather than
-abandoned. Removing it and reinstating it later is the same work twice.
+Column 1 is exactly the input the commented-out x-direction dot product wants back (the cone
+needs it — `styles2.css:1688`), and that block is marked "needs verifying" rather than
+abandoned, so both rows stay commented rather than deleted, per the §0 convention.
 
 If it is actioned, the remaining chain reduces cleanly — `--face-normal-13/-23/-33` feed
 `--face-object-normal-13/-23/-33` feed `--dot-product`, and all four of
 `--s-fx`/`--c-fx`/`--s-fy`/`--c-fy` stay in use, so nothing else needs touching.
 
+**Expectation-setting, from F12:** do this for tidiness and for consistency with F1, not for
+speed. F12 measured a comparable change — keeping a 25-declaration block off 880 faces — at
+**zero**. Per-element overhead, not declaration count, is what these faces cost.
+
 ### F10 — Residual body-level dead properties
 
-**Raised:** 2026-08-04. **Status: open, low priority.**
+**Raised:** 2026-08-04. **Status: open, low priority. Partly superseded — see F11.**
 
 Now dead as a consequence of F1, all declared on `body` only, so the per-frame cost is
 negligible and none of it scales with object count:
 
-- `--light-scene-normal-13`, `-23` (`styles.css:470`, `:473`)
+- ~~`--light-scene-normal-13`, `-23`~~ — **no longer dead.** `#shade-layer .sphere .face`
+  reads both at `styles.css:1382` (added in `eb56c1d`, after this finding was written).
+  Do not remove. See F11.
 - `--light-normal-11/12/21/22/31/32` — only column 3 is read now
 - `--scene-normal-31/32/33` — consumed only by the commented-out `--object-scene-normal-*`
 
-All are needed again by the curved-shape port. Recommendation: leave them.
+The remaining two groups are needed again by the curved-shape port. Recommendation: leave them.
+
+**Note added 2026-08-08:** `--face-normal-11/-21/-31` also went dead on 2026-08-08, but they
+belong to **F9**, not here — they are declared on `#shade-layer .face`, so unlike everything
+in this finding they are computed on every face of every object rather than once on `body`.
+Tracked in F9's table.
+
+### F11 — `--light-scene-normal-13/-23` were registered `inherits: false`
+
+**Raised:** 2026-08-07. **Status: done** (this commit).
+
+```css
+@property --light-scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; }
+@property --light-scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0.5732233047; }
+```
+
+Both are computed on `body` only, but `inherits: false` meant the computed value stopped
+there. The one consumer, `#shade-layer .sphere .face` (`--lighting-bg-angle`), therefore
+resolved each `var()` to the registered **initial-value** instead.
+
+Symptom: the sphere's shade gradient rendered at the correct angle on load — the two initial
+values are exactly the default light/scene pose — and then never moved when the light or scene
+was rotated. It failed silently: no invalid value, no fallback, just a frozen constant.
+
+Fixed by flipping both registrations to `inherits: true` (`styles.css:73`, `:76`). Safe
+because `body` is the only rule that sets either property, and every input they're derived
+from (`--light-normal-13/23/33`, `--scene-normal-*`) is already registered `inherits: true` —
+these two were the outliers.
+
+Verified in Chrome after the fix: `--lighting-bg-angle` reads `211.666deg` at the default
+pose, `214.372deg` at `--light-y-unit: 40`, `189.85deg` at `--scene-y-unit: 120`, and returns
+to `211.666deg` when both are cleared.
+
+**Note for the curved-shape port:** `--light-scene-normal-33` is still commented out at both
+its registration (`styles.css:79`) and its declaration. It is currently only referenced from
+the commented-out `--dot-product-light-scene-face-object-scene-x` block, so it's inert today —
+but uncomment **both** when that dot product is restored, and register it `inherits: true`.
+
+#### F11a — where these two belong (resolved 2026-08-08)
+
+They were briefly moved onto `#shade-layer .sphere` to satisfy F1, then moved back to `body`
+(`styles.css:485`, `:488`). `body` is correct, and the reasoning is worth recording because it
+marks the boundary of the F1 principle:
+
+`--light-scene-normal-13/-23` are the product of the scene and light matrices. They depend on
+**neither** the object nor the face, so there is exactly one correct value document-wide. F1
+targets properties whose cost scales with object or face count; these are singletons, and
+scoping them to `.sphere` actively made things worse — N spheres recomputing one identical
+pair N times. This is the same call F10 made originally.
+
+`body:has(.sphere)` was considered, to compute them only when a sphere exists. Rejected:
+P2's own measurement (50 extra inheriting registered properties on `body` with `calc(sin())`
+chains → **zero** measurable change) says the thing being avoided costs nothing, while `:has()`
+adds a selector that re-evaluates on DOM mutation — and `tabs.js` adds, removes and re-classes
+objects at runtime. Real cost to avoid a zero cost.
+
+**Rule of thumb:** scope per-object and per-face properties; leave scene- and light-level
+singletons on `body`, next to the `--scene-normal-*` / `--light-normal-*` they derive from.
+
+#### F11b — T07 registration and transform cleanup (done 2026-08-08)
+
+Re-enabling the sphere brought in eight unregistered custom properties. Six are now registered
+(`styles.css:220-224`, plus `--shade-orient`); two are deliberately left unregistered —
+`--clip-path` (F2) and `--before-background`, which holds a gradient rather than a `<color>`.
+
+All four `--shade-*` properties need `inherits: true`: they are declared on `.face` or
+`.curved-lighting` but read from `.curved-lighting::before/::after`, a generation down.
+`--lighting-bg-angle` is declared and read inside one rule, so it stays `inherits: false`.
+Its initial value, `211.6655075486deg`, is `180deg + atan2(0.3535533906, 0.5732233047)` — the
+default pose, consistent with the two initial values it is derived from.
+
+**`--shade-light-transform` / `--shade-dark-transform` replaced by `--shade-orient`.** The old
+pair baked `translateZ(var(--lighting-translate))` into a custom property declared on `.face`.
+A `var()` inside a custom property is substituted **on the element that declares it**, so the
+translate was frozen at `.face` and `.sphere .highlight` could never override it — which is
+why styles2.css wrote the whole four-rotation prefix out a second time for the highlight
+(`styles2.css:1459-1470`) and a *fourth and fifth* time for the hemisphere (`:1834-1875`).
+
+Confirmed in Chrome:
+
+```
+parent { --t: 0px; --composed: translateZ(var(--t)); }
+child  { --t: 999px; }
+→ child's --t        = "999px"
+→ child's --composed = "translateZ(0px)"    ← 0px baked in at the parent
+```
+
+`--shade-orient` therefore carries **orientation only**. Each consumer appends its own
+`rotateY()` and `translateZ()` in the real `transform` property, where the var resolves
+per-element. `.sphere .highlight` now sets `--lighting-translate: var(--object-size-half)` and
+nothing else. Verified: `--lighting-translate` resolves to `0px` on the face and `37.5px` on
+the highlight, and all three resolved `matrix3d` values are byte-identical to the
+pre-refactor transform strings.
+
+Also folded away in the same pass: `--shade-front-transform` / `--shade-back-transform`, which
+existed only to be read by `--before-transform` / `--after-transform` on the following two
+lines. Nothing in either stylesheet overrode them.
+
+**Per-shape override seam — do not inline.** `--shade-light` / `--shade-dark` look like
+constants in the sphere, but `styles2.css:1594-1595` overrides both for cylinder and cone
+(`var(--lightness-bright)` / `var(--lightness-dark)`). They stay variables. Their home on
+`.curved-lighting` is better than styles2's, which buried them in `#shade-layer .sphere .face`.
+
+### F12 — Scope the shade chain off the sphere's hidden faces — **~18%, no DOM change**
+
+**Raised:** 2026-08-08. **Status: open, recommended. Measured, with a required `:where()` caveat.**
+
+`tabs.js:284` gives every object 12 faces; the sphere uses one and hides the rest with
+`.sphere .face:nth-child(n + 2) { display: none }` (`styles.css:1425`). Per the P3
+clarification those hidden faces still resolve their own style, so the question is whether the
+25-declaration `#shade-layer .face` block can be kept off them **without** a wrapper element —
+identical DOM across shapes is what makes shape switching a pure class change, and that is
+worth preserving.
+
+**It can, and it is worth ~18% of style recalc.** Narrowing the live rule's `selectorText` at
+runtime, §2-compliant methodology (45 objects / 540 faces, never-repeating values, forced
+synchronous recalc, 200-iteration warm-up, A/B ×5, median of 150):
+
+| `#shade-layer .face` selector | Median | vs baseline |
+|---|---|---|
+| `#shade-layer .face` (today) | 6.7 ms | — |
+| narrowed to skip the sphere's hidden faces | 5.5 ms | **−17.9%** |
+| narrowed **and** hidden faces detached from the DOM | 4.7 ms | −30% |
+
+So the hidden faces cost ~2.0 ms in total, split roughly **1.2 ms declarations / 0.8 ms bare
+element overhead**. The declarations are the larger half and the only half reachable from CSS.
+The residual 0.8 ms is flat per-element style-resolution overhead that nothing in CSS removes —
+not `display`, not `content-visibility`, not `contain`, not `initial` overrides. That part
+needs fewer elements, i.e. per-shape face generation in `tabs.js`, and is not recommended
+while uniform DOM is a goal.
+
+#### The selector must not raise specificity — use `:where()`
+
+The obvious narrowing is wrong:
+
+```css
+/* WRONG — (1,3,0) beats #shade-layer .sphere .face at (1,2,0) */
+#shade-layer :not(.sphere) > .face,
+#shade-layer .sphere > .face:first-child { … }
+```
+
+`#shade-layer .face` is specificity (1,1,0). Adding `.sphere` and `:first-child` takes the
+second arm to (1,3,0), which then **outranks** `#shade-layer .sphere .face` (1,2,0) and wins
+`--before-background` — silently replacing the sphere's gradient with the flat `--shade-front`.
+Verified: `--before-background` went from `linear-gradient(207.605deg, …)` to
+`rgb(159, 159, 159)`. `:where()` contributes zero specificity and fixes it:
+
+```css
+/* CORRECT — both arms stay exactly (1,1,0) */
+#shade-layer :where(:not(.sphere)) > .face,
+#shade-layer :where(.sphere) > .face:where(:first-child) { … }
+```
+
+Re-verified with `:where()`: the visible face is byte-identical — `--before-background`
+gradient, `--dot-product` `0.162891`, and the `.curved-lighting::before` `matrix3d` all
+unchanged — while the hidden faces' `--dot-product` falls back to its registered initial `0.5`,
+which is the intended effect.
+
+**Generalising to the port.** Each curved shape uses a different number of faces, so the
+second arm grows as shapes land. Keep every arm inside `:where()` so specificity stays flat,
+and keep the list next to the `display: none` rules that define which faces are unused, since
+the two must agree.
+
+#### Correction — the first version of this finding said the opposite
+
+This was originally recorded as "the declarations are free; only element overhead costs,
+therefore no CSS change can help, keep the uniform DOM and do nothing". That was wrong, and it
+was wrong because the first measurement cycled `--light-y-unit` through `(i*3) % 360` — a
+repeating 120-value set. That is **§2 trap 2**, which §2 already warns understates cost by
+up to 8×. With repeating values the narrowed selector measured 1.3 ms vs 1.2 ms (no
+difference); with never-repeating values it measures 5.5 ms vs 6.7 ms (−18%).
+
+The lesson is that §2's traps apply to *every* measurement in this document, including the
+ones added after §2 was written. Both F12 and F13 were re-run under §2 methodology before
+being recorded here; F13's conclusion survived, F12's inverted.
+
+### F13 — Gradient angle vs. rotated pseudo-element: no difference
+
+**Raised:** 2026-08-08. **Status: closed, no action. `styles.css:1383` stays as it is.**
+
+`#shade-layer .sphere .face` rebuilds `--before-background` whenever the light or scene moves:
+
+```css
+--before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
+```
+
+The standard advice — animate a compositable `transform` rather than a paint property —
+suggests painting a fixed gradient once and rotating it. Since the pseudo-element is a square
+with `border-radius: 50%`, i.e. a circle, rotating it about its centre is visually identity, so
+the swap would have been correct. It is also pointless.
+
+Four variants of `#shade-layer .sphere .face::before`, §2-compliant (45 objects / 540 faces,
+never-repeating values, forced synchronous recalc, 200-iteration warm-up of every variant,
+3 reps of 120, median):
+
+| Variant | Medians | Median of medians |
+|---|---|---|
+| **A** `linear-gradient(var(--lighting-bg-angle), …)` (today) | 6.4 / 6.7 / 7.7 ms | 6.7 ms |
+| **B** fixed `0deg` gradient + `transform: rotate(var(--lighting-bg-angle))` | 6.6 / 6.7 / 6.6 ms | 6.6 ms |
+| **C** fixed gradient, angle never changes, no rotation | 6.5 / 6.8 / 6.7 ms | 6.7 ms |
+| **D** no gradient at all, flat `hsl(0 0 50%)` | 6.4 / 6.7 / 7.0 ms | 6.7 ms |
+
+All four are within noise of each other. **D settles it:** deleting the gradient entirely
+changes nothing, so there is no cost for B to save. Painting is not the bottleneck here — the
+custom-property and 3D-transform pipeline is, which is what F12 and F4 address.
+
+The "animate transform, not paint" rule wins when an element can be promoted to a composited
+layer and rotated without re-rastering. This pseudo-element cannot be: it sits under
+`mix-blend-mode: overlay` on `#shade-layer`, inside a `preserve-3d` subtree, and its own 3D
+transform (the `--shade-orient` chain) changes every frame anyway. The raster happens
+regardless; recomputing the gradient is a rounding error on top of it.
+
+**Methodology warning — this one nearly produced a false finding twice.** The first run showed
+A at ~17 ms and B at ~8.4 ms on `requestAnimationFrame` deltas, an apparent 2× win for B. That
+was **§2 traps 1 and 3 together**: vsync quantisation on a 120 Hz display, plus cold raster/GPU
+warm-up in whichever variant ran first. The numbers above are the §2-compliant re-run. Any
+future measurement here must warm **both** code paths and use forced synchronous recalc rather
+than frame deltas.
 
 ### Verification performed on Stage 1
 
@@ -513,6 +752,34 @@ shadow or shade layer can be user-toggleable — or auto-disabled during a drag 
 release — that is a **~33–47% win from one line**, larger than any variable-level
 micro-optimisation in this document. Worth considering as its own stage.
 
+#### Clarification added 2026-08-08 — this applies to subtree *roots*, not to any element
+
+As written, the table above invites an over-generalisation ("`display: none` skips the
+recompute"), and that reading is wrong. What `display: none` skips is everything **below** the
+hidden element. The hidden element's **own** computed style is still fully resolved — it has
+to be, since `display` is itself one of its computed properties.
+
+Both effects measured in one harness (80 spheres, 960 faces, median of 80 synchronous recalcs):
+
+| Treatment | Median | vs baseline |
+|---|---|---|
+| Baseline | 1.3 ms | — |
+| `display: none` on **`#shade-layer`** (a root above ~1000 elements) | 0.1 ms | **−92%** |
+| The 880 already-`display: none` **faces** detached from the DOM | 0.8 ms | **−38%** |
+| Restored | 1.4 ms | — |
+
+Row 2 is P3's finding and it holds. Row 3 is the corollary: those 880 faces were still costing
+0.5 ms *while already being* `display: none`, because each is a leaf whose own style must be
+resolved. P3's large win came from hiding a root with a big subtree beneath it — not from
+`display: none` being cheap per element.
+
+> **Caveat on the absolute figures in this table:** this run cycled `--scene-y-unit` through
+> `45 + (i % 30)`, a repeating 30-value set — **§2 trap 2**, which understates cost. The
+> *ordering* and the qualitative conclusion are unaffected (every row shares the same value
+> pattern), but do not compare these milliseconds against §3 or F12/F13, which are
+> §2-compliant. **F12 re-measures this properly** and shows the hidden-face cost splits about
+> 60/40 between declarations and bare element overhead.
+
 ---
 
 ## 6. Staged plan
@@ -528,13 +795,45 @@ micro-optimisation in this document. Worth considering as its own stage.
 - [x] Remove `--face-normal-12/-22/-32`, `--face-rotated-normal-*`,
       `--dot-product-light-scene-face-object-scene-x`, `--elevation-manual` — commented out,
       not deleted
-- [ ] `--light-scene-normal-13/-23` — not actioned, see F10
+- [x] `--light-scene-normal-13/-23` — correctly not removed; they turned out to be live.
+      Their `inherits: false` registration was a real bug, fixed separately — see F11
 - [x] Move the six face-trig declarations into `#shade-layer .face` (F3)
 - [x] F8 cleanups — 3 done, 2 held deliberately, 1 won't-fix, 1 carried to Stage 2
 - [x] Fix F6 (grid-centring) — all four call sites
 
 **Expected: −35 to −39% style recalc. Not yet re-measured, and no screenshot diff run yet —
-both outstanding.** F9 offers a further reduction on top of this if wanted.
+both outstanding.** F9 offers a further reduction on top of this if wanted, though F12 suggests
+the reduction will be smaller than the declaration count implies.
+
+### Stage 1b — Sphere re-enabled *(2026-08-08)* — **IMPLEMENTED**
+
+- [x] Register the six unregistered T07 properties (F11b). `--clip-path` and
+      `--before-background` remain deliberately unregistered
+- [x] Fix `--light-scene-normal-13/-23` to `inherits: true` (F11) — the sphere gradient was
+      frozen at its initial value
+- [x] Move both back to `body` from `#shade-layer .sphere` (F11a)
+- [x] Replace `--shade-light-transform`/`--shade-dark-transform` with orientation-only
+      `--shade-orient`; `.sphere .highlight` now overrides `--lighting-translate` alone (F11b)
+- [x] Fold away `--shade-front-transform`/`--shade-back-transform` — unread one-hop aliases
+- [x] Comment out `--face-object-normal-11/-21/-31` (F9, first row)
+- [ ] Comment out `--face-normal-11/-21/-31` (F9, second row — orphaned by the above)
+
+Verified in Chrome: all three sphere `matrix3d` values byte-identical to pre-refactor;
+`--lighting-translate` resolves `0px` on the face and `37.5px` on the highlight;
+`--lighting-bg-angle` tracks light and scene changes and returns to `211.666deg` on reset.
+
+### Stage 1c — Scope the shade chain off unused faces (F12) *(next, recommended)*
+
+- [ ] Narrow `#shade-layer .face` so the sphere's hidden faces don't match, using `:where()`
+      throughout to keep both arms at specificity (1,1,0). **Raising specificity silently
+      breaks the sphere gradient — see F12.**
+- [ ] Re-verify the visible face is unchanged (`--before-background` gradient, `--dot-product`,
+      `.curved-lighting::before` matrix) and that hidden faces fall back to initial values
+- [ ] Extend the selector list as each curved shape is ported; keep it adjacent to the
+      `display: none` rules that define which faces are unused
+
+**Measured: −17.9% style recalc** at 45 objects / 540 faces, no DOM change, class-only shape
+switching preserved. Larger than anything remaining in Stage 2.
 
 ### Stage 2 — Scoping and inheritance *(next)*
 

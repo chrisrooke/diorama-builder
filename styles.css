@@ -8,12 +8,13 @@ T04: Scene Setup
 T05: Object Setup
     T05B: Shade Setup
     T05C: Shadow Setup
-T06: Objects
+T06: Flat-Face Objects
     T06A: Cube
     T06B: Tetrahedron
     T06C: Pyramid
     T06D: Slope and Slope Corner
     T06E: Dodecahedron
+T07: Curved Objects
 */
 
 
@@ -69,10 +70,10 @@ T01: Property Declarations
 
 /* @property --light-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; } */
 /* @property --light-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
-@property --light-scene-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; }
+@property --light-scene-normal-13 { syntax: "<number>"; inherits: true; initial-value: 0.3535533906; }
 /* @property --light-scene-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0.3535533906; } */
 /* @property --light-scene-normal-22 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; } */
-@property --light-scene-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0.5732233047; }
+@property --light-scene-normal-23 { syntax: "<number>"; inherits: true; initial-value: 0.5732233047; }
 /* @property --light-scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
 /* @property --light-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: -0.2803300859; } */
 /* @property --light-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; } */
@@ -180,13 +181,13 @@ so there isn't a reliable computed initial-value to lock in yet.
 @property --face-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --face-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
 
-@property --face-object-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; }
+/* @property --face-object-normal-11 { syntax: "<number>"; inherits: false; initial-value: 1; } */
 /* @property --face-object-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; } */
 @property --face-object-normal-13 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --face-object-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* @property --face-object-normal-21 { syntax: "<number>"; inherits: false; initial-value: 0; } */
 /* @property --face-object-normal-22 { syntax: "<number>"; inherits: false; initial-value: 1; } */
 @property --face-object-normal-23 { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --face-object-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* @property --face-object-normal-31 { syntax: "<number>"; inherits: false; initial-value: 0; } */
 /* @property --face-object-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0; } */
 @property --face-object-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
 
@@ -203,17 +204,27 @@ so there isn't a reliable computed initial-value to lock in yet.
 /* @property --face-object-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: 0.5; } */
 /* @property --face-object-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.6123724357; } */
 
-@property --border-radius { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --border-radius { syntax: "<length> | <percentage>"; inherits: true; initial-value: 0px; }
 
 @property --shade-value-front { syntax: "<number>"; inherits: false; initial-value: 62.5; }
 @property --shade-value-back { syntax: "<number>"; inherits: false; initial-value: 62.5; }
 @property --shade-front { syntax: "<color>"; inherits: false; initial-value: hsl(0 0% 62.5%); }
 @property --shade-back { syntax: "<color>"; inherits: false; initial-value: hsl(0 0% 62.5%); }
-@property --shade-front-transform { syntax: "<transform-list>"; inherits: false; initial-value: rotateY(0deg); }
-@property --shade-back-transform { syntax: "<transform-list>"; inherits: false; initial-value: rotateY(180deg); }
+
+/* Curved objects (T07). All four inherit because they are declared on .face or
+.curved-lighting but read from .curved-lighting::before/::after — a generation down.
+--shade-orient is orientation only: see the note at #shade-layer .sphere .face for why
+it must not carry the translate. --lighting-bg-angle is declared and read inside a single
+rule, so it is the one that can stay non-inheriting.
+Initial value is 180deg + atan2(0.3535533906, 0.5732233047), the default light/scene pose. */
+@property --shade-light { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 62.5%); }
+@property --shade-dark { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 37.5%); }
+@property --shade-orient { syntax: "<transform-list>"; inherits: true; initial-value: rotateY(0deg); }
+@property --lighting-translate { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --lighting-bg-angle { syntax: "<angle>"; inherits: false; initial-value: 211.6655075486deg; }
 
 @property --after-display { syntax: "block | none"; inherits: true; initial-value: block; }
-@property --before-background { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 62.5%); }
+/* @property --before-background { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 62.5%); } */
 @property --before-transform { syntax: "<transform-list>"; inherits: true; initial-value: rotateY(0deg); }
 @property --after-background { syntax: "<color>"; inherits: true; initial-value: hsl(0 0% 62.5%); }
 @property --after-transform { syntax: "<transform-list>"; inherits: true; initial-value: rotateY(180deg); }
@@ -463,8 +474,12 @@ body {
     --light-normal-32: calc(var(--s-lx) * var(--c-ly));
     --light-normal-33: calc(var(--c-lx) * var(--c-ly));
 
-    /* Matrix product of the scene and light normals. 
-    Captures the light's direction vector within the scene's rotation. */
+    /* Matrix product of the scene and light normals.
+    Captures the light's direction vector within the scene's rotation.
+    Read by #shade-layer .sphere .face (--lighting-bg-angle), and by the curved-shape port.
+    These are body-level singletons — they depend only on scene and light, never on the
+    object — so scoping them to .sphere would make N spheres recompute one identical pair
+    N times. See F11 in styles-refactor-plan.md. */
     /* --light-scene-normal-11: calc( var(--scene-normal-11) * var(--light-normal-11) + var(--scene-normal-12) * var(--light-normal-21) + var(--scene-normal-13) * var(--light-normal-31)); */
     /* --light-scene-normal-12: calc( var(--scene-normal-11) * var(--light-normal-12) + var(--scene-normal-12) * var(--light-normal-22) + var(--scene-normal-13) * var(--light-normal-32)); */
     --light-scene-normal-13: calc( var(--scene-normal-11) * var(--light-normal-13) + var(--scene-normal-12) * var(--light-normal-23) + var(--scene-normal-13) * var(--light-normal-33));
@@ -475,20 +490,7 @@ body {
     /* --light-scene-normal-32: calc( var(--scene-normal-31) * var(--light-normal-12) + var(--scene-normal-32) * var(--light-normal-22) + var(--scene-normal-33) * var(--light-normal-32)); */
     /* --light-scene-normal-33: calc( var(--scene-normal-31) * var(--light-normal-13) + var(--scene-normal-32) * var(--light-normal-23) + var(--scene-normal-33) * var(--light-normal-33)); */
 
-    /* TO UPDATE:
-    Replace light-adjusted-normal values with light-scene values, see mapping below 
-    New sphere background var should be: 
-    --lighting-bg-angle: calc(180deg + (atan2(var(--light-adjusted-normal-a), var(--light-adjusted-normal-b)))); */
-    /* --light-adjusted-normal-a: calc(var(--c-lx) * sin(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))));
-    --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))))); */
-    /* --light-adjusted-normal-c: calc((var(--s-lx) * var(--s-sx) * -1) + (var(--c-lx) * var(--c-sx) * cos(var(--light-y-calc) + var(--scene-y-calc)))); */
-    /* --light-adjusted-normal-a: calc(var(--c-lx) * sin(var(--light-y-calc) + var(--scene-y-calc)));
-    --light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(var(--light-y-calc) + var(--scene-y-calc)))); */
-    /* --light-adjusted-normal-a: var(--light-scene-normal-13);
-    --light-adjusted-normal-b: var(--light-scene-normal-23);
-    --light-adjusted-normal-c: var(--light-scene-normal-33); */
-
-    /* cos value of a specific angle: 5.71°, calculating to ~0.995037. 
+    /* cos value of a specific angle: 5.71°, calculating to ~0.995037.
     We use this value to calculate how highlights should appear on flat planes and on curved objects in a single direction (cyl/cone). 
     this angle is set because our highlight is currently .1 of the object size, so the triangle is adj and hypot of .05 and .5.
     cos(atan(0.05/0.5))) might be more straightforward. 
@@ -826,13 +828,13 @@ T05: Object Setup
     /* --face-normal-32: calc(var(--s-fx) * var(--c-fy)); */
     --face-normal-33: calc(var(--c-fx) * var(--c-fy));
 
-    --face-object-normal-11: calc(var(--object-normal-11) * var(--face-normal-11) + var(--object-normal-12) * var(--face-normal-21) + var(--object-normal-13) * var(--face-normal-31));
+    /* --face-object-normal-11: calc(var(--object-normal-11) * var(--face-normal-11) + var(--object-normal-12) * var(--face-normal-21) + var(--object-normal-13) * var(--face-normal-31)); */
     /* --face-object-normal-12: calc(var(--object-normal-11) * var(--face-normal-12) + var(--object-normal-12) * var(--face-normal-22) + var(--object-normal-13) * var(--face-normal-32)); */
     --face-object-normal-13: calc(var(--object-normal-11) * var(--face-normal-13) + var(--object-normal-12) * var(--face-normal-23) + var(--object-normal-13) * var(--face-normal-33));
-    --face-object-normal-21: calc(var(--object-normal-21) * var(--face-normal-11) + var(--object-normal-22) * var(--face-normal-21) + var(--object-normal-23) * var(--face-normal-31));
+    /* --face-object-normal-21: calc(var(--object-normal-21) * var(--face-normal-11) + var(--object-normal-22) * var(--face-normal-21) + var(--object-normal-23) * var(--face-normal-31)); */
     /* --face-object-normal-22: calc(var(--object-normal-21) * var(--face-normal-12) + var(--object-normal-22) * var(--face-normal-22) + var(--object-normal-23) * var(--face-normal-32)); */
     --face-object-normal-23: calc(var(--object-normal-21) * var(--face-normal-13) + var(--object-normal-22) * var(--face-normal-23) + var(--object-normal-23) * var(--face-normal-33));
-    --face-object-normal-31: calc(var(--object-normal-31) * var(--face-normal-11) + var(--object-normal-32) * var(--face-normal-21) + var(--object-normal-33) * var(--face-normal-31));
+    /* --face-object-normal-31: calc(var(--object-normal-31) * var(--face-normal-11) + var(--object-normal-32) * var(--face-normal-21) + var(--object-normal-33) * var(--face-normal-31)); */
     /* --face-object-normal-32: calc(var(--object-normal-31) * var(--face-normal-12) + var(--object-normal-32) * var(--face-normal-22) + var(--object-normal-33) * var(--face-normal-32)); */
     --face-object-normal-33: calc(var(--object-normal-31) * var(--face-normal-13) + var(--object-normal-32) * var(--face-normal-23) + var(--object-normal-33) * var(--face-normal-33));
 
@@ -888,16 +890,13 @@ T05: Object Setup
         + (12.5 * clamp(0, round(down, 1 - var(--dot-product) - var(--shade-calc), 1), 1))
     );
 
-    /* TO CHECK: are all these needed? */
     --shade-front: hsl(0 0 calc(1% * var(--shade-value-front)));
     --shade-back: hsl(0 0 calc(1% * var(--shade-value-back)));
-    --shade-front-transform: rotateY(0deg);
-    --shade-back-transform: rotateY(180deg);
     --after-display: block;
     --before-background: var(--shade-front);
-    --before-transform: var(--shade-front-transform);
+    --before-transform: rotateY(0deg);
     --after-background: var(--shade-back);
-    --after-transform: var(--shade-back-transform);
+    --after-transform: rotateY(180deg);
 }
 #shade-layer .face::before {
     transform: var(--before-transform);
@@ -945,7 +944,7 @@ T05: Object Setup
 
 
 
-/* T06: Objects */
+/* T06: Flat-Face Objects */
 
 /* T06A: Cube */
 
@@ -1273,4 +1272,156 @@ T05: Object Setup
 .dodecahedron .face:nth-child(12) {
     --face-x-deg: -90deg;
     --face-y-deg: 0deg;
+}
+
+
+
+/* T07: Curved Objects */
+
+/* --light-scene-normal-13/-23 now live on body (T04) — they are scene+light singletons,
+so there is nothing sphere-scoped left to declare here. See F11 in styles-refactor-plan.md.
+
+DONE: the "replace --light-adjusted-normal-* with --light-scene-normal-*" migration is
+complete — #shade-layer .sphere .face builds --lighting-bg-angle from --light-scene-normal-13
+and -23 directly. The superseded closed forms are kept below for reference only; the
+curved-shape port should use the matrix product on body, not these.
+
+--light-adjusted-normal-a: calc(var(--c-lx) * sin(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc)))));
+--light-adjusted-normal-b: calc((var(--s-lx) * var(--c-sx) * -1) - (var(--s-sx) * var(--c-lx) * cos(calc(-1 * (var(--light-y-calc) + var(--scene-y-calc))))));
+--light-adjusted-normal-c: calc((var(--s-lx) * var(--s-sx) * -1) + (var(--c-lx) * var(--c-sx) * cos(var(--light-y-calc) + var(--scene-y-calc))));
+
+Mapping: a -> --light-scene-normal-13, b -> -23, c -> -33 */
+
+.curved-lighting {
+    display: none;
+    --shade-light: hsl(0 0 62.5%);
+    --shade-dark: hsl(0 0 37.5%);
+    /* --after-display-curved-top: block; */
+}
+
+.curved-lighting, 
+.curved-lighting::before, 
+.curved-lighting::after,
+/* .curved-lighting .top-bottom, 
+.curved-lighting .top-bottom::before, 
+.curved-lighting .top-bottom::after,  */
+.highlight
+{
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+    border-radius: var(--border-radius);
+}
+.curved-lighting::before, .curved-lighting::after {
+    clip-path: var(--clip-path);
+}
+/* The translate is applied here, in `transform`, rather than being folded into
+--shade-orient upstream. A var() inside a custom property is substituted on the element that
+declares it, so anything baked into --shade-orient on .face would be frozen there; resolving
+it in `transform` lets each element supply its own --lighting-translate. */
+.curved-lighting::before {
+    background: var(--shade-light);
+    transform: var(--shade-orient) rotateY(0deg) translateZ(var(--lighting-translate));
+}
+.curved-lighting::after {
+    background: var(--shade-dark);
+    transform: var(--shade-orient) rotateY(180deg) translateZ(var(--lighting-translate));
+}
+
+/*
+.curved-lighting .top-bottom::before, .curved-lighting .top-bottom::after {
+    --background-angle: 0deg;
+    --rotation-angle: 90deg;
+    transform: rotateX(var(--rotation-angle)) translateZ(var(--object-size-half-neg));
+    background: linear-gradient(var(--background-angle), hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+    backface-visibility: hidden;
+    border-radius: 50%;
+}
+
+.curved-lighting .top-bottom::after {
+    --background-angle: 180deg;
+    --rotation-angle: -90deg;
+    display: var(--after-display-curved-top);
+}
+
+.highlight {
+    clip-path: var(--clip-path);
+} */
+
+
+
+/* T07A: Sphere */
+
+.sphere {
+    --elevation-surface: var(--object-size-half-neg);
+    transform: 
+        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateY(calc(var(--grid-size) / 2 + var(--elevation)))
+        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        rotateY(calc(var(--scene-y) * -1)) 
+        rotateX(calc(var(--scene-x) * -1))
+    ;
+}
+
+.sphere .face {
+    --border-radius: 50%;
+} 
+
+.sphere .curved-lighting {
+    display: block;
+    overflow: hidden; 
+}
+
+#shade-layer .sphere .face {
+    --lighting-translate: 0px;
+    --lighting-bg-angle: calc(180deg + (atan2(var(--light-scene-normal-13), var(--light-scene-normal-23))));
+    --before-background: linear-gradient(var(--lighting-bg-angle), hsl(0 0 62.5%) 0% 50%, hsl(0 0 37.5%) 50% 100%);
+
+    /* Orientation only — deliberately no rotateY(0/180deg) and no translateZ().
+    Both of those differ per consumer (::before, ::after, .highlight), and a var() written
+    here would be substituted against *this* element's values and frozen before any
+    descendant could override it. The three consumers each append their own tail. */
+    --shade-orient:
+        rotateX(var(--scene-x))
+        rotateY(var(--scene-y))
+        rotateY(var(--light-y))
+        rotateX(var(--light-x))
+    ;
+    --after-display: none;
+    --before-transform: unset;
+}
+
+.sphere .highlight {
+    --lighting-translate: var(--object-size-half);
+    top: calc(50% - var(--object-size) * .05);
+    left: calc(50% - var(--object-size) * .05);
+    width: calc(var(--object-size) * .1);
+    height: calc(var(--object-size) * .1);
+    background-color: hsl(0 0 75%);
+    transform: var(--shade-orient) rotateY(0deg) translateZ(var(--lighting-translate));
+}
+
+
+#shadow-layer .object.sphere {
+    transform: 
+        translateY(calc(((var(--elevation) / sin(var(--light-x))) * cos(var(--light-x)) * 1)))
+        scaleY(calc(1 / sin(var(--light-x))))   
+        rotateX(calc(var(--light-x) * -1)) 
+        rotateY(calc(var(--light-y) * -1))
+        translateX(calc((var(--x-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+        translateZ(calc((var(--z-pos) - (var(--cell-size) / (var(--cell-size) / 2))) * var(--object-size)))
+    ;
+}
+
+#shadow-layer .sphere .face {
+    transform: rotateY(var(--light-y)) rotateX(var(--light-x));
+} 
+
+.sphere .face:nth-child(n + 2) {
+    display: none;
 }
