@@ -40,7 +40,7 @@ marked dismissed, with the reasoning, rather than removed.
 | F9 | *(new)* Column 1 of the face chain orphaned by F1 | **Done** — commented out 2026-08-08 |
 | F10 | Residual body-level dead properties | **Open, low priority** — plus `--face-normal-11/-21/-31`, added 2026-08-08 |
 | F11 | `--light-scene-normal-13/-23` registered `inherits: false`; sphere gradient frozen | **Done** — incl. F11a placement, F11b T07 registrations |
-| F12 | Scope the shade chain off the sphere's hidden faces | **Open, recommended** — ~18%, no DOM change, needs `:where()` |
+| F12 | Scope the shade chain off unused faces (all shapes) | **Done** — 2.5–17% by scene, no DOM change |
 | F13 | Gradient angle vs. rotated pseudo-element | **Closed, no action** — no measurable difference |
 
 ### Commits
@@ -522,33 +522,60 @@ constants in the sphere, but `styles2.css:1594-1595` overrides both for cylinder
 (`var(--lightness-bright)` / `var(--lightness-dark)`). They stay variables. Their home on
 `.curved-lighting` is better than styles2's, which buried them in `#shade-layer .sphere .face`.
 
-### F12 — Scope the shade chain off the sphere's hidden faces — **~18%, no DOM change**
+### F12 — Scope the shade chain off unused faces — **done, 2.5–17% depending on scene**
 
-**Raised:** 2026-08-08. **Status: open, recommended. Measured, with a required `:where()` caveat.**
+**Raised:** 2026-08-08. **Status: done** (this commit).
 
-`tabs.js:284` gives every object 12 faces; the sphere uses one and hides the rest with
-`.sphere .face:nth-child(n + 2) { display: none }` (`styles.css:1425`). Per the P3
-clarification those hidden faces still resolve their own style, so the question is whether the
-25-declaration `#shade-layer .face` block can be kept off them **without** a wrapper element —
-identical DOM across shapes is what makes shape switching a pure class change, and that is
-worth preserving.
+`tabs.js:267` gives every object 12 faces whatever its shape; only the dodecahedron uses all
+12. Per the P3 clarification those hidden faces still resolve their own style, so the
+25-declaration `#shade-layer .face` block ran in full on every invisible face and the result
+was discarded. The fix keeps it off them **without** a wrapper element, so identical DOM
+across shapes — and therefore class-only shape switching — is preserved.
 
-**It can, and it is worth ~18% of style recalc.** Narrowing the live rule's `selectorText` at
-runtime, §2-compliant methodology (45 objects / 540 faces, never-repeating values, forced
-synchronous recalc, 200-iteration warm-up, A/B ×5, median of 150):
-
-| `#shade-layer .face` selector | Median | vs baseline |
+| Shape | Faces used | Wasted |
 |---|---|---|
-| `#shade-layer .face` (today) | 6.7 ms | — |
-| narrowed to skip the sphere's hidden faces | 5.5 ms | **−17.9%** |
-| narrowed **and** hidden faces detached from the DOM | 4.7 ms | −30% |
+| sphere | 1 | 11 |
+| tetrahedron | 4 | 8 |
+| pyramid | 5 | 7 |
+| slope / slope-corner | 5 | 7 |
+| cube *(default shape)* | 6 | 6 |
+| dodecahedron | 12 | 0 |
 
-So the hidden faces cost ~2.0 ms in total, split roughly **1.2 ms declarations / 0.8 ms bare
-element overhead**. The declarations are the larger half and the only half reachable from CSS.
-The residual 0.8 ms is flat per-element style-resolution overhead that nothing in CSS removes —
-not `display`, not `content-visibility`, not `contain`, not `initial` overrides. That part
-needs fewer elements, i.e. per-shape face generation in `tabs.js`, and is not recommended
-while uniform DOM is a goal.
+Still to port from `styles2.css`, with the counts their arms will need: cylinder `n+4`
+(`:1631`), cone `n+5` (`:1678`), hemisphere `n+3` (`:1768`), octantsphere `n+5` (`:1925`),
+corner-cylinder `n+6` (`:2513`).
+
+**Measured.** §2-compliant (45 objects / 540 faces, never-repeating values, forced synchronous
+recalc, 200-iteration warm-up of both paths, A/B ×9, median of 150):
+
+| Scene | Before | After | Saving |
+|---|---|---|---|
+| All cube | 16.0 ms | 15.6 ms | **2.5%** — raw runs overlap; near noise |
+| Mixed, cube-heavy | 16.7 ms | 14.8 ms | **11.4%** — clean separation, no overlap |
+| All sphere | 7.0 ms | 5.8 ms | **17.1%** |
+
+The saving tracks how many faces a scene wastes *and* how varied their values are. All-cube
+benefits least: it wastes only 6 of 12, and its surplus faces carry no per-face rules, so their
+computed values are largely identical and shared (the mechanism P2 measured). A mixed scene
+benefits most in absolute terms — more variety, less sharing, so each excluded face was
+genuinely costing something.
+
+**What this does not reclaim.** Detaching the hidden faces from the DOM entirely was worth a
+further ~30% on the all-sphere scene. That residual is flat per-element style-resolution
+overhead which nothing in CSS removes — not `display`, not `content-visibility`, not `contain`,
+not `initial` overrides. It needs fewer elements, i.e. per-shape face generation in `tabs.js`,
+which is not recommended while uniform DOM is a goal.
+
+**Verified.** All seven ported shapes render the correct number of visible faces, zero hidden
+faces still compute the chain, and the sphere's `--before-background` is still
+`linear-gradient(211.666deg, …)` with `.curved-lighting::before`'s `matrix3d` and the
+highlight's `translateZ(37.5px)` unchanged. Screenshots of cube and sphere confirm shading,
+highlight and shadow.
+
+**Slope numbering, resolved.** `styles.css` hides slope faces from `n+6`, `styles2.css:1232`
+from `n+7` plus a separate `display: none` on face 3. Not a discrepancy: both use five faces,
+and `styles.css` renumbered them contiguously when "Back" moved from `nth-child(6)` to
+`nth-child(3)`. `n+6` is correct.
 
 #### The selector must not raise specificity — use `:where()`
 
@@ -822,18 +849,19 @@ Verified in Chrome: all three sphere `matrix3d` values byte-identical to pre-ref
 `--lighting-translate` resolves `0px` on the face and `37.5px` on the highlight;
 `--lighting-bg-angle` tracks light and scene changes and returns to `211.666deg` on reset.
 
-### Stage 1c — Scope the shade chain off unused faces (F12) *(next, recommended)*
+### Stage 1c — Scope the shade chain off unused faces (F12) — **IMPLEMENTED**
 
-- [ ] Narrow `#shade-layer .face` so the sphere's hidden faces don't match, using `:where()`
-      throughout to keep both arms at specificity (1,1,0). **Raising specificity silently
-      breaks the sphere gradient — see F12.**
-- [ ] Re-verify the visible face is unchanged (`--before-background` gradient, `--dot-product`,
-      `.curved-lighting::before` matrix) and that hidden faces fall back to initial values
-- [ ] Extend the selector list as each curved shape is ported; keep it adjacent to the
-      `display: none` rules that define which faces are unused
+- [x] Consolidate the five per-shape `display: none` rules into one in T05B; each shape
+      section keeps a one-line pointer comment
+- [x] Narrow `#shade-layer .face` with `:not(:where(…))` so unused faces don't match, keeping
+      specificity at exactly (1,1,0). **Raising it silently breaks the sphere gradient — F12**
+- [x] Verify all seven ported shapes: correct visible-face counts, no hidden face computing
+      the chain, sphere gradient and highlight transform unchanged, screenshots clean
+- [x] Re-measure across three scenes (all-cube, mixed, all-sphere)
+- [ ] Add an arm to **both** lists as each curved shape is ported — counts recorded in F12
 
-**Measured: −17.9% style recalc** at 45 objects / 540 faces, no DOM change, class-only shape
-switching preserved. Larger than anything remaining in Stage 2.
+**Measured: 2.5% (all cube) to 17.1% (all sphere), 11.4% on a realistic mix.** No DOM change,
+class-only shape switching preserved.
 
 ### Stage 2 — Scoping and inheritance *(next)*
 

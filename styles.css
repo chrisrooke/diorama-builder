@@ -809,7 +809,43 @@ T05: Object Setup
     mix-blend-mode: overlay;
 }
 
-#shade-layer .face {
+/* Unused faces.
+Every object is built with 12 faces (tabs.js:267) whatever its shape; only the dodecahedron
+uses all 12. The first list below hides each shape's surplus faces. The second keeps the shade
+chain from being computed on them — `display: none` stops an element's descendants being
+styled, but not the element itself, so without this the whole per-face chain runs on faces
+nobody sees. Measured at -2.5% (all cube) to -17.1% (all sphere) style recalc, -11.4% on a
+realistic mix. See F12 in styles-refactor-plan.md.
+
+THE TWO LISTS MUST AGREE. Add an arm to both when a shape is ported. A missing arm in the
+second list only wastes work; a missing arm in the first list shows a face that should be
+hidden.
+
+Shapes still to port from styles2.css, with the face counts they will need:
+cylinder n+4, cone n+5, hemisphere n+3, octantsphere n+5, corner-cylinder n+6. */
+
+.cube > .face:nth-child(n+7),
+.tetrahedron > .face:nth-child(n+5),
+.pyramid > .face:nth-child(n+6),
+.slope > .face:nth-child(n+6),
+.slope-corner > .face:nth-child(n+6),
+.sphere > .face:nth-child(n+2) {
+    display: none;
+}
+
+/* The :where() is load-bearing. #shade-layer .face is specificity (1,1,0); :where()
+contributes zero and :not() takes the specificity of its most specific argument, so this stays
+exactly (1,1,0). Drop the :where() and the rule climbs to (1,3,0), outranks
+#shade-layer .sphere .face (1,2,0), and silently replaces the sphere's gradient with a flat
+--shade-front. */
+#shade-layer .face:not(:where(
+    .cube > .face:nth-child(n+7),
+    .tetrahedron > .face:nth-child(n+5),
+    .pyramid > .face:nth-child(n+6),
+    .slope > .face:nth-child(n+6),
+    .slope-corner > .face:nth-child(n+6),
+    .sphere > .face:nth-child(n+2)
+)) {
     --face-x-calc: calc(var(--face-x-deg) * -1);
     --face-y-calc: var(--face-y-deg);
 
@@ -978,9 +1014,7 @@ T05: Object Setup
 .cube .face:nth-child(6) {
     --face-x-deg: 90deg; /* Top */
 }
-.cube .face:nth-child(n+7) {
-    display: none;
-}
+/* Faces 7-12 hidden by the consolidated unused-faces rule in T05B. */
 
 
 
@@ -1013,9 +1047,7 @@ T05: Object Setup
 .tetrahedron .face:nth-child(4) {
     --face-y-deg: 120deg; /* Right */
 }
-.tetrahedron .face:nth-child(n+5) {
-    display: none;
-}
+/* Faces 5-12 hidden by the consolidated unused-faces rule in T05B. */
 
 
 
@@ -1064,9 +1096,7 @@ T05: Object Setup
 .pyramid .face:nth-child(5) {
     --face-y-deg: -90deg; /* Left */
 }
-.pyramid .face:nth-child(n+6) {
-    display: none;
-}
+/* Faces 6-12 hidden by the consolidated unused-faces rule in T05B. */
 
 
 /* T06D: Slopes */
@@ -1105,9 +1135,9 @@ T05: Object Setup
 .slope .face:nth-child(5), .slope-corner .face:nth-child(5) {
     --face-y-deg: -90deg; /* Left */
 }
-.slope .face:nth-child(n+6), .slope-corner .face:nth-child(n+6) {
-    display: none;
-}
+/* Faces 6-12 hidden by the consolidated unused-faces rule in T05B.
+Note: styles2.css:1232 hides from n+7 and hides face 3 separately — the same five faces,
+renumbered contiguously here when "Back" moved from nth-child(6) to nth-child(3). */
 .slope .face:nth-child(4), .slope .face:nth-child(5)::after, .slope-corner .face:nth-child(4), .slope-corner .face:nth-child(5)::after,
 .slope-corner .face:first-child, .slope-corner .face:nth-child(3)::after {
     --clip-path: polygon(0% 100%, 100% 0, 100% 100%);
@@ -1422,6 +1452,4 @@ it in `transform` lets each element supply its own --lighting-translate. */
     transform: rotateY(var(--light-y)) rotateX(var(--light-x));
 } 
 
-.sphere .face:nth-child(n + 2) {
-    display: none;
-}
+/* Faces 2-12 hidden by the consolidated unused-faces rule in T05B. */
