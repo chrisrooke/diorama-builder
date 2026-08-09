@@ -817,13 +817,14 @@ exactly (1,1,0). Drop the :where() and the rule climbs to (1,3,0), outranks
     --s-fy: sin(var(--face-y-calc));
     --c-fy: cos(var(--face-y-calc));
 
-    --face-normal-11: var(--c-fy);
+    /* 11, 21, 31 declared on cylinder and cone first face */
+    /* --face-normal-11: var(--c-fy); */
     /* --face-normal-12: calc(var(--s-fy) * var(--s-fx)); */
     --face-normal-13: calc(var(--s-fy) * var(--c-fx));
-    --face-normal-21: 0;
+    /* --face-normal-21: 0; */
     /* --face-normal-22: var(--c-fx); */
     --face-normal-23: calc(-1 * var(--s-fx));
-    --face-normal-31: calc(-1 * var(--s-fy));
+    /* --face-normal-31: calc(-1 * var(--s-fy)); */
     /* --face-normal-32: calc(var(--s-fx) * var(--c-fy)); */
     --face-normal-33: calc(var(--c-fx) * var(--c-fy));
 
@@ -1503,6 +1504,9 @@ it in `transform` lets each element supply its own --lighting-translate. */
 #shade-layer .cylinder .face:first-child, #shade-layer .cone .face:first-child 
 /* , #shade-layer .cone .face.left::before, #shade-layer .cone .face.right::before  */
 {
+    --face-normal-11: var(--c-fy);
+    --face-normal-21: 0;
+    --face-normal-31: calc(-1 * var(--s-fy));
     --face-object-normal-11: calc(var(--object-normal-11) * var(--face-normal-11) + var(--object-normal-12) * var(--face-normal-21) + var(--object-normal-13) * var(--face-normal-31));
     --face-object-normal-21: calc(var(--object-normal-21) * var(--face-normal-11) + var(--object-normal-22) * var(--face-normal-21) + var(--object-normal-23) * var(--face-normal-31));
     --face-object-normal-31: calc(var(--object-normal-31) * var(--face-normal-11) + var(--object-normal-32) * var(--face-normal-21) + var(--object-normal-33) * var(--face-normal-31));
