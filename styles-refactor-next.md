@@ -34,6 +34,47 @@ resolved by events:
 
 But F9's underlying pattern reappeared in a new place — see **N1** below.
 
+### Landed 2026-08-09 — curved-lighting / cylinder / top-bottom audit
+
+A pass over the newly added cylinder, `.curved-lighting` and `.top-bottom` styles, covering
+registration coverage and repeated/unnecessary calcs.
+
+- **Every custom property in the file is now registered**, apart from the two deliberate
+  exceptions (`--clip-path`, F2; `--before-background`, which holds gradients rather than a
+  `<color>`). 21 new `@property` rules. Three had to be `inherits: true` — `--cone-angle`,
+  `--bright-dot-product`, `--lightness-bright/-dark` — because they are declared on the object
+  and read on `.highlight` / `.top-bottom::before`, which is the same shape as the F11 bug.
+- **`--grid-centre` + `--object-offset-x/-z` hoisted.** The grid-centring expression was
+  spelled out in four transforms; two of them (`.sphere`, `#shadow-layer .object.sphere`) had
+  reintroduced the **F6 bug** — `calc(var(--cell-size) / (var(--cell-size) / 2))`, which is
+  always 2. Verified: at `--cell-size: 4` and `7` the sphere's translation now matches the
+  cube's exactly; before the fix it would have sat at the cell-2 position at any grid size.
+- **Dead dark-lighting chain commented out** on `#shade-layer .cylinder, .cone` — 11
+  declarations per object per frame including two `sign()` and four `pow()` calls. Nothing read
+  `--dark-dot-product` because `--lightness-dark` is the constant `37.5%`. Registrations parked
+  alongside. Uncomment together with `styles2.css:1569-1571`.
+- **`background` on `#shade-layer .cylinder, .cone` commented out.** It reads
+  `--background-rotation`, which is declared nowhere in this repo — so the `var()` is invalid at
+  computed-value time and the whole declaration has always been dropped. The gradient has never
+  painted, in this file or `styles2.css`. Left off rather than switched on.
+- **Two `atan2` calls removed** from `.cylinder .curved-lighting`'s transform by reusing angles
+  the shade layer already computes: `atan2(a, c)` is `--face-bright-y-calc`, and
+  `atan2(-px, pz)` is `calc(var(--face-y-deg) * -1)`. Verified still live, not frozen — the
+  transform tracks light-y and scene-y and returns exactly to its rest value.
+- **Duplicate declarations dropped:** `display: block` on `.cylinder .curved-lighting` (already
+  set by the `.sphere, .cylinder, .cone` rule above), and the `.curved-lighting::after` arm of
+  `#shade-layer .face::after`, which lost both its declarations to T07's own rule at equal
+  specificity later in the file.
+
+**Verified** by diffing computed values across 9 shapes × 2 poses (default and a
+scene/light/object/position-rotated pose) against the pre-change file: 4 differences out of 18
+cases, all explained — two are float-serialisation noise at 3e-6 on the cylinder/cone
+`.curved-lighting` matrix, and two are the cone's highlight transform going from `none`
+(invalid, because `--cone-angle` was undeclared) to a real matrix. That transform still resolves
+to `scaleX(0)` at both poses, so nothing changes on screen. Cube, tetrahedron, pyramid, slope,
+slope-corner, dodecahedron and sphere are byte-identical in both poses. Screenshots of cylinder
+and sphere confirm shading, cap, highlight and shadow.
+
 ---
 
 ## 1. Current state
@@ -110,6 +151,45 @@ Per-shape checklist, derived from what the sphere and cylinder ports actually ne
       **Expected value: small.** `-21` is the constant `0` and the other two are single `var()`
       reads. Do it for consistency with F1, not for speed — F12 measured a comparable
       25-declaration change at effectively zero on an all-cube scene.
+- [ ] **N2 — share the highlight's angles and sizing across the three curved shapes.**
+      The two highlight rules are unconnected, and each repeats magic numbers the other also
+      uses. `.sphere .highlight` sets all four of `top`/`left`/`width`/`height` from
+      `calc(50% - var(--object-size) * .05)` and `calc(var(--object-size) * .1)`;
+      `.cylinder .highlight, .cone .highlight` repeats the same two literals for `left` and
+      `width` only, deliberately leaving `top`/`height` at the inherited `0` / `100%` so the
+      cylinder's highlight is a full-height stripe rather than a dot.
+
+      The `.05` is only ever *half* of the `.1` — that is the relationship that keeps the
+      highlight centred, and right now it is expressed nowhere. Change either literal on its own
+      and the highlight goes off-centre with no error. Replace both with a connected pair:
+
+      ```css
+      --highlight-size: calc(var(--object-size) * .1);
+      --highlight-inset: calc(50% - var(--highlight-size) / 2);
+      ```
+
+      declared once on `.curved-lighting` (which all three shapes share) so each shape overrides
+      only the axis that genuinely differs.
+
+      The **angles and translate need the same treatment**. Today the sphere orients its
+      highlight with `var(--shade-orient) rotateY(0deg) translateZ(var(--lighting-translate))`
+      and sets `--lighting-translate: var(--object-size-half)`, while cylinder/cone write
+      `translateZ(var(--object-size-half))` literally and then apply
+      `rotateX(var(--highlight-angle)) scaleX(var(--highlight-scale))`. That is the same
+      translate expressed two different ways, and `--highlight-angle` exists for two of the three
+      shapes. Giving the sphere `--highlight-angle: 0deg` and routing all three through
+      `--lighting-translate` would let one transform serve all three, with each shape supplying
+      only its own angle and scale. Do this **before** hemisphere and octantsphere land, since
+      both will need a highlight and would otherwise be a third and fourth copy.
+
+- [ ] **N3 — `--face-x-deg: 0deg` on `#shade-layer .cylinder, .cone` computes three constants.**
+      It feeds `--face-x-calc` (`0deg`), `--s-fx` (`0`) and `--c-fx` (`1`), which are then
+      multiplied through `--face-bright-normal-a/b/c` — so `-b` is always `0` and its term in
+      `--bright-dot-product` always vanishes. Folding the constants would remove three
+      declarations and a multiply per cylinder/cone object. **Not done deliberately:** it would
+      hard-code the cylinder's "the bright band is vertical" assumption into the shared
+      cylinder/cone rule, and the cone is unfinished. Revisit once the cone works, and only then.
+
 - [ ] **Give `#environment-layer` a `.scene` wrapper.** It is the only layer without one
       (`index.html:9`), so scene rotation is written out across 3 elements + 4 pseudo-elements
       at `styles.css:582` instead of being inherited once. Carried from F8; still true.
@@ -122,6 +202,11 @@ Per-shape checklist, derived from what the sphere and cylinder ports actually ne
 
 - [ ] `styles.css:783` still says "Shapes still to port… cylinder n+4, cone n+5". Both are
       ported, and cone uses `n+3`. Correct it to the three shapes actually remaining.
+- [ ] **The cone has no `--cone-angle`.** `.cylinder` sets `90deg`; the cone needs `63.435deg`
+      (`styles2.css:1643`, "side angle of cone, height = diameter") and sets nothing, so it now
+      falls back to the registered initial `90deg` and behaves as a cylinder. Before registration
+      it fell back to *invalid*, which is why `.cone .highlight`'s transform resolved to `none`.
+      Part of "TO UPDATE: cone doesn't work".
 - [ ] F10's body-level dead properties (`--light-normal-11/12/21/22/31/32`,
       `--scene-normal-31/32/33`). **Recommendation: leave them.** Body-level, so the cost
       doesn't scale with object count, and the remaining port needs them back. Listed so it
@@ -210,7 +295,14 @@ Each of these has already cost real debugging time once.
 5. **Scope per-object and per-face properties; leave scene- and light-level singletons on
    `body`.** Scoping a document-wide singleton to `.sphere` makes it worse — N spheres
    recomputing one identical value N times. (F11a)
-6. **Chrome under-reports this architecture by ~2× at rest**, because it shares computed style
+6. **An unregistered, undeclared `var()` silently deletes the whole declaration.** Not just the
+   `var()` — the entire property becomes invalid at computed-value time and falls back to
+   inherited/initial. `--background-rotation` killed a gradient on `#shade-layer .cylinder` that
+   consequently never painted in either stylesheet, and `--cone-angle` killed `.cone .highlight`'s
+   whole `transform`. Both looked like "that feature isn't finished" rather than a typo.
+   Registering every property is what makes this class of failure impossible — but note that
+   registering an already-broken one *switches the declaration on*, which is a visual change.
+7. **Chrome under-reports this architecture by ~2× at rest**, because it shares computed style
    across elements whose values match. See §5.
 
 ---
