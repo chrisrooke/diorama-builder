@@ -1103,15 +1103,22 @@ exactly (1,1,0). Drop the :where() and the rule climbs to (1,3,0), outranks
 
 .slope, .slope-corner {
     --side-height: hypot(var(--object-size),var(--object-size));
-
     --corner1: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
     --corner2: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
     --corner4: calc((var(--corner-Rx) * var(--object-size-half)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
     --corner5: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half)) - (var(--corner-Rz) * var(--object-size-half)));
     --corner6: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half)));
     --corner8: calc((var(--corner-Rx) * var(--object-size-half-neg)) + (var(--corner-Ry) * var(--object-size-half-neg)) - (var(--corner-Rz) * var(--object-size-half-neg)));
+}
+
+.slope {
     --elevation-surface: calc(min(var(--corner1), var(--corner2), var(--corner4), var(--corner5), var(--corner6), var(--corner8)));
 }
+
+.slope-corner {
+    --elevation-surface: calc(min(var(--corner2), var(--corner4), var(--corner5), var(--corner6), var(--corner8)));
+}
+
 
 .slope .face, .slope-corner .face {
     --face-translate: var(--object-size-half);
@@ -1146,6 +1153,7 @@ renumbered contiguously here when "Back" moved from nth-child(6) to nth-child(3)
 .slope-corner .face:first-child::after, .slope-corner .face:nth-child(3) {
     --clip-path: polygon(0% 0%, 100% 100%, 0% 100%);
 }
+
 
 
 
@@ -1453,3 +1461,19 @@ it in `transform` lets each element supply its own --lighting-translate. */
 } 
 
 /* Faces 2-12 hidden by the consolidated unused-faces rule in T05B. */
+
+
+
+/* T07C: Cylinder + Cone */
+
+    .object.cylinder, .object.cone {
+        --elevation-surface: calc(
+            -1 * (
+                (max(var(--object-normal-22), calc(var(--object-normal-22) * -1)) * var(--object-size-half))
+                + (var(--object-size-half) * sqrt(
+                    pow(var(--object-normal-21), 2)
+                    + pow(var(--object-normal-23), 2)
+                ))
+            )
+        );
+    }
