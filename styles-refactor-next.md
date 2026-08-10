@@ -28,11 +28,9 @@ resolved by events:
 
 | Original item | Now |
 |---|---|
-| F9 — comment out `--face-normal-11/-21/-31` (orphaned column 1) | **Do not.** The cylinder/cone port brought column 1 back. All three are read at `styles.css:1506-1508`. Open question Q5 is answered: yes, it came back. |
+| F9 — comment out `--face-normal-11/-21/-31` (orphaned column 1) | **Do not.** The cylinder/cone port brought column 1 back. Open question Q5 is answered: yes, it came back. It is now scoped to its only consumer: commented out in the shared `#shade-layer .face:not(:where(…))` block (`styles.css:891`, `:894`, `:897`, along with the dependent `--face-object-normal-11/-21/-31` at `:902`, `:905`, `:908`) and declared on `#shade-layer .cylinder .face:first-child, #shade-layer .cone .face:first-child` at `:1599-1604`. |
 | F12 — add an arm to both face lists for cylinder and cone | **Done.** Both lists carry `.cylinder > .face:nth-child(n+4)` and `.cone > .face:nth-child(n+3)`. |
 | §4a F11 — `--dot-product-light-scene-face-object-scene-x` may be abandoned | **Restored**, scoped to `#shade-layer .cylinder .face:first-child, #shade-layer .cone .face:first-child` (`:1516`). |
-
-But F9's underlying pattern reappeared in a new place — see **N1** below.
 
 ### Landed 2026-08-09 — curved-lighting / cylinder / top-bottom audit
 
@@ -140,17 +138,6 @@ Per-shape checklist, derived from what the sphere and cylinder ports actually ne
 
 ### C. Scoping and inheritance (Stage 2)
 
-- [ ] **N1 — `--face-normal-11/-21/-31` are computed on every shade face, read by two.**
-      Declared in the shared `#shade-layer .face:not(:where(…))` block (`:820`, `:823`, `:826`);
-      the only consumers are `#shade-layer .cylinder .face:first-child` and
-      `.cone .face:first-child` (`:1506-1508`). Every cube, sphere, pyramid, slope and
-      dodecahedron face computes all three and discards them. Same pattern as F1 and F3.
-      **Fix:** move the three declarations down into the cylinder/cone first-child rule that
-      already reads them. Safe — both rules match the same element, so the declarations combine
-      regardless of `inherits`, and `--s-fy`/`--c-fy` are still in scope there.
-      **Expected value: small.** `-21` is the constant `0` and the other two are single `var()`
-      reads. Do it for consistency with F1, not for speed — F12 measured a comparable
-      25-declaration change at effectively zero on an all-cube scene.
 - [ ] **N2 — share the highlight's angles and sizing across the three curved shapes.**
       The two highlight rules are unconnected, and each repeats magic numbers the other also
       uses. `.sphere .highlight` sets all four of `top`/`left`/`width`/`height` from
@@ -181,14 +168,6 @@ Per-shape checklist, derived from what the sphere and cylinder ports actually ne
       `--lighting-translate` would let one transform serve all three, with each shape supplying
       only its own angle and scale. Do this **before** hemisphere and octantsphere land, since
       both will need a highlight and would otherwise be a third and fourth copy.
-
-- [ ] **N3 — `--face-x-deg: 0deg` on `#shade-layer .cylinder, .cone` computes three constants.**
-      It feeds `--face-x-calc` (`0deg`), `--s-fx` (`0`) and `--c-fx` (`1`), which are then
-      multiplied through `--face-bright-normal-a/b/c` — so `-b` is always `0` and its term in
-      `--bright-dot-product` always vanishes. Folding the constants would remove three
-      declarations and a multiply per cylinder/cone object. **Not done deliberately:** it would
-      hard-code the cylinder's "the bright band is vertical" assumption into the shared
-      cylinder/cone rule, and the cone is unfinished. Revisit once the cone works, and only then.
 
 - [ ] **Give `#environment-layer` a `.scene` wrapper.** It is the only layer without one
       (`index.html:9`), so scene rotation is written out across 3 elements + 4 pseudo-elements

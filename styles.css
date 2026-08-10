@@ -255,7 +255,7 @@ set it yet — see "TO UPDATE: cone doesn't work". */
 @property --face-bright-y-deg { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 @property --face-bright-y-calc { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
 @property --face-bright-normal-a { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --face-bright-normal-b { syntax: "<number>"; inherits: false; initial-value: 0; }
+/* @property --face-bright-normal-b { syntax: "<number>"; inherits: false; initial-value: 0; } */
 @property --face-bright-normal-c { syntax: "<number>"; inherits: false; initial-value: 1; }
 @property --bright-dot-product { syntax: "<number>"; inherits: true; initial-value: 0.5; }
 @property --lightness-bright { syntax: "<percentage>"; inherits: true; initial-value: 62.5%; }
@@ -1529,22 +1529,28 @@ against the scene instead of applying its own object rotation. */
 }
 
 #shade-layer .cylinder, #shade-layer .cone {
-    --face-x-deg: 0deg;
-    --face-x-calc: calc(var(--face-x-deg) * -1);
+    /* --face-x-deg: 0deg; */
+    /* --face-x-calc: calc(var(--face-x-deg) * -1);
     --s-fx: sin(var(--face-x-calc));
-    --c-fx: cos(var(--face-x-calc));
+    --c-fx: cos(var(--face-x-calc)); */
+    /* --face-x-calc: 0deg;
+    --s-fx: 0;
+    --c-fx: 1; */
 
     --face-bright-y-deg: calc(atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
     /* Note --face-bright-y-calc is the negation of the above, i.e. atan2(a, c), which is
     exactly the first rotateY of .cylinder .curved-lighting. It is read there, so it inherits. */
     --face-bright-y-calc: calc(var(--face-bright-y-deg) * -1);
 
-    --face-bright-normal-a: calc(sin(var(--face-bright-y-calc)) * var(--c-fx));
-    --face-bright-normal-b: calc(-1 * var(--s-fx));
-    --face-bright-normal-c: calc(var(--c-fx) * cos(var(--face-bright-y-calc)));
+    /* --face-bright-normal-a: calc(sin(var(--face-bright-y-calc)) * var(--c-fx)); */
+    --face-bright-normal-a: sin(var(--face-bright-y-calc));
+    /* --face-bright-normal-b: calc(-1 * var(--s-fx)); */
+    /* --face-bright-normal-b: 0; */
+    /* --face-bright-normal-c: calc(var(--c-fx) * cos(var(--face-bright-y-calc))); */
+    --face-bright-normal-c: cos(var(--face-bright-y-calc));
     --bright-dot-product: calc(
         (var(--face-bright-normal-a) * var(--light-cylinder-normal-a)) +
-        (var(--face-bright-normal-b) * var(--light-cylinder-normal-b)) +
+        /* (var(--face-bright-normal-b) * var(--light-cylinder-normal-b)) + */
         (var(--face-bright-normal-c) * var(--light-cylinder-normal-c))
     );
 
