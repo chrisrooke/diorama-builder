@@ -76,7 +76,7 @@ T01: Property Declarations
 @property --light-scene-normal-23 { syntax: "<number>"; inherits: true; initial-value: 0.5732233047; }
 /* @property --light-scene-normal-31 { syntax: "<number>"; inherits: false; initial-value: -0.6123724357; } */
 /* @property --light-scene-normal-32 { syntax: "<number>"; inherits: false; initial-value: -0.2803300859; } */
-/* @property --light-scene-normal-33 { syntax: "<number>"; inherits: false; initial-value: 0.7391989197; } */
+/* @property --light-scene-normal-33 { syntax: "<number>"; inherits: true; initial-value: 0.7391989197; } */
 
 @property --shade-calc { syntax: "<number>"; inherits: true; initial-value: 0.995037; }
 

@@ -209,21 +209,6 @@ Per-shape checklist, derived from what the sphere and cylinder ports actually ne
 
 ## 3. To investigate
 
-### I1 — Layer toggling *(probably the best effort/reward left in the file)*
-
-Each of the three scene layers costs roughly a third of style recalc, and hiding one with a
-single `display: none` reclaims all of it — measured at **−47%** on `#shade-layer` (P3).
-`content-visibility: hidden` and full DOM detachment measure identically; `visibility: hidden`
-reclaims nothing and is 17% *worse*.
-
-Proposal: make the shadow and/or shade layer user-toggleable, and/or auto-disable one during an
-active drag and restore on release. One line of CSS, independent of every other item here.
-
-**Caveat that constrains the design:** this works because `#shade-layer` is a *root* with ~1000
-elements beneath it. `display: none` skips everything *below* the hidden element; the element's
-own computed style is still fully resolved. Hiding leaves buys much less — that's exactly what
-F12 had to work around.
-
 ### I2 — Is the `--shade-front` → `--before-background` → `background` indirection still worth collapsing?
 
 Listed in the original as a Stage 2 collapse (F8, held). **The case has likely reversed.** When
@@ -233,17 +218,6 @@ against the generic `--shade-front` passthrough at `:868-871`. That indirection 
 those overrides hang off.
 
 Investigate whether anything is still redundant, but the default answer is now probably "keep".
-
-### I3 — `--light-scene-normal-33`
-
-Registration (`styles.css:79`) and declaration (`:491`) are both still commented out. Its
-original consumer, the x-direction dot product, has since been restored for cylinder/cone —
-but that implementation reads `--light-normal-13/23/33` directly and does **not** use it.
-
-So it is currently inert with no pending consumer. Decide whether the remaining shapes need it;
-if one does, uncomment **both** the registration and the declaration, and register it
-`inherits: true` (its siblings `-13`/`-23` were an `inherits: false` bug that silently froze the
-sphere gradient at its initial value — F11).
 
 ### I4 — `will-change: transform` on `.object`
 
