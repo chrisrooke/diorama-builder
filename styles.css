@@ -253,13 +253,18 @@ The rest are declared and read inside a single rule, so they stay non-inheriting
 
 Initial values are the default pose (light 60/0, scene -30/45, object unrotated), which gives
 --light-cylinder-normal-a/b/c = 0 / 0.8660254038 / 0.5 and therefore --face-bright-y-deg 0deg.
---cone-angle is the cylinder's 90deg; the cone needs 63.435deg (styles2.css:1643) and does not
-set it yet — see "TO UPDATE: cone doesn't work". */
+--cone-angle's initial 90deg is the cylinder's; the cone overrides it to 63.435deg in T07Bii.
+
+--cone-angle is what tilts the highlight's normal off horizontal, so the highlight peaks when
+the light is perpendicular to the slant rather than at 0deg elevation. Because the cylinder's
+90deg collapses that tilt away (sin 90 = 1, cos 90 = 0), --face-bright-normal-a/-b/-c and
+--bright-dot-product are declared twice — the cylinder's two-term form below, and the cone's
+three-term form in T07Bii. Keep the two in step. */
 @property --cone-angle { syntax: "<angle>"; inherits: true; initial-value: 90deg; }
 @property --face-bright-y-deg { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
 @property --face-bright-y-calc { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
 @property --face-bright-normal-a { syntax: "<number>"; inherits: false; initial-value: 0; }
-/* @property --face-bright-normal-b { syntax: "<number>"; inherits: false; initial-value: 0; } */
+@property --face-bright-normal-b { syntax: "<number>"; inherits: false; initial-value: 0; }
 @property --face-bright-normal-c { syntax: "<number>"; inherits: false; initial-value: 1; }
 @property --bright-dot-product { syntax: "<number>"; inherits: true; initial-value: 0.5; }
 @property --lightness-bright { syntax: "<percentage>"; inherits: true; initial-value: 62.5%; }
@@ -1541,30 +1546,10 @@ against the scene instead of applying its own object rotation. */
 }
 
 #shade-layer .cylinder, #shade-layer .cone {
-    /* --face-x-deg: 0deg; */
-    /* --face-x-calc: calc(var(--face-x-deg) * -1);
-    --s-fx: sin(var(--face-x-calc));
-    --c-fx: cos(var(--face-x-calc)); */
-    /* --face-x-calc: 0deg;
-    --s-fx: 0;
-    --c-fx: 1; */
-
     --face-bright-y-deg: calc(atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
     /* Note --face-bright-y-calc is the negation of the above, i.e. atan2(a, c), which is
     exactly the first rotateY of .cylinder .curved-lighting. It is read there, so it inherits. */
     --face-bright-y-calc: calc(var(--face-bright-y-deg) * -1);
-
-    /* --face-bright-normal-a: calc(sin(var(--face-bright-y-calc)) * var(--c-fx)); */
-    --face-bright-normal-a: sin(var(--face-bright-y-calc));
-    /* --face-bright-normal-b: calc(-1 * var(--s-fx)); */
-    /* --face-bright-normal-b: 0; */
-    /* --face-bright-normal-c: calc(var(--c-fx) * cos(var(--face-bright-y-calc))); */
-    --face-bright-normal-c: cos(var(--face-bright-y-calc));
-    --bright-dot-product: calc(
-        (var(--face-bright-normal-a) * var(--light-cylinder-normal-a)) +
-        /* (var(--face-bright-normal-b) * var(--light-cylinder-normal-b)) + */
-        (var(--face-bright-normal-c) * var(--light-cylinder-normal-c))
-    );
 
     /* Dark half of the lighting model, plus the two peak/multiplier terms. Commented out per
     the §0 convention: --lightness-dark is the constant below, so nothing reads
@@ -1572,6 +1557,11 @@ against the scene instead of applying its own object rotation. */
     multipliers. Eleven declarations per cylinder/cone object per frame, including two sign()
     and four pow() calls. Uncomment together with styles2.css:1569-1571, which is where
     --lightness-bright/-dark are computed from the dot products instead of being constants.
+
+    --c-fx/--s-fx below are no longer declared on the object — they were folded into the
+    cylinder and cone forms of --face-bright-normal-*. Restoring this block as written gives
+    the registered initials 1/0, which is the cylinder's slant and silently wrong for the cone.
+    Substitute sin(--cone-angle) for --c-fx and -cos(--cone-angle) for --s-fx, per T07Bii.
 
     --face-dark-y-deg: calc(180deg + atan2(calc(var(--light-cylinder-normal-a) * -1),var(--light-cylinder-normal-c)));
     --face-dark-y-calc: calc(var(--face-dark-y-deg) * -1);
@@ -1703,6 +1693,18 @@ Two atan2 calls per cylinder/cone saved, and the two angles can no longer drift 
     --cone-angle: 90deg;
 }
 
+/* The cone's general form (T07Bii) with --cone-angle 90deg substituted in: sin(90deg) is 1 and
+cos(90deg) is 0, so the slant factor drops out of -a/-c and -b vanishes with it. Two trig calls
+and one multiply per cylinder per frame rather than the cone's five and four. */
+#shade-layer .cylinder {
+    --face-bright-normal-a: sin(var(--face-bright-y-calc));
+    --face-bright-normal-c: cos(var(--face-bright-y-calc));
+    --bright-dot-product: calc(
+        (var(--face-bright-normal-a) * var(--light-cylinder-normal-a)) +
+        (var(--face-bright-normal-c) * var(--light-cylinder-normal-c))
+    );
+}
+
 .cylinder .face:nth-child(3) {
     --face-x-deg: 90deg;
 }
@@ -1748,6 +1750,27 @@ Two atan2 calls per cylinder/cone saved, and the two angles can no longer drift 
     --face-x-deg: calc(90deg - var(--cone-angle));
 }
 
+/* The bright normal tilted up onto the cone's slant, which is what puts the highlight's peak at
+the slant angle instead of at 0deg elevation. styles2.css builds it from --face-x-deg via
+--face-x-calc/--s-fx/--c-fx; those three are folded out here because --face-x-deg is itself
+90deg - --cone-angle, so --face-x-calc is --cone-angle - 90deg and
+
+  --c-fx      ==  cos(--cone-angle - 90deg)  ==  sin(--cone-angle)
+  -1 * --s-fx == -sin(--cone-angle - 90deg)  ==  cos(--cone-angle)
+
+Same values, three fewer registered properties per cone per frame. Substituting the cylinder's
+--cone-angle 90deg collapses this back to the two-term form in T07Bi. */
+#shade-layer .cone {
+    --face-bright-normal-a: calc(sin(var(--face-bright-y-calc)) * sin(var(--cone-angle)));
+    --face-bright-normal-b: cos(var(--cone-angle));
+    --face-bright-normal-c: calc(cos(var(--face-bright-y-calc)) * sin(var(--cone-angle)));
+    --bright-dot-product: calc(
+        (var(--face-bright-normal-a) * var(--light-cylinder-normal-a)) +
+        (var(--face-bright-normal-b) * var(--light-cylinder-normal-b)) +
+        (var(--face-bright-normal-c) * var(--light-cylinder-normal-c))
+    );
+}
+
 #shade-layer .cone .face:nth-child(3), #shade-layer .cone .face:nth-child(4) {
     --before-background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
     --before-transform: scaleX(calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1));
@@ -1758,6 +1781,7 @@ Two atan2 calls per cylinder/cone saved, and the two angles can no longer drift 
     height: calc(sqrt(pow(1, 2) + pow(.5, 2)) * var(--object-size));
     top: unset;
     bottom: 0;
+    clip-path: var(--clip-path);
 }
 
 #shadow-layer .cone {
