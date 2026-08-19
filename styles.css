@@ -15,6 +15,10 @@ T06: Flat-Face Objects
     T06D: Slope and Slope Corner
     T06E: Dodecahedron
 T07: Curved Objects
+    T07A: Sphere
+    T07B: Cylinder + Cone
+        T0CBi: Cylinder
+        T07Bii: Cone
 */
 
 
@@ -132,8 +136,8 @@ T01: Property Declarations
 @property --py { syntax: "<number>"; inherits: false; initial-value: 0.5773502692; }
 @property --pz { syntax: "<number>"; inherits: true; initial-value: 0.7071067812; }
 @property --light-norm-denom { syntax: "<number>"; inherits: false; initial-value: 0.5; }
-@property --light-px { syntax: "<number>"; inherits: false; initial-value: 0; }
-@property --light-pz { syntax: "<number>"; inherits: false; initial-value: 1; }
+@property --light-px { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --light-pz { syntax: "<number>"; inherits: true; initial-value: 1; }
 
 @property --grid-centre { syntax: "<number>"; inherits: true; initial-value: 2; }
 /* The object's offset from the grid centre, in both directions. Declared on .object and read
@@ -206,7 +210,7 @@ so there isn't a reliable computed initial-value to lock in yet.
 @property --face-object-normal-33 { syntax: "<number>"; inherits: false; initial-value: 1; }
 
 @property --dot-product { syntax: "<number>"; inherits: false; initial-value: 0.5; }
-@property --dot-product-light-scene-face-object-scene-x { syntax: "<number>"; inherits: false; initial-value: 0; }
+@property --dot-product-light-scene-face-object-scene-x { syntax: "<number>"; inherits: true; initial-value: 0; }
 
 /* @property --face-object-scene-normal-11 { syntax: "<number>"; inherits: false; initial-value: 0.7071067812; } */
 /* @property --face-object-scene-normal-12 { syntax: "<number>"; inherits: false; initial-value: 0; } */
@@ -237,7 +241,7 @@ Initial value is 180deg + atan2(0.3535533906, 0.5732233047), the default light/s
 @property --lighting-translate { syntax: "<length>"; inherits: true; initial-value: 0px; }
 @property --lighting-bg-angle { syntax: "<angle>"; inherits: false; initial-value: 211.6655075486deg; }
 
-/* T07C: cylinder + cone. The .curved-lighting subtree (.top-bottom, .highlight) is built only
+/* T07B: cylinder + cone. The .curved-lighting subtree (.top-bottom, .highlight) is built only
 inside #shade-layer (tabs.js:284), so everything here is shade-layer-only.
 
 Three of these must inherit — they are declared on the object and read a generation or two
@@ -859,7 +863,7 @@ cylinder n+4, cone n+5, hemisphere n+3, octantsphere n+5, corner-cylinder n+6. *
 .slope-corner > .face:nth-child(n+6),
 .sphere > .face:nth-child(n+2),
 .cylinder > .face:nth-child(n+4),
-.cone > .face:nth-child(n+3)
+.cone > .face:nth-child(n+5)
  {
     display: none;
 }
@@ -877,7 +881,7 @@ exactly (1,1,0). Drop the :where() and the rule climbs to (1,3,0), outranks
     .slope-corner > .face:nth-child(n+6),
     .sphere > .face:nth-child(n+2),
     .cylinder > .face:nth-child(n+4),
-    .cone > .face:nth-child(n+3)
+    .cone > .face:nth-child(n+5)
 )) {
     --face-x-calc: calc(var(--face-x-deg) * -1);
     --face-y-calc: var(--face-y-deg);
@@ -1459,7 +1463,7 @@ against the scene instead of applying its own object rotation. */
 
 
 
-/* T07C: Cylinder + Cone */
+/* T07B: Cylinder + Cone */
 
 /* TO UPDATE: cone doesn't work */
 .cylinder, .cone {
@@ -1475,6 +1479,17 @@ against the scene instead of applying its own object rotation. */
 }
 
 .cylinder .face:first-child , .cone .face:first-child {
+    --face-translate: 0;
+}
+
+.cylinder .face:nth-child(n+2), .cone .face:nth-child(2) {
+    --face-translate: var(--object-size-half);
+    --border-radius: 50%;
+    --face-x-deg: -90deg;  
+}
+
+#object-layer .cylinder, #shade-layer .cylinder,
+#object-layer .cone, #shade-layer .cone {
     /* Rotation of the object taking into account scene's rotation: 
     scene * object = scene row * object column*/
     /* Commented out as only needed on curved elements. Property declarations intact. 
@@ -1499,19 +1514,16 @@ against the scene instead of applying its own object rotation. */
     --px: calc(var(--object-scene-normal-31) / var(--norm-denom));
     /* --py: calc(var(--object-scene-normal-32) / var(--norm-denom)); */
     --pz: calc(var(--object-scene-normal-33) / var(--norm-denom));
-
-    --face-translate: 0;
-    --face-y-deg: calc(atan2(var(--px), var(--pz)));
-}
-
-.cylinder .face:nth-child(n+2), .cone .face:nth-child(n+2) {
-    --face-translate: var(--object-size-half);
-    --border-radius: 50%;
-    --face-x-deg: -90deg;  
 }
 
 #object-layer .cylinder .face::after, #object-layer .cone .face::after {
     background-color: oklch(0.75 0.1639 0);
+}
+
+#object-layer .cylinder .face:first-child, #shade-layer .cylinder .face:first-child,
+#object-layer .cone .face:first-child, #shade-layer .cone .face:first-child
+{
+    --face-y-deg: calc(atan2(var(--px), var(--pz)));
 }
 
 #shade-layer .cylinder, #shadow-layer .cylinder, #shade-layer .cone, #shadow-layer .cone {
@@ -1600,7 +1612,7 @@ against the scene instead of applying its own object rotation. */
 }
 
 #shade-layer .cylinder .face:first-child, #shade-layer .cone .face:first-child 
-/* , #shade-layer .cone .face.left::before, #shade-layer .cone .face.right::before  */
+, #shade-layer .cone .face:nth-child(3), #shade-layer .cone .face:nth-child(4) 
 {
     --face-normal-11: var(--c-fy);
     --face-normal-21: 0;
@@ -1668,7 +1680,7 @@ Two atan2 calls per cylinder/cone saved, and the two angles can no longer drift 
     display: var(--after-display-curved-top);
 }
 
-#shadow-layer .cylinder .face:first-child, #shadow-layer .cone .face:first-child {
+#shadow-layer .cylinder, #shadow-layer .cone {
     /*
     From the light's view, which direction is the cylinder's long axis pointing, expressed as a unit vector
     */
@@ -1677,13 +1689,15 @@ Two atan2 calls per cylinder/cone saved, and the two angles can no longer drift 
     --light-norm-denom: sqrt(pow(var(--light-cylinder-normal-a), 2) + pow(var(--light-cylinder-normal-c), 2));
     --light-px: calc(var(--light-cylinder-normal-a) / var(--light-norm-denom));
     --light-pz: calc(var(--light-cylinder-normal-c) / var(--light-norm-denom));
+}
 
+#shadow-layer .cylinder .face:first-child, #shadow-layer .cone .face:first-child {
     --face-y-deg: calc(atan2(var(--light-px), var(--light-pz)));
 }
 
 
 
-/* T07Ci: Cylinder */
+/* T07Bi: Cylinder */
 
 .cylinder {
     --cone-angle: 90deg;
@@ -1695,4 +1709,69 @@ Two atan2 calls per cylinder/cone saved, and the two angles can no longer drift 
 
 .cylinder .top-bottom::after {
     --after-display-curved-top: block;
+}
+
+
+
+/* T07Bii: Cone */
+
+.cone {
+    --cone-angle: 63.435deg; /* side angle of cone, height = diameter */
+}
+
+.cone .face:not(:nth-child(2)) {
+    --clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.cone .face:nth-child(3), .cone .face:nth-child(4) {
+    --face-translate: 0;
+}
+
+.cone .face:nth-child(3) {
+    --face-y-deg: var(--silhouette-left-angle);
+}
+
+.cone .face:nth-child(4) {
+    --face-y-deg: var(--silhouette-right-angle);
+}
+
+#object-layer .cone, #shade-layer .cone {
+    --object-scene-normal-32: calc( var(--scene-normal-31) * var(--object-normal-12) + var(--scene-normal-32) * var(--object-normal-22) + var(--scene-normal-33) * var(--object-normal-32));
+    --scene-x-angle: asin(var(--object-scene-normal-32));
+    --scene-x-abs: max(var(--scene-x-angle), calc(var(--scene-x-angle)) * -1);
+    --silhouette-offset: calc(asin(tan(var(--scene-x-abs)) / tan(var(--cone-angle))));
+    --silhouette-left-angle: calc(var(--silhouette-offset) + atan2(var(--px), var(--pz)));
+    --silhouette-right-angle: calc(var(--silhouette-offset) * -1 + atan2(var(--px), var(--pz)));
+}
+
+#shade-layer .cone  {
+    --face-x-deg: calc(90deg - var(--cone-angle));
+}
+
+#shade-layer .cone .face:nth-child(3), #shade-layer .cone .face:nth-child(4) {
+    --before-background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
+    --before-transform: scaleX(calc(2 * clamp(-1, round(down, var(--dot-product-light-scene-face-object-scene-x)), 0) + 1));
+}
+
+.cone .highlight {
+    transform-origin: 50% 100%;
+    height: calc(sqrt(pow(1, 2) + pow(.5, 2)) * var(--object-size));
+    top: unset;
+    bottom: 0;
+}
+
+#shadow-layer .cone {
+    --shadow-dot-product: calc(-1 * (var(--object-normal-12) * var(--light-normal-13) + var(--object-normal-22) * var(--light-normal-23) + var(--object-normal-32) * var(--light-normal-33)));
+    --shadow-x-angle: asin(var(--shadow-dot-product));
+    --shadow-x-abs: max(var(--shadow-x-angle), calc(var(--shadow-x-angle) * -1));
+    --shadow-offset: calc(asin(tan(var(--shadow-x-abs)) / tan(var(--cone-angle))));
+    --shadow-left-angle: calc(var(--shadow-offset) + atan2(var(--light-px), var(--light-pz)));
+    --shadow-right-angle: calc(var(--shadow-offset) * -1 + atan2(var(--light-px), var(--light-pz)));     
+}
+
+#shadow-layer .cone .face:nth-child(3) {
+    --face-y-deg: var(--shadow-left-angle);
+}
+#shadow-layer .cone .face:nth-child(4) {
+    --face-y-deg: var(--shadow-right-angle);
 }
