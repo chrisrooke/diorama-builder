@@ -276,6 +276,31 @@ three-term form in T07Bii. Keep the two in step. */
 @property --rotation-angle { syntax: "<angle>"; inherits: false; initial-value: 90deg; }
 @property --after-display-curved-top { syntax: "block | none"; inherits: false; initial-value: block; }
 
+/* T07Bii: cone silhouette. Two arms of the same geometry -- the view arm (--scene-*, --silhouette-*)
+run from the camera, the shadow arm (--shadow-*) run from the light. Both were unregistered, so
+every var() in the chain re-substituted its whole token stream into the next one and the values
+only collapsed to a number at --face-y-deg; these registrations fold each step to one value.
+
+inherits matters more than usual here: --silhouette-*-angle, --shadow-*-angle and
+--cone-side-visible are declared on the .cone figure but read on its .face children, so they must
+inherit. The rest are declared and read on the same element and deliberately do not. */
+@property --scene-x-angle { syntax: "<angle>"; inherits: false; initial-value: 30deg; }
+@property --scene-x-abs { syntax: "<angle>"; inherits: false; initial-value: 30deg; }
+@property --cone-side-visible { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --silhouette-offset { syntax: "<angle>"; inherits: false; initial-value: 16.7786deg; }
+@property --silhouette-left-angle { syntax: "<angle>"; inherits: true; initial-value: -28.2214deg; }
+@property --silhouette-right-angle { syntax: "<angle>"; inherits: true; initial-value: -61.7786deg; }
+/* Initial 1 (no flip) rather than the default state's -1, unlike the convention above: this one
+is a mirror multiplier, and an unexplained mirror is a worse failure than an unflipped gradient. */
+@property --gradient-direction { syntax: "<number>"; inherits: false; initial-value: 1; }
+
+@property --shadow-dot-product { syntax: "<number>"; inherits: false; initial-value: -0.8660254038; }
+@property --shadow-x-angle { syntax: "<angle>"; inherits: false; initial-value: -60deg; }
+@property --shadow-x-abs { syntax: "<angle>"; inherits: false; initial-value: 60deg; }
+@property --shadow-offset { syntax: "<angle>"; inherits: false; initial-value: 60deg; }
+@property --shadow-left-angle { syntax: "<angle>"; inherits: true; initial-value: 60deg; }
+@property --shadow-right-angle { syntax: "<angle>"; inherits: true; initial-value: -60deg; }
+
 /* Dark half of the cylinder/cone lighting model. Commented out with the rest of the chain —
 nothing reads --dark-dot-product while --lightness-dark is the constant 37.5%. Registrations
 kept per the §0 convention; uncomment both when styles2.css:1571 is ported.
@@ -1748,8 +1773,19 @@ and one multiply per cylinder per frame rather than the cone's five and four. */
 #object-layer .cone, #shade-layer .cone {
     --object-scene-normal-32: calc( var(--scene-normal-31) * var(--object-normal-12) + var(--scene-normal-32) * var(--object-normal-22) + var(--scene-normal-33) * var(--object-normal-32));
     --scene-x-angle: asin(var(--object-scene-normal-32));
-    --scene-x-abs: max(var(--scene-x-angle), calc(var(--scene-x-angle)) * -1);
-    --silhouette-offset: calc(asin(tan(var(--scene-x-abs)) / tan(var(--cone-angle))));
+    --scene-x-abs: abs(var(--scene-x-angle));
+
+    /* Is any of the cone's side still facing us? Past a view tilt equal to the cone's own slant
+    we are looking down over the silhouette edge and there is no side left to shade, so the
+    gradient is collapsed to zero width rather than drawn at some arbitrary flip. */
+    --cone-side-visible: max(0, sign(var(--cone-angle) - var(--scene-x-abs)));
+
+    /* The clamp() is load-bearing. tan(--scene-x-abs) / tan(--cone-angle) passes 1 for exactly
+    the tilts --cone-side-visible zeroes out, and asin() of >1 is NaN. That NaN would take
+    --silhouette-*-angle with it and drop --face-y-deg back to its registered initial 0deg,
+    collapsing both silhouette faces onto each other instead of failing visibly. */
+    --silhouette-offset: calc(asin(clamp(-1, tan(var(--scene-x-abs)) / tan(var(--cone-angle)), 1)));
+
     --silhouette-left-angle: calc(var(--silhouette-offset) + atan2(var(--px), var(--pz)));
     --silhouette-right-angle: calc(var(--silhouette-offset) * -1 + atan2(var(--px), var(--pz)));
 }
@@ -1780,31 +1816,10 @@ Same values, three fewer registered properties per cone per frame. Substituting 
 }
 
 
-/* Same two declarations the shared cylinder/cone rule above already gives these faces (they are
-in its selector list); kept in step with it -- see the round(up) note there. */
-#shade-layer .cone .face:nth-child(3), #shade-layer .cone .face:nth-child(4) {
-    --before-background: linear-gradient(90deg, hsl(0 0 var(--lightness-bright)) 0% 50%, hsl(0 0 var(--lightness-dark)) 50% 100%);
-    --before-transform: scaleX(calc(2 * clamp(0, round(up, var(--dot-product-light-scene-face-object-scene-x)), 1) - 1));
-}
-
 @container style(--object-scene-normal-32: 0) {
     #shade-layer .cone .face:nth-child(3), #shade-layer .cone .face:nth-child(4) {
         display: none;
     }
-}
-
-#object-layer .cone,
-#shade-layer .cone {
-    --cone-side-visible:
-        max(0, sign(var(--cone-angle) - var(--scene-x-abs)));
-
-    --silhouette-offset: calc(
-        asin(clamp(
-            -1,
-            tan(var(--scene-x-abs)) / tan(var(--cone-angle)),
-            1
-        ))
-    );
 }
 
 #shade-layer .cone .face:nth-child(3),
@@ -1829,13 +1844,17 @@ in its selector list); kept in step with it -- see the round(up) note there. */
     clip-path: var(--clip-path);
 }
 
+/* The silhouette chain again, run from the light's position instead of the camera's: the cone's
+shadow is bounded by the same two slant edges, picked out by whoever is looking at it. Keep this
+arm and the view arm above in step -- they take the same clamp for the same reason, here because
+--shadow-x-abs passes --cone-angle across light-x 64..116. */
 #shadow-layer .cone {
     --shadow-dot-product: calc(-1 * (var(--object-normal-12) * var(--light-normal-13) + var(--object-normal-22) * var(--light-normal-23) + var(--object-normal-32) * var(--light-normal-33)));
     --shadow-x-angle: asin(var(--shadow-dot-product));
-    --shadow-x-abs: max(var(--shadow-x-angle), calc(var(--shadow-x-angle) * -1));
-    --shadow-offset: calc(asin(tan(var(--shadow-x-abs)) / tan(var(--cone-angle))));
+    --shadow-x-abs: abs(var(--shadow-x-angle));
+    --shadow-offset: calc(asin(clamp(-1, tan(var(--shadow-x-abs)) / tan(var(--cone-angle)), 1)));
     --shadow-left-angle: calc(var(--shadow-offset) + atan2(var(--light-px), var(--light-pz)));
-    --shadow-right-angle: calc(var(--shadow-offset) * -1 + atan2(var(--light-px), var(--light-pz)));     
+    --shadow-right-angle: calc(var(--shadow-offset) * -1 + atan2(var(--light-px), var(--light-pz)));
 }
 
 #shadow-layer .cone .face:nth-child(3) {
