@@ -1,5 +1,10 @@
 # styles.css — Engineering Review & Refactor Plan
 
+> **Superseded as the working reference (2026-08-22).** Read
+> [`styles-refactor-status.md`](styles-refactor-status.md) first — it carries the current
+> measurements, the consolidated to-do list, and a table of the claims below that it
+> corrects. This document is kept for its reasoning and its record of what was done.
+
 **Review date:** 2026-08-03
 **Last updated:** 2026-08-08
 **Branch:** `style-refactor`

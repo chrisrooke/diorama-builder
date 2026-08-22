@@ -1,5 +1,10 @@
 # styles.css — Outstanding Work
 
+> **Superseded as the working reference (2026-08-22).** Read
+> [`styles-refactor-status.md`](styles-refactor-status.md) first — it carries the current
+> measurements, the consolidated to-do list, and a table of the claims below that it
+> corrects. This document is kept for its reasoning and its record of what was done.
+
 **Created:** 2026-08-09
 **Branch:** `style-refactor`
 **Companion to:** `styles-refactor-plan.md` — the full engineering review and the running record

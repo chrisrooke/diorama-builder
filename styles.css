@@ -363,6 +363,12 @@ Both are set on the object but read by its faces, so both must inherit */
 
 /* Horizontal radius (phi * object-size-half) and height (object-size-half / 2phi)
 of the two mid-band vertex layers */
+/* The dodecahedron's face translate, named separately from --face-translate because
+the corner chain reads it on the *figure* while the faces read it on themselves.
+--face-translate is registered inherits: false, so a value declared only on
+.dodecahedron .face is invisible to .dodecahedron -- which is how the corner chain
+came to be reading the 5vh initial instead. inherits: true so both can see it. */
+@property --dodecahedron-face-translate { syntax: "<length>"; inherits: true; initial-value: 6.5450849719vh; }
 @property --dodecahedron-midcorner-depth { syntax: "<length>"; inherits: false; initial-value: -8.0901699438vh; }
 @property --dodecahedron-midcorner-height { syntax: "<length>"; inherits: false; initial-value: -1.5450849719vh; }
 
@@ -884,7 +890,12 @@ second list only wastes work; a missing arm in the first list shows a face that 
 hidden.
 
 Shapes still to port from styles2.css, with the face counts they will need:
-cylinder n+4, cone n+5, hemisphere n+3, octantsphere n+5, corner-cylinder n+6. */
+hemisphere n+3, octantsphere n+5, corner-cylinder n+6. These are estimates read off
+styles2.css; verify per shape as each one lands rather than trusting the table.
+
+The dodecahedron is deliberately absent from both lists: it is the only shape that uses all
+twelve faces. That is also why it is the most expensive shape in the file, at 2.0x (Safari)
+to 2.7x (Chrome) the cost of a cube -- see styles-refactor-status.md section 1. */
 
 .cube > .face:nth-child(n+7),
 .tetrahedron > .face:nth-child(n+5),
@@ -1231,19 +1242,21 @@ renumbered contiguously here when "Back" moved from nth-child(6) to nth-child(3)
     --c-18: 0.95105651629;        /* cos(18deg) */
     --s-18: 0.30901699437;        /* sin(18deg) */
 
-    --dodecahedron-midcorner-depth: calc(var(--pentagon-bl-y) * 2 * var(--object-size));
-    --dodecahedron-midcorner-height: calc(var(--face-translate) + var(--dodecahedron-midcorner-depth));
+    --dodecahedron-face-translate: calc(var(--object-size-half) * (pow(var(--phi), 2) / 2));
 
-    --corner1: calc((var(--corner-Rx) * var(--pentagon-top-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-top-y) * var(--object-size)));
-    --corner2: calc((var(--corner-Rx) * var(--pentagon-tl-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-tl-y) * var(--object-size)));
-    --corner3: calc((var(--corner-Rx) * var(--pentagon-bl-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-bl-y) * var(--object-size)));
-    --corner4: calc((var(--corner-Rx) * var(--pentagon-br-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-br-y) * var(--object-size)));
-    --corner5: calc((var(--corner-Rx) * var(--pentagon-tr-x) * var(--object-size)) + (var(--corner-Ry) * var(--face-translate)) - (var(--corner-Rz) * var(--pentagon-tr-y) * var(--object-size)));
-    --corner6: calc((var(--corner-Rx) * var(--pentagon-top-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-top-y) * var(--object-size) * -1));
-    --corner7: calc((var(--corner-Rx) * var(--pentagon-tl-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-tl-y) * var(--object-size) * -1));
-    --corner8: calc((var(--corner-Rx) * var(--pentagon-bl-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-bl-y) * var(--object-size) * -1));
-    --corner9: calc((var(--corner-Rx) * var(--pentagon-br-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-br-y) * var(--object-size) * -1));
-    --corner10: calc((var(--corner-Rx) * var(--pentagon-tr-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-tr-y) * var(--object-size) * -1));
+    --dodecahedron-midcorner-depth: calc(var(--pentagon-bl-y) * 2 * var(--object-size));
+    --dodecahedron-midcorner-height: calc(var(--dodecahedron-face-translate) + var(--dodecahedron-midcorner-depth));
+
+    --corner1: calc((var(--corner-Rx) * var(--pentagon-top-x) * var(--object-size)) + (var(--corner-Ry) * var(--dodecahedron-face-translate)) - (var(--corner-Rz) * var(--pentagon-top-y) * var(--object-size)));
+    --corner2: calc((var(--corner-Rx) * var(--pentagon-tl-x) * var(--object-size)) + (var(--corner-Ry) * var(--dodecahedron-face-translate)) - (var(--corner-Rz) * var(--pentagon-tl-y) * var(--object-size)));
+    --corner3: calc((var(--corner-Rx) * var(--pentagon-bl-x) * var(--object-size)) + (var(--corner-Ry) * var(--dodecahedron-face-translate)) - (var(--corner-Rz) * var(--pentagon-bl-y) * var(--object-size)));
+    --corner4: calc((var(--corner-Rx) * var(--pentagon-br-x) * var(--object-size)) + (var(--corner-Ry) * var(--dodecahedron-face-translate)) - (var(--corner-Rz) * var(--pentagon-br-y) * var(--object-size)));
+    --corner5: calc((var(--corner-Rx) * var(--pentagon-tr-x) * var(--object-size)) + (var(--corner-Ry) * var(--dodecahedron-face-translate)) - (var(--corner-Rz) * var(--pentagon-tr-y) * var(--object-size)));
+    --corner6: calc((var(--corner-Rx) * var(--pentagon-top-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--dodecahedron-face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-top-y) * var(--object-size) * -1));
+    --corner7: calc((var(--corner-Rx) * var(--pentagon-tl-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--dodecahedron-face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-tl-y) * var(--object-size) * -1));
+    --corner8: calc((var(--corner-Rx) * var(--pentagon-bl-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--dodecahedron-face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-bl-y) * var(--object-size) * -1));
+    --corner9: calc((var(--corner-Rx) * var(--pentagon-br-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--dodecahedron-face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-br-y) * var(--object-size) * -1));
+    --corner10: calc((var(--corner-Rx) * var(--pentagon-tr-x) * var(--object-size) * -1) + (var(--corner-Ry) * var(--dodecahedron-face-translate) * -1) - (var(--corner-Rz) * var(--pentagon-tr-y) * var(--object-size) * -1));
 
     --corner11: calc(
         (var(--corner-Rx) * var(--c-90) * var(--dodecahedron-midcorner-depth)) +
@@ -1306,7 +1319,7 @@ renumbered contiguously here when "Back" moved from nth-child(6) to nth-child(3)
         79.39% 90.45%,
         97.55% 34.55%
     );
-    --face-translate: calc(var(--object-size-half) * (pow(var(--phi), 2) / 2));
+    --face-translate: var(--dodecahedron-face-translate);
 
 }
 .dodecahedron .face:first-child {
