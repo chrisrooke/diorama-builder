@@ -50,7 +50,12 @@ Two, both small, both verified:
 Nothing else in the stylesheet was touched, and the computed-value diff in §6 confirms it.
 The other candidates measured this round (§4a, §4b, §7 D1) did not earn their diff.
 
-**Where the effort should go next**, in order: §7.
+**Everything in §11-§13 is measured but *not* implemented.** Those numbers come from
+simulating each change via CSSOM against the live stylesheet, which is enough to rank them
+and not enough to ship them. The one ready to build is **§7 AL** — move the light chain off
+`body` — which has a full placement spec and a recorded trap (§9 trap 10).
+
+**Where the effort should go next**, in order: §7, ranked per §13d.
 
 ---
 
@@ -498,14 +503,53 @@ The stale T05B comment (old item D / C1 below) was corrected in the same pass.
 
 ### A. Worth doing
 
+> Ordered per §13d, which is the ranking that survives the project's real design constraints.
+> **AL comes before A0** — it is smaller, but it is the only one with no correctness hazard.
+
+- [ ] **AL — Move the light chain off `body`.** Measurements in §13a; the placement spec is
+      here. `#object-layer` and `#environment-layer` read **nothing** from the
+      light chain, so every light drag invalidates a third of the DOM for values that layer
+      cannot read. Worth **−24% of style recalc and −13% of a light-drag frame at 45 mixed
+      objects, −29% of the frame at 200 cubes**, with no layer hidden, no shading simplified
+      and no constraint on the future shading model.
+
+      **Not yet implemented.** Exact placement:
+
+      | Element | Gets | Why |
+      |---|---|---|
+      | `#shade-layer` | the light block **+ `--light-scene-normal-13/23`** | The generic per-face chain and the sphere/cylinder/cone rules. The scene×light product is read only by `#shade-layer .sphere .face`, so it belongs here alone. |
+      | `#shadow-layer` | the light block | Projection transforms (`.object`, `.object.sphere`, `.sphere .face`, `.scene`) and the curved-shape shadow chains. |
+      | `#light` | **only `--light-x` and `--light-y`** | It needs the two angles for its own transform, not the normal matrix. |
+
+      **`#light` is the one that is easy to miss.** It sits *inside* `#object-layer .scene`
+      (`tabs.js` does `getElementById('light').before(objectFig)`), so it inherits from
+      neither of the other two. Without its own copy the light marker freezes at the
+      registered initial while everything else moves — silent, no error, the F11 shape.
+
+      **Three rules, not one shared ancestor.** DOM order is environment → shadow → object →
+      shade, so the two layers that need light are siblings with `#object-layer` between
+      them. No wrapper contains both and excludes the object layer.
+
+      **`tabs.js`:** `bindSlider('light-x', '--light-x-unit')` and its `-y` pair stop writing
+      to `body` and write to those three elements instead. `--light-*-unit` is registered
+      `inherits: false`, so a value left on `body` genuinely will not reach them — that is the
+      mechanism that produces the win, and also why a missed element falls back silently to
+      the initial (60 / 0). Unlike A0 there is no fan-out: three static elements that always
+      exist, nothing to re-seed on object creation or shape switching.
+
+      **Do at the same time:** update the comment at `styles.css:765` — see trap 10 in §9.
+
 - [ ] **A0 — De-inherit the scene-rotation chain. See §11d.** Scene rotation currently
       invalidates every element in all three layers to recompute values that, for flat shapes,
       cannot have changed. Driving it through a non-inheriting property on the six elements
       whose transforms read it takes a 45-cube scene from **27.45 ms to 0.0 ms**, and a mixed
       scene from 29.6 to 7.6 ms once the scene-normal block moves onto the curved shape
-      classes. **This is the largest change available in this document, by a wide margin**,
-      and it is the one that raises the object ceiling rather than trimming the cost of the
-      current one.
+      classes — 40 → 60 fps on a scene drag at 45 objects.
+
+      Larger than AL but riskier: it fans scene values out to a *changing* set of curved
+      figures and must re-seed them on creation and on shape switch (§11d). Do AL first and
+      reuse the pattern. Note that §11d/§12 have since shown this does **not** raise the
+      ceiling on its own — at 100+ objects the frame is paint-bound (§11g).
 
 - [ ] **A1 — Decide the object budget, per interaction.** Not one number — §11b/§11e:
       editing an object is 0.2-0.6 ms of style plus paint, and is comfortable to ~45 objects
@@ -516,8 +560,15 @@ The stale T05B comment (old item D / C1 below) was corrected in the same pass.
 - [ ] **A1b — Reduce what the shade layer costs to paint. See §11g.** At 100 objects it is
       **71% of the frame** on a scene drag, and its `mix-blend-mode: overlay` alone is 43%.
       This, not style, is what caps the object count — A0 without it gets 100 cubes from
-      65.8 ms to 58.3 ms and no further. Bigger than every calc-level change in this document
-      combined.
+      65.8 ms to 58.3 ms and no further.
+
+      **The obvious route is closed.** Folding the shade layer into the object layer was the
+      recommendation in §12d; it is withdrawn (§13). Curved shapes shade through a
+      `.curved-lighting` subtree rather than a flat colour, and the shading model is intended
+      to grow in layers — folding it would have to be unfolded again. What is left, none of
+      it measured: constraining the composited area (`contain: paint`, a tighter containing
+      block — §11g measured −57% from quartering the painted area), and finding out whether
+      the blend can be cheaper without changing what it draws.
 
 - [ ] **A2 — Decide whether the dodecahedron really needs all 12 faces.** It is the only
       shape without a `display: none` arm and the most expensive in the file, 2.0× a cube in
@@ -635,6 +686,25 @@ add from this round. (For *measurement* traps, see §10.)
    declaration, and on this architecture that is worth +7% (Chrome) to +21% (Safari) for ~50
    of them. Any ablation measurement needs a sham control or it is reading the method, not the
    code (§2b).
+
+10. **The generic `.object` rule matches all three layers — which makes AL (§7) fragile to a
+    future port.** The commented-out `--object-light-normal-11…33` block at `styles.css:765`
+    lives on `.object` and reads `--light-normal-*`. Today that is harmless because it is
+    commented out. Once AL scopes the light chain to `#shade-layer` / `#shadow-layer`, the
+    object layer no longer has light at all — so uncommenting that block for the hemisphere or
+    octantsphere port would silently resolve it against the registered initials in
+    `#object-layer`, with no invalid value and no warning.
+
+    The block's own comment already says "Re-intro on `.cylinder`, `.cone`, `.sphere`
+    classes". AL turns that from tidiness into a correctness requirement, and the re-intro
+    must additionally be scoped to the **`#shade-layer` / `#shadow-layer` arms** — which is
+    right anyway, since object-light normals feed shading and shadows, never geometry. Update
+    the comment when AL lands.
+
+    Related, and the reason AL is safe today: only `--light-normal-13/23/33` are read
+    downstream. The other six are the F10 orphans (C2 in §7) — declared on `body`, read
+    nowhere. Move the block whole rather than trimming it, since the remaining ports need
+    them back.
 
 ---
 
@@ -916,3 +986,210 @@ Things worth trying against this, none of them measured yet:
 - **Fold the shade layer into the object layer.** The largest change, and the one that
   removes a third of the DOM as well as a blended layer. Everything in §3b and §11g points at
   it; nothing in this document has costed it.
+
+---
+
+## 12. How far can this actually go?
+
+Written in answer to two concrete goals: an **8×8×8 grid** (512 cells) in the builder, and an
+**avatar built from these shapes on a personal site**. They have very different answers.
+
+### 12a. A static scene costs nothing, at any size
+
+| Cubes | Face elements | Build + first layout | Idle frame |
+|---:|---:|---:|---:|
+| 100 | 3,600 | 89 ms | 8.3 ms — 120 fps |
+| 200 | 7,200 | 174 ms | 8.3 ms — 120 fps |
+| 300 | 10,800 | 217 ms | 8.3 ms — 120 fps |
+| **512** | **18,432** | **357 ms** | **8.3 ms — 120 fps** |
+
+Nothing in this document costs anything while nothing is changing. A settled 512-object scene
+idles at the display's refresh rate. The only price is the one-off build — 357 ms at 512, and
+proportionally less below that.
+
+**This is the whole answer for a static or near-static use.** An avatar of 20-40 shapes builds
+in 20-35 ms and then costs literally nothing per frame.
+
+### 12b. Interaction is what has a ceiling
+
+Median rAF interval, Chrome, cubes:
+
+| | 200 objects | 512 objects |
+|---|---:|---:|
+| **As-is — scene drag** | 170.9 ms (6 fps) | 608.3 ms (1.6 fps) |
+| **As-is — one-object drag** | 33.4 ms (30 fps) | 200 ms (5 fps) |
+| Shade layer removed — scene drag | 42.1 ms | 254.6 ms |
+| Shade layer removed — one-object drag | 16.9 ms | 100 ms |
+| Shade **and** shadow removed — scene drag | 33.4 ms (30 fps) | 108.3 ms (9 fps) |
+| Shade **and** shadow removed — one-object drag | **8.3 ms (120 fps)** | 33.3 ms (30 fps) |
+
+Stripped to a single layer — the theoretical floor of this architecture — 512 objects still
+costs 108 ms to rotate the scene. **512 is not reachable interactively**, and no amount of
+CSS tuning gets there. 200 is reachable: with the shade layer folded away it is 30 fps on a
+scene drag and 120 fps on object edits.
+
+### 12c. Occlusion culling helps, but sub-linearly
+
+In a dense voxel grid most cube faces touch a neighbour and cannot be seen. Hiding them with
+`display: none` (which §4b established is free) at 512 objects:
+
+| Faces culled (of the 6 a cube shows) | Scene drag |
+|---|---:|
+| none | 567.6 ms |
+| 2 of 6 | 458.4 ms |
+| 4 of 6 | 350.0 ms |
+| 5 of 6 | 308.4 ms |
+
+Culling 83% of visible faces buys 46%, not 83%. Below a point the cost stops being the faces
+and becomes the 1,536 `.object` figures themselves — the per-object rule, the corner chain,
+and the sheer size of the tree being walked. Worth doing, not sufficient alone.
+
+### 12d. What this means for each goal
+
+**Avatar on a personal site — fine today, with one condition.** Static costs nothing (§12a).
+The condition is that the *scene* must not be continuously rotated: 45 objects is 40 fps
+today and 60 with A0, and an avatar is likely well under that. If it should rotate
+continuously, keep it under ~45 shapes, or rotate it with a plain CSS transform animation on
+the `.scene` wrapper — which, per §11c/§11d, does not invalidate anything if it is driven by
+a non-inheriting property.
+
+**8×8×8 builder — reachable only with a redefinition.** 512 interactive is out. What is in
+reach, roughly in order of what it buys:
+
+> **Items 1 and 3 below are withdrawn — see §13.** The fold (item 1) is impossible for curved
+> shapes and incompatible with a shading model that is meant to grow in layers; the drag-time
+> LOD (item 3) survives for the scene slider but not the light. §13d has the revised ranking.
+
+1. **Fold the shade layer into the object layer** (§11g). Compute the shaded colour directly
+   on each object face from `--dot-product` instead of overlaying a second blended tree.
+   Removes a third of the DOM and the expensive full-viewport blend. Worth 71% of a frame at
+   100 objects, and the difference between 171 ms and 42 ms at 200.
+2. **Make the shadow layer optional.** Another third of the DOM. At 200 objects it is the
+   difference between 42 ms and 33 ms on a scene drag, and 17 ms vs 8.3 ms on object edits.
+3. **Degrade during a drag.** Hide the shade and shadow layers while a world slider is held
+   and restore on release — 512 objects goes from 608 ms to 108 ms per frame. A level-of-detail
+   trick, not an optimisation, and the most direct route to a large grid staying responsive.
+4. **Occlusion-cull interior faces** (§12c) — app-level work in `tabs.js`, worth ~46%.
+5. **A0** (§11d) — necessary but, at these counts, no longer the dominant term.
+6. **Shrink the painted area.** §11g measured −57% from quartering it. A smaller viewport
+   diorama is dramatically cheaper than a full-screen one.
+
+Even with all of that, expect an interactive ceiling around **250-300 objects**, not 512. A
+sparse 8×8×8 — a built structure rather than a solid block — sits comfortably inside that. A
+*solid* 8×8×8 does not, and would need a different rendering approach entirely.
+
+---
+
+## 13. Revised against three design constraints
+
+§11 and §12 were written without knowing three things about where this project is going.
+All three came from the author, all three are correct, and together they kill the largest
+recommendation in §12.
+
+| Constraint | What it rules out |
+|---|---|
+| **Light drags must show the lighting change live.** | The drag-time LOD trick (§12d item 3) for the *light* slider. You cannot hide the shade layer while adjusting the thing the shade layer draws. It survives for **scene** drags, where the camera moves and shading does not change. |
+| **Curved shapes cannot fold their shading into the object layer.** Sphere, cylinder and cone shade through a `.curved-lighting` subtree — gradients, `.top-bottom`, `.highlight` — not a flat colour per face. | The fold (§12d item 1) as a general change. It could still be done for flat faces only, which would cover a cube-only voxel grid — but see the next row. |
+| **The shading model is going to get more complex, in layers.** | The fold entirely. Folding shading into the object layer's face colours means unfolding it again the first time a second shading layer arrives. §12d item 1 is withdrawn. |
+
+That removes the biggest item in §12 and most of item 3. What follows replaces them.
+
+### 13a. The light chain does not belong on `body` either
+
+`#object-layer` reads **nothing** from the light chain — not one declaration. Verified by
+tracing every consumer of `--light-x/y`, `--light-*-calc`, `--s-lx/--c-lx/--s-ly/--c-ly`,
+`--light-normal-11…33` and `--light-scene-normal-13/23`:
+
+| Layer | Consumers of the light chain |
+|---|---|
+| `#object-layer` | **none** |
+| `#environment-layer` | **none** |
+| `#shade-layer` | the generic per-face chain, and the sphere / cylinder / cone rules |
+| `#shadow-layer` | the projection transforms and the curved-shape shadow chains |
+| `#light` | its own transform (the marker dot) |
+
+So every light drag currently invalidates a third of the DOM to recompute values that layer
+cannot read. Moving the whole light block off `body` onto `#shade-layer, #shadow-layer, #light`:
+
+| 45 mixed objects, Chrome | Today | Chain moved off `body` |
+|---|---:|---:|
+| Forced style recalc | 32.8 ms | **24.9 ms  (−24%)** |
+| Light-drag frame | 57.4 ms | **50.0 ms  (−13%)** |
+
+| 200 cubes | Today | Moved |
+|---|---:|---:|
+| Light-drag frame | 175.0 ms | **125.1 ms  (−29%)** |
+
+Shading output verified byte-identical to the body-driven version at a rotated light pose.
+
+**This is a better change than A0**, and not because it is bigger — because it is far safer.
+A0 has to fan scene values out to a *changing* set of curved object figures and re-seed them
+whenever an object is created or switches shape (§11d risks). The light chain moves onto
+**three static elements that always exist**. `tabs.js` writes to three nodes instead of one;
+there is no fan-out, no seeding, and no shape-switch hazard. Do this one first.
+
+> **Status: recommended, not implemented.** The numbers above come from simulating the change
+> via CSSOM, not from an edit to `styles.css`. **The exact placement — which of the three
+> elements gets which declarations, why `#light` needs its own copy, the `tabs.js` change, and
+> the trap it creates for the remaining shape ports — is written up as item AL in §7**, with
+> the trap itself as §9 trap 10. That is the spec to implement from.
+
+### 13b. How much headroom is there for a more complex shading model?
+
+The constraint that killed the fold is also the one worth costing directly. Two ways a
+shading model grows — more maths on the faces that exist, or more elements per face:
+
+| 45 mixed, light drag, forced recalc | | vs baseline |
+|---|---:|---:|
+| Baseline | 31.5 ms | — |
+| +10 calc declarations on every shade face | 34.1 ms | +8% |
+| +20 calc declarations on every shade face | 39.0 ms | +24% |
+| +1 element inside every visible shade face (225 new elements) | 34.1 ms | +8% |
+| +2 elements inside every visible shade face (450 new elements) | 33.5 ms | +6% |
+
+**Both are affordable, and elements are cheaper than they look.** 450 extra shading elements
+cost 6%; doubling the per-face arithmetic costs 24%. Per unit a declaration is ~2.6× cheaper
+than an element, but a shading model needs far more declarations than elements, so in
+practice the maths is what will cost.
+
+The caveat: the elements added here were simple — absolutely positioned, one background
+reading an existing property. Real shading sub-layers carrying their own transforms and
+pseudo-elements will cost more than this. Treat +6% as a floor, not a forecast.
+
+The useful conclusion is that **the shading roadmap is not the thing to worry about.** A
+second shading layer of comparable complexity to the current one lands somewhere around
++25-30%, which at 45 objects is affordable and at 300 is not — the object count is the
+constraint, not the shading.
+
+### 13c. Inconclusive: axis-aligned objects
+
+A voxel grid has every cube at the same rotation, and `styles-refactor-next.md` §5 recorded
+Chrome sharing computed style across elements whose values match (~2× at 45 objects). It does
+not reproduce cleanly at scale. At 200 cubes, axis-aligned vs unique rotations: style recalc
+**134.2 → 153.6 ms** (worse), scene-drag frame **150 → 100.9 ms** (better), one-object drag
+identical. The frame gain is real but I cannot attribute it — plausibly overlap and
+rasterisation rather than style sharing. **Do not count on this**, and do not treat the
+old ~2× figure as applying above ~45 objects without re-measuring.
+
+### 13d. Revised ranking, under the real constraints
+
+1. **Move the light chain off `body`** (§13a; spec in §7 **AL**; trap in §9 trap 10) — −13% to
+   −29% of a light-drag frame, no fidelity cost, three static elements, no JS fan-out. The
+   cheapest real win available, and **not yet implemented**.
+2. **A0 — move the scene chain off `body`** (§11d) — scene drags 40 → 60 fps at 45 objects.
+   Bigger, but carries the seeding hazard; do it after §13a and reuse the pattern.
+3. **Drag-time LOD for the scene slider only** — hide shade and shadow while the *camera*
+   moves, restore on release. Still valid: 608 → 108 ms at 512 objects. Not available for the
+   light slider.
+4. **Occlusion-cull interior faces** (§12c) — ~46% at high density, app-level work.
+5. **Shrink the painted area** (§11g) — −57% from quartering it.
+6. **A user-facing "hide shadows" toggle** — a third of the DOM, and a feature rather than an
+   optimisation.
+
+**Withdrawn:** folding the shade layer into the object layer (§12d item 1), and drag-time
+LOD on the light slider (§12d item 3, light half only).
+
+With the fold off the table, the realistic interactive ceiling is **lower than §12d's
+250-300** — the shade layer is staying, and it is 50% of style recalc and 71% of a
+high-count frame. A sparse 8×8×8 of ~100-150 placed objects is a reasonable target. A solid
+512 is not, and would need a rendering approach this architecture does not have.
